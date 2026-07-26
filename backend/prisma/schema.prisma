@@ -1,0 +1,107 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         Int      @id @default(autoincrement())
+  name       String
+  email      String   @unique
+  password   String
+  phone      String?
+  role       String   @default("customer")
+  created_at DateTime @default(now())
+  
+  cartItems  CartItem[]
+  orders     Order[]
+  
+  @@map("users")
+}
+
+model Category {
+  id       Int       @id @default(autoincrement())
+  name     String
+  
+  products Product[]
+  
+  @@map("categories")
+}
+
+model Product {
+  id             Int      @id @default(autoincrement())
+  category_id    Int?
+  name           String
+  description    String   @db.Text
+  price          Decimal  @db.Decimal(10, 2)
+  original_price Decimal? @db.Decimal(10, 2)
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+  
+  category       Category?      @relation(fields: [category_id], references: [id])
+  images         ProductImage[]
+
+  @@map("products")
+}
+
+model ProductImage {
+  id         Int     @id @default(autoincrement())
+  product_id Int
+  image_url  String
+  is_primary Boolean @default(false)
+  
+  product    Product @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  
+  @@map("product_images")
+}
+
+model CartItem {
+  id         Int @id @default(autoincrement())
+  user_id    Int
+  product_id Int
+  quantity   Int @default(1)
+  created_at DateTime @default(now())
+  
+  user       User    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  
+  @@map("cart")
+}
+
+model Order {
+  id               Int         @id @default(autoincrement())
+  order_id         String      @unique
+  user_id          Int?
+  shipping_address Json
+  subtotal         Decimal     @db.Decimal(10, 2)
+  discount         Decimal     @db.Decimal(10, 2)
+  cod_fee          Decimal     @db.Decimal(10, 2)
+  total_amount     Decimal     @db.Decimal(10, 2)
+  payment_method   String
+  payment_status   String      @default("pending")
+  payment_id       String?
+  status           String      @default("processing")
+  created_at       DateTime    @default(now())
+  updated_at       DateTime    @updatedAt
+  
+  user             User?       @relation(fields: [user_id], references: [id])
+  items            OrderItem[]
+  
+  @@map("orders")
+}
+
+model OrderItem {
+  id           Int      @id @default(autoincrement())
+  order_id     Int
+  product_id   Int
+  product_name String
+  package_size String?
+  quantity     Int
+  price        Decimal  @db.Decimal(10, 2)
+  
+  order        Order    @relation(fields: [order_id], references: [id], onDelete: Cascade)
+  
+  @@map("order_items")
+}
