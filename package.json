@@ -4,13 +4,13 @@
   "description": "Srii Veerabhadreshwara Krushi Kendra - Agrishield E-Commerce",
   "private": true,
   "scripts": {
-    "postinstall": "npm --prefix backend install && npm --prefix frontend install",
+    "postinstall": "npm --prefix backend install --include=dev && npm --prefix frontend install --include=dev",
     "build": "npm --prefix frontend run build",
     "start": "node backend/app.js",
     "dev": "npm --prefix backend run dev"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=20.18.0"
   },
   "dependencies": {
     "express": "^4.18.2",
