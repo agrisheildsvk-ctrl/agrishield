@@ -26,22 +26,25 @@ async function sendSMSViaFast2SMS(phone, otpCode) {
       const res = await fetch(url.toString());
       const data = await res.json();
       console.log(`[Fast2SMS OTP Route - v2.0] Response for ${phone}:`, data);
-      return data;
+      if (data && data.return === true) {
+        return data;
+      }
+      console.warn('[Fast2SMS OTP Route non-success, falling back to Quick SMS route]:', data);
     } catch (err) {
       console.warn('[Fast2SMS OTP Route Notice]', err.message);
-
-      // 2. If OTP route requires website verification (996) or fails, try Quick SMS ('q') route
-      const fbUrl = new URL('https://www.fast2sms.com/dev/bulkV2');
-      fbUrl.searchParams.append('authorization', FAST2SMS_API_KEY);
-      fbUrl.searchParams.append('message', `Your Agrishield farmer login OTP is ${otpCode}. Valid for 5 minutes. Do not share this code.`);
-      fbUrl.searchParams.append('route', 'q');
-      fbUrl.searchParams.append('numbers', phone);
-
-      const fbRes = await fetch(fbUrl.toString());
-      const fbData = await fbRes.json();
-      console.log(`[Fast2SMS Quick SMS Route - v2.0] Response for ${phone}:`, fbData);
-      return fbData;
     }
+
+    // 2. If OTP route requires website verification (996) or fails, try Quick SMS ('q') route
+    const fbUrl = new URL('https://www.fast2sms.com/dev/bulkV2');
+    fbUrl.searchParams.append('authorization', FAST2SMS_API_KEY);
+    fbUrl.searchParams.append('message', `Your Agrishield farmer login OTP is ${otpCode}. Valid for 5 minutes. Do not share this code.`);
+    fbUrl.searchParams.append('route', 'q');
+    fbUrl.searchParams.append('numbers', phone);
+
+    const fbRes = await fetch(fbUrl.toString());
+    const fbData = await fbRes.json();
+    console.log(`[Fast2SMS Quick SMS Route - v2.0] Response for ${phone}:`, fbData);
+    return fbData;
   } catch (outerErr) {
     console.error('[Fast2SMS Error - Handled Gracefully]', outerErr.message || outerErr);
     return null;
