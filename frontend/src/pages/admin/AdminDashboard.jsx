@@ -32,7 +32,8 @@ const AdminDashboard = () => {
   const fetchOrders = async () => {
     setLoading(true);
     try {
-      const response = await axios.get('http://localhost:5000/api/orders');
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const response = await axios.get(`${apiUrl}/orders`);
       if (response.data.success) {
         setOrders(response.data.orders);
       } else {
@@ -53,7 +54,8 @@ const AdminDashboard = () => {
 
   const updateOrderStatus = async (orderId, newStatus) => {
     try {
-      const response = await axios.patch(`http://localhost:5000/api/orders/${orderId}/status`, { status: newStatus });
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const response = await axios.patch(`${apiUrl}/orders/${orderId}/status`, { status: newStatus });
       if (response.data.success) {
         // Update local state
         setOrders(orders.map(order => order.id === orderId ? { ...order, status: newStatus } : order));

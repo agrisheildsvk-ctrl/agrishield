@@ -67,7 +67,8 @@ const Checkout = () => {
 
     const saveOrderToDB = async (data) => {
       try {
-        await axios.post('http://localhost:5000/api/orders', data);
+        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+        await axios.post(`${apiUrl}/orders`, data);
       } catch (err) {
         console.error('Failed to save order to database:', err);
       }
