@@ -8,6 +8,7 @@ import 'swiper/css/navigation';
 import { Link } from 'react-router-dom';
 import { products } from '../data/products';
 import TrustBadges from '../components/TrustBadges';
+import PromoBanners from '../components/PromoBanners';
 
 const Home = () => {
   const [activeFaq, setActiveFaq] = useState(null);
@@ -221,6 +222,9 @@ const Home = () => {
           </div>
         </div>
       </section>
+
+      {/* Promo Banners Strip (Coupons & Free Delivery) */}
+      <PromoBanners />
 
       {/* BONDON-B Multi-Species All-In-One Section */}
       <section className="py-12 md:py-16 lg:py-20 bg-gradient-to-b from-white to-green-50/40 w-full border-t border-gray-100">
