@@ -1,5 +1,3 @@
-const axios = require('axios');
-
 // In-memory OTP cache: phone -> { otp, expiresAt, requestsCount, attempts }
 const otpCache = new Map();
 
@@ -12,39 +10,38 @@ function generateOTP() {
 }
 
 /**
- * Send real SMS via Fast2SMS Bulk V2 OTP API (with Quick SMS 'q' route fallback)
+ * Send real SMS via Fast2SMS Bulk V2 OTP API using native global fetch (Zero external dependencies)
  */
 async function sendSMSViaFast2SMS(phone, otpCode) {
   try {
     // 1. Try OTP route first
-    const response = await axios.get('https://www.fast2sms.com/dev/bulkV2', {
-      params: {
-        authorization: FAST2SMS_API_KEY,
-        variables_values: otpCode,
-        route: 'otp',
-        numbers: phone
-      }
-    });
-    console.log(`[Fast2SMS OTP Route] Successfully sent OTP SMS to ${phone}:`, response.data);
-    return response.data;
+    const url = new URL('https://www.fast2sms.com/dev/bulkV2');
+    url.searchParams.append('authorization', FAST2SMS_API_KEY);
+    url.searchParams.append('variables_values', otpCode);
+    url.searchParams.append('route', 'otp');
+    url.searchParams.append('numbers', phone);
+
+    const res = await fetch(url.toString());
+    const data = await res.json();
+    console.log(`[Fast2SMS OTP Route] Response for ${phone}:`, data);
+    return data;
   } catch (err) {
-    const errData = err.response ? err.response.data : err.message;
-    console.warn('[Fast2SMS OTP Route Notice]', errData);
+    console.warn('[Fast2SMS OTP Route Notice]', err.message);
 
     // 2. If OTP route requires website verification (996) or fails, try Quick SMS ('q') route
     try {
-      const fallbackResponse = await axios.get('https://www.fast2sms.com/dev/bulkV2', {
-        params: {
-          authorization: FAST2SMS_API_KEY,
-          message: `Your Agrishield farmer login OTP is ${otpCode}. Valid for 5 minutes. Do not share this code.`,
-          route: 'q',
-          numbers: phone
-        }
-      });
-      console.log(`[Fast2SMS Quick SMS Route] Successfully sent OTP SMS to ${phone}:`, fallbackResponse.data);
-      return fallbackResponse.data;
+      const fbUrl = new URL('https://www.fast2sms.com/dev/bulkV2');
+      fbUrl.searchParams.append('authorization', FAST2SMS_API_KEY);
+      fbUrl.searchParams.append('message', `Your Agrishield farmer login OTP is ${otpCode}. Valid for 5 minutes. Do not share this code.`);
+      fbUrl.searchParams.append('route', 'q');
+      fbUrl.searchParams.append('numbers', phone);
+
+      const fbRes = await fetch(fbUrl.toString());
+      const fbData = await fbRes.json();
+      console.log(`[Fast2SMS Quick SMS Route] Response for ${phone}:`, fbData);
+      return fbData;
     } catch (fallbackErr) {
-      console.error('[Fast2SMS Quick SMS Error]', fallbackErr.response ? fallbackErr.response.data : fallbackErr.message);
+      console.error('[Fast2SMS Quick SMS Error]', fallbackErr.message);
       return null;
     }
   }
