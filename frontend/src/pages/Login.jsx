@@ -23,7 +23,7 @@ const Login = () => {
   // Redirect destination after login
   const from = location.state?.from?.pathname || '/';
 
-  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+  const apiUrl = import.meta.env.VITE_API_URL || '/api';
 
   // State machine: 'select' -> 'otp' -> 'register_phone' -> 'register_google'
   const [step, setStep] = useState('select');

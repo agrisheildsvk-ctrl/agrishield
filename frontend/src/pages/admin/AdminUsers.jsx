@@ -19,7 +19,7 @@ const AdminUsers = () => {
   const [search, setSearch] = useState('');
   const [error, setError] = useState('');
 
-  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+  const apiUrl = import.meta.env.VITE_API_URL || '/api';
 
   const fetchUsers = async () => {
     setLoading(true);

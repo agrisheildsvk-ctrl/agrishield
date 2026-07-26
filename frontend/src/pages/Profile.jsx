@@ -31,7 +31,7 @@ const Profile = () => {
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
 
-  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+  const apiUrl = import.meta.env.VITE_API_URL || '/api';
 
   useEffect(() => {
     if (!token || !user) {

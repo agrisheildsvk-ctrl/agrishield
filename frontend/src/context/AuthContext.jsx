@@ -26,7 +26,7 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(() => localStorage.getItem('agrishield_token') || null);
   const [loading, setLoading] = useState(true);
 
-  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+  const apiUrl = import.meta.env.VITE_API_URL || '/api';
 
   useEffect(() => {
     const fetchFreshProfile = async () => {
