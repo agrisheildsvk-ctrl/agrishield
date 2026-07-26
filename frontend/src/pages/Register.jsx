@@ -1,9 +1,10 @@
+import React from 'react';
+import Login from './Login';
+
 const Register = () => {
-  return (
-    <div className="container mx-auto px-4 py-8 max-w-md">
-      <h1 className="text-3xl font-bold text-primary-dark mb-8 text-center">Register</h1>
-      <p className="text-center">Coming soon...</p>
-    </div>
-  );
+  // In the passwordless farmer authentication flow, Login and Register are unified
+  // where new users enter their minimal details after OTP / Google verification.
+  return <Login />;
 };
+
 export default Register;

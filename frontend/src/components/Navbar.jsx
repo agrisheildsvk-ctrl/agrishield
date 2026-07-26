@@ -3,10 +3,12 @@ import { Link } from 'react-router-dom';
 import { FiShoppingCart, FiUser, FiSearch, FiGlobe, FiMenu, FiX } from 'react-icons/fi';
 import { useLanguage } from '../context/LanguageContext';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
   const { language, setLanguage, t } = useLanguage();
   const { cartItems } = useCart();
+  const { isAuthenticated, user } = useAuth();
   const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -77,8 +79,13 @@ const Navbar = () => {
               )}
             </Link>
 
-            <Link to="/login" className="hover:text-primary transition-colors flex items-center gap-1 p-1">
+            <Link to={isAuthenticated ? "/profile" : "/login"} className="hover:text-primary transition-colors flex items-center gap-1.5 p-1 font-bold text-sm">
               <FiUser size={22} />
+              {isAuthenticated && user && (
+                <span className="hidden sm:inline bg-emerald-100 text-emerald-800 text-xs px-2 py-0.5 rounded-full">
+                  {user.name ? user.name.split(' ')[0] : 'Farmer'}
+                </span>
+              )}
             </Link>
           </div>
         </div>

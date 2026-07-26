@@ -1,15 +1,17 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
-import { FiLogOut, FiShoppingBag, FiDollarSign, FiClock, FiActivity, FiRefreshCw, FiSearch, FiFilter, FiEye } from 'react-icons/fi';
+import { FiLogOut, FiShoppingBag, FiDollarSign, FiClock, FiActivity, FiRefreshCw, FiSearch, FiFilter, FiEye, FiUsers } from 'react-icons/fi';
 import { motion } from 'framer-motion';
 import OrderDetailsModal from '../../components/admin/OrderDetailsModal';
+import AdminUsers from './AdminUsers';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [activeTab, setActiveTab] = useState('orders');
 
   // Filters & Search State
   const [searchQuery, setSearchQuery] = useState('');
@@ -116,10 +118,26 @@ const AdminDashboard = () => {
         </div>
         <div className="flex-1 py-6">
           <nav className="space-y-1 px-4">
-            <a href="#" className="flex items-center gap-3 bg-primary/20 text-primary border-r-4 border-primary px-4 py-3 rounded-l-lg font-bold">
+            <button
+              onClick={() => setActiveTab('orders')}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-l-lg font-bold transition-colors cursor-pointer ${
+                activeTab === 'orders'
+                  ? 'bg-primary/20 text-primary border-r-4 border-primary'
+                  : 'text-gray-400 hover:text-white hover:bg-gray-800'
+              }`}
+            >
               <FiShoppingBag /> Orders
-            </a>
-            {/* Add more nav links here later */}
+            </button>
+            <button
+              onClick={() => setActiveTab('users')}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-l-lg font-bold transition-colors cursor-pointer ${
+                activeTab === 'users'
+                  ? 'bg-primary/20 text-primary border-r-4 border-primary'
+                  : 'text-gray-400 hover:text-white hover:bg-gray-800'
+              }`}
+            >
+              <FiUsers /> Farmers & Users
+            </button>
           </nav>
         </div>
         <div className="p-6 border-t border-gray-800">
@@ -134,7 +152,11 @@ const AdminDashboard = () => {
 
       {/* Main Content */}
       <div className="flex-1 p-6 sm:p-10 overflow-y-auto">
-        <div className="flex justify-between items-center mb-8">
+        {activeTab === 'users' ? (
+          <AdminUsers />
+        ) : (
+          <>
+            <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Orders Overview</h1>
           <button 
             onClick={fetchOrders}
@@ -303,6 +325,8 @@ const AdminDashboard = () => {
             </div>
           )}
         </div>
+        </>
+        )}
       </div>
 
       <OrderDetailsModal 
