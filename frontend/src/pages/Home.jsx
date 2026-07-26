@@ -7,6 +7,7 @@ import 'swiper/css/pagination';
 import 'swiper/css/navigation';
 import { Link } from 'react-router-dom';
 import { products } from '../data/products';
+import TrustBadges from '../components/TrustBadges';
 
 const Home = () => {
   const [activeFaq, setActiveFaq] = useState(null);
@@ -63,6 +64,9 @@ const Home = () => {
           ))}
         </Swiper>
       </section>
+
+      {/* Trust Badges / Why Agrishield - Before About */}
+      <TrustBadges />
 
       {/* About Agrishield - Ultra Modern Design */}
       <section className="py-20 md:py-28 bg-gradient-to-b from-white via-green-50/25 to-white w-full border-t border-gray-100">
