@@ -67,7 +67,7 @@ const Checkout = () => {
 
     const saveOrderToDB = async (data) => {
       try {
-        const apiUrl = import.meta.env.VITE_API_URL || '/api';
+        const apiUrl = import.meta.env.VITE_API_URL || 'https://agrishield-production-573f.up.railway.app/api';
         await axios.post(`${apiUrl}/orders`, data);
       } catch (err) {
         console.error('Failed to save order to database:', err);

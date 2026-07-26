@@ -23,7 +23,7 @@ const Login = () => {
   // Redirect destination after login
   const from = location.state?.from?.pathname || '/';
 
-  const apiUrl = import.meta.env.VITE_API_URL || '/api';
+  const apiUrl = import.meta.env.VITE_API_URL || 'https://agrishield-production-573f.up.railway.app/api';
 
   // State machine: 'select' -> 'otp' -> 'register_phone' -> 'register_google'
   const [step, setStep] = useState('select');

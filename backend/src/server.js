@@ -7,9 +7,11 @@ const server = app.listen(PORT, () => {
   console.log(`Node.js server running on port ${PORT}`);
 });
 
-// Handle unhandled promise rejections
+// Handle unhandled promise rejections and exceptions gracefully without crashing server
 process.on('unhandledRejection', (err) => {
-  console.log(`Error: ${err.message}`);
-  // Close server & exit process
-  server.close(() => process.exit(1));
+  console.error('Unhandled Rejection Notice:', err.message || err);
+});
+
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception Notice:', err.message || err);
 });

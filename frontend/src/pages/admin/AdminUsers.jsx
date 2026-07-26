@@ -19,7 +19,7 @@ const AdminUsers = () => {
   const [search, setSearch] = useState('');
   const [error, setError] = useState('');
 
-  const apiUrl = import.meta.env.VITE_API_URL || '/api';
+  const apiUrl = import.meta.env.VITE_API_URL || 'https://agrishield-production-573f.up.railway.app/api';
 
   const fetchUsers = async () => {
     setLoading(true);

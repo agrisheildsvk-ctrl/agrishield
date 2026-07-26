@@ -34,7 +34,7 @@ const AdminDashboard = () => {
   const fetchOrders = async () => {
     setLoading(true);
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || '/api';
+      const apiUrl = import.meta.env.VITE_API_URL || 'https://agrishield-production-573f.up.railway.app/api';
       const response = await axios.get(`${apiUrl}/orders`);
       if (response.data.success) {
         setOrders(response.data.orders);
@@ -56,7 +56,7 @@ const AdminDashboard = () => {
 
   const updateOrderStatus = async (orderId, newStatus) => {
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || '/api';
+      const apiUrl = import.meta.env.VITE_API_URL || 'https://agrishield-production-573f.up.railway.app/api';
       const response = await axios.patch(`${apiUrl}/orders/${orderId}/status`, { status: newStatus });
       if (response.data.success) {
         // Update local state
