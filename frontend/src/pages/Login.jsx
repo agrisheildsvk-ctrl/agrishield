@@ -101,9 +101,6 @@ const Login = () => {
       if (res.data.success) {
         setStep('otp');
         setSuccessMsg(res.data.message);
-        if (res.data.otp) {
-          setDemoOtpCode(res.data.otp);
-        }
       }
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to send OTP. Try again.');
@@ -299,24 +296,6 @@ const Login = () => {
                   Change Mobile Number
                 </button>
               </div>
-
-              {demoOtpCode && (
-                <div className="p-3 bg-amber-50 border border-amber-200 rounded-2xl text-center">
-                  <p className="text-xs text-amber-700 font-semibold uppercase tracking-wider">
-                    Testing Mode OTP Code
-                  </p>
-                  <p className="text-2xl font-black text-amber-900 tracking-widest mt-1">
-                    {demoOtpCode}
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => setOtp(demoOtpCode)}
-                    className="text-xs text-amber-800 underline font-bold mt-1"
-                  >
-                    Click to Auto-Fill
-                  </button>
-                </div>
-              )}
 
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-2 text-center">

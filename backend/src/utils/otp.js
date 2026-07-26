@@ -79,8 +79,7 @@ exports.sendOTP = async (phone) => {
     console.log(`[Agrishield Auth v2.0] New OTP for ${cleanPhone}: ${existing.otp}`);
     return {
       success: true,
-      message: 'OTP sent to mobile number via Fast2SMS',
-      otp: existing.otp // Returning in response for easy farmer testing/demo
+      message: 'OTP sent to mobile number via Fast2SMS'
     };
   }
 
@@ -99,8 +98,7 @@ exports.sendOTP = async (phone) => {
 
   return {
     success: true,
-    message: 'OTP sent to mobile number via Fast2SMS',
-    otp
+    message: 'OTP sent to mobile number via Fast2SMS'
   };
 };
 

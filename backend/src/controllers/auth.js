@@ -90,8 +90,7 @@ exports.sendOtp = async (req, res) => {
     const result = await otpHelper.sendOTP(phone);
     res.status(200).json({
       success: true,
-      message: result.message,
-      otp: result.otp // Included for instant testing/demo in farmer app
+      message: result.message
     });
   } catch (error) {
     console.error('Send OTP Error:', error);
