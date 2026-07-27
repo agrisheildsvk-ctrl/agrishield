@@ -167,6 +167,24 @@ const sendWhatsAppMessage = async (phone, message) => {
   const clickToChatUrl = `https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`;
 
   try {
+    // 0. Support CallMeBot (100% Free Forever WhatsApp API)
+    const callMeBotApiKey = process.env.CALLMEBOT_API_KEY || process.env.CALLMEBOT_KEY;
+    if (callMeBotApiKey) {
+      const callMeBotPhone = process.env.CALLMEBOT_PHONE || formattedPhone;
+      const url = `https://api.callmebot.com/whatsapp.php?phone=${callMeBotPhone}&text=${encodeURIComponent(message)}&apikey=${callMeBotApiKey}`;
+      console.log(`[WhatsAppService] Sending WhatsApp via Free CallMeBot to ${callMeBotPhone}...`);
+      const response = await axios.get(url, { timeout: 15000 });
+
+      if (response.status >= 200 && response.status < 300) {
+        return {
+          success: true,
+          status: 'sent',
+          message: 'WhatsApp message sent successfully via CallMeBot (Free)',
+          clickToChatUrl
+        };
+      }
+    }
+
     // 1. Support Green-API native credentials (GREEN_API_ID_INSTANCE & GREEN_API_TOKEN_INSTANCE or green-api URL)
     const greenApiId = process.env.GREEN_API_ID_INSTANCE || process.env.GREEN_API_INSTANCE_ID;
     const greenApiToken = process.env.GREEN_API_TOKEN_INSTANCE || process.env.GREEN_API_TOKEN || process.env.WHATSAPP_API_KEY;
