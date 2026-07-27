@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
-import { FiLogOut, FiShoppingBag, FiDollarSign, FiClock, FiActivity, FiRefreshCw, FiSearch, FiFilter, FiEye, FiUsers } from 'react-icons/fi';
+import { FiLogOut, FiShoppingBag, FiDollarSign, FiClock, FiActivity, FiRefreshCw, FiSearch, FiFilter, FiEye, FiUsers, FiSettings, FiSend } from 'react-icons/fi';
 import { motion } from 'framer-motion';
 import OrderDetailsModal from '../../components/admin/OrderDetailsModal';
 import AdminUsers from './AdminUsers';
+import AdminSettings from '../../components/admin/AdminSettings';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -69,6 +70,22 @@ const AdminDashboard = () => {
     } catch (err) {
       console.error('Failed to update status', err);
       alert('Failed to update status. Please try again.');
+    }
+  };
+
+  const resendWhatsApp = async (orderId) => {
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || 'https://agrishield-production-573f.up.railway.app/api';
+      const response = await axios.post(`${apiUrl}/notifications/whatsapp`, { orderId });
+      if (response.data.success) {
+        alert('✅ WhatsApp notification sent successfully!');
+        setOrders(orders.map(o => o.id === orderId ? { ...o, whatsapp_status: 'sent' } : o));
+      } else {
+        alert('❌ Failed to resend WhatsApp notification: ' + (response.data.message || 'Error'));
+      }
+    } catch (err) {
+      console.error('Error resending WhatsApp:', err);
+      alert('❌ Error resending WhatsApp notification.');
     }
   };
 
@@ -138,6 +155,16 @@ const AdminDashboard = () => {
             >
               <FiUsers /> Farmers & Users
             </button>
+            <button
+              onClick={() => setActiveTab('settings')}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-l-lg font-bold transition-colors cursor-pointer ${
+                activeTab === 'settings'
+                  ? 'bg-primary/20 text-primary border-r-4 border-primary'
+                  : 'text-gray-400 hover:text-white hover:bg-gray-800'
+              }`}
+            >
+              <FiSettings /> Settings
+            </button>
           </nav>
         </div>
         <div className="p-6 border-t border-gray-800">
@@ -154,6 +181,8 @@ const AdminDashboard = () => {
       <div className="flex-1 p-6 sm:p-10 overflow-y-auto">
         {activeTab === 'users' ? (
           <AdminUsers />
+        ) : activeTab === 'settings' ? (
+          <AdminSettings />
         ) : (
           <>
             <div className="flex justify-between items-center mb-8">
@@ -262,6 +291,7 @@ const AdminDashboard = () => {
                     <th className="px-6 py-4">Customer</th>
                     <th className="px-6 py-4">Total</th>
                     <th className="px-6 py-4">Payment</th>
+                    <th className="px-6 py-4">WhatsApp</th>
                     <th className="px-6 py-4">Status</th>
                     <th className="px-6 py-4 text-right">Actions</th>
                   </tr>
@@ -288,6 +318,16 @@ const AdminDashboard = () => {
                           </span>
                         </td>
                         <td className="px-6 py-5">
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${
+                            order.whatsapp_status === 'sent' ? 'bg-green-100 text-green-800' :
+                            order.whatsapp_status === 'failed' ? 'bg-red-100 text-red-800' :
+                            'bg-yellow-100 text-yellow-800'
+                          }`}>
+                            {order.whatsapp_status === 'sent' ? '✅ Sent' :
+                             order.whatsapp_status === 'failed' ? '❌ Failed' : '⏳ Pending'}
+                          </span>
+                        </td>
+                        <td className="px-6 py-5">
                           <select 
                             value={order.status}
                             onChange={(e) => updateOrderStatus(order.id, e.target.value)}
@@ -306,7 +346,14 @@ const AdminDashboard = () => {
                             <option value="cancelled">Cancelled</option>
                           </select>
                         </td>
-                        <td className="px-6 py-5 text-right">
+                        <td className="px-6 py-5 text-right flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => resendWhatsApp(order.id)}
+                            title="Resend WhatsApp Notification"
+                            className="inline-flex items-center justify-center gap-1 bg-green-50 border border-green-200 text-green-700 hover:bg-green-100 px-2.5 py-1.5 rounded-lg shadow-sm transition text-xs font-bold"
+                          >
+                            <FiSend /> Resend
+                          </button>
                           <button 
                             onClick={() => {
                               setSelectedOrder(order);
@@ -334,6 +381,7 @@ const AdminDashboard = () => {
         onClose={() => setIsModalOpen(false)} 
         order={selectedOrder}
         onStatusChange={updateOrderStatus}
+        onResendWhatsApp={resendWhatsApp}
       />
     </div>
   );

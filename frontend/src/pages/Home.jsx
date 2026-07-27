@@ -71,9 +71,9 @@ const Home = () => {
       <TrustBadges />
 
       {/* About Agrishield - Ultra Modern Design */}
-      <section className="py-20 md:py-28 bg-gradient-to-b from-white via-green-50/25 to-white w-full border-t border-gray-100">
+      <section className="py-10 md:py-20 bg-gradient-to-b from-white via-green-50/25 to-white w-full border-t border-gray-100">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-center">
             
             {/* Image/Visual Column (7 cols) */}
             <div className="lg:col-span-7">
@@ -111,22 +111,22 @@ const Home = () => {
 
             {/* Content Column (5 cols) */}
             <div className="lg:col-span-5 flex flex-col justify-center">
-              <div className="inline-flex items-center gap-2 bg-primary/10 text-primary font-bold px-4 py-2 rounded-full text-sm mb-6 w-fit">
+              <div className="inline-flex items-center gap-2 bg-primary/10 text-primary font-bold px-4 py-2 rounded-full text-sm mb-4 md:mb-6 w-fit">
                 <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
                 THE AGRISHIELD PROMISE
               </div>
 
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-gray-900 mb-6 leading-tight">
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-gray-900 mb-4 md:mb-6 leading-tight">
                 Protecting Crops. <br />
-                <span className="text-primary underline decoration-green-400/60 decoration-wavy">Empowering Farmers.</span>
+                <span className="text-primary">Empowering Farmers.</span>
               </h2>
 
-              <p className="text-gray-600 text-base sm:text-lg mb-8 leading-relaxed">
+              <p className="text-gray-600 text-base sm:text-lg mb-6 md:mb-8 leading-relaxed">
                 We bridge traditional agriculture with modern, non-toxic bio-repellents and premium solutions. Our mission is simple: keep your harvest 100% safe from wild animals, pests, and environmental stress.
               </p>
               
               {/* Feature Box Stack */}
-              <div className="space-y-4 mb-10">
+              <div className="space-y-4 mb-6 md:mb-10">
                 {[
                   {
                     title: 'Organic & Non-Toxic Formulas',
@@ -157,16 +157,16 @@ const Home = () => {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex flex-wrap items-center gap-4">
+              <div className="flex flex-row items-center gap-3 sm:gap-4 w-full sm:w-auto">
                 <Link 
                   to="/shop" 
-                  className="bg-primary hover:bg-primary-dark text-white font-bold px-8 py-4 rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all"
+                  className="flex-1 sm:flex-initial text-center bg-primary hover:bg-primary-dark text-white font-bold px-3 sm:px-8 py-3.5 sm:py-4 rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all text-sm sm:text-base whitespace-nowrap"
                 >
                   Explore Products
                 </Link>
                 <Link 
                   to="/about" 
-                  className="bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold px-7 py-4 rounded-xl transition-colors"
+                  className="flex-1 sm:flex-initial text-center bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold px-3 sm:px-7 py-3.5 sm:py-4 rounded-xl transition-colors text-sm sm:text-base whitespace-nowrap"
                 >
                   Our Story
                 </Link>
@@ -179,9 +179,9 @@ const Home = () => {
       </section>
       
       {/* Featured Products */}
-      <section className="py-12 md:py-16 lg:py-20 bg-gray-50 w-full">
+      <section className="py-8 md:py-14 lg:py-20 bg-gray-50 w-full">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
-          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-center mb-8 md:mb-12 text-primary-dark">Featured Products</h2>
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-center mb-6 md:mb-12 text-primary-dark">Featured Products</h2>
            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 items-stretch">
               {products.slice(0, 4).map(product => (
                 <ProductCard key={product.id} product={product} />
@@ -274,7 +274,7 @@ const Home = () => {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-16 md:py-24 bg-white w-full">
+      <section className="py-10 md:py-20 bg-white w-full">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-gray-900 mb-4">Frequently Asked Questions</h2>
@@ -311,7 +311,7 @@ const Home = () => {
       </section>
 
       {/* Contact Section */}
-      <section className="py-16 md:py-24 bg-gray-900 w-full text-white">
+      <section className="py-10 md:py-20 bg-gray-900 w-full text-white">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
           <div className="flex flex-col lg:flex-row gap-12 lg:gap-20">
             {/* Contact Info */}

@@ -1,8 +1,8 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiX, FiMapPin, FiPackage, FiCreditCard, FiActivity, FiTruck } from 'react-icons/fi';
+import { FiX, FiMapPin, FiPackage, FiCreditCard, FiActivity, FiTruck, FiMessageSquare, FiSend } from 'react-icons/fi';
 
-const OrderDetailsModal = ({ isOpen, onClose, order, onStatusChange }) => {
+const OrderDetailsModal = ({ isOpen, onClose, order, onStatusChange, onResendWhatsApp }) => {
   if (!isOpen || !order) return null;
 
   const addr = order.shipping_address || {};
@@ -18,34 +18,31 @@ const OrderDetailsModal = ({ isOpen, onClose, order, onStatusChange }) => {
       >
         <motion.div
           className="bg-white rounded-3xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden"
-          initial={{ y: 50, opacity: 0, scale: 0.95 }}
-          animate={{ y: 0, opacity: 1, scale: 1 }}
-          exit={{ y: 20, opacity: 0, scale: 0.95 }}
+          initial={{ scale: 0.95, y: 20 }}
+          animate={{ scale: 1, y: 0 }}
+          exit={{ scale: 0.95, y: 20 }}
         >
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-gray-100 bg-gray-50/50">
+          <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                <FiPackage className="text-primary" />
-                Order Details
-              </h2>
-              <p className="text-sm text-gray-500 mt-1">ID: {order.order_id}</p>
+              <span className="text-xs font-bold uppercase tracking-wider text-primary bg-primary/10 px-3 py-1 rounded-full">Order Details</span>
+              <h2 className="text-2xl font-black text-gray-900 mt-1">{order.order_id}</h2>
+              <p className="text-xs text-gray-500 mt-0.5">Placed on {new Date(order.created_at).toLocaleString()}</p>
             </div>
             <button
               onClick={onClose}
-              className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition"
+              className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition"
             >
               <FiX className="w-6 h-6" />
             </button>
           </div>
 
-          {/* Scrollable Content */}
-          <div className="flex-1 overflow-y-auto p-6">
+          {/* Body */}
+          <div className="p-6 sm:p-8 overflow-y-auto flex-1">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              
               {/* Left Column */}
               <div className="space-y-8">
-                {/* Status Update Card */}
+                {/* Status Update */}
                 <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
                   <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-4 flex items-center gap-2">
                     <FiActivity className="text-blue-500" /> Current Status
@@ -63,6 +60,32 @@ const OrderDetailsModal = ({ isOpen, onClose, order, onStatusChange }) => {
                       <option value="cancelled">Cancelled</option>
                     </select>
                   </div>
+                </div>
+
+                {/* WhatsApp Status */}
+                <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+                  <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-4 flex items-center justify-between">
+                    <span className="flex items-center gap-2"><FiMessageSquare className="text-green-500" /> WhatsApp Notification</span>
+                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold ${
+                      order.whatsapp_status === 'sent' ? 'bg-green-100 text-green-800' :
+                      order.whatsapp_status === 'failed' ? 'bg-red-100 text-red-800' :
+                      'bg-yellow-100 text-yellow-800'
+                    }`}>
+                      {order.whatsapp_status === 'sent' ? '✅ Sent' :
+                       order.whatsapp_status === 'failed' ? '❌ Failed' : '⏳ Pending'}
+                    </span>
+                  </h3>
+                  {order.whatsapp_error && (
+                    <p className="text-xs text-red-600 font-semibold mb-3">Error: {order.whatsapp_error}</p>
+                  )}
+                  {onResendWhatsApp && (
+                    <button
+                      onClick={() => onResendWhatsApp(order.id)}
+                      className="w-full bg-green-50 border border-green-200 text-green-700 hover:bg-green-100 font-bold py-2.5 px-4 rounded-xl transition flex items-center justify-center gap-2 text-sm"
+                    >
+                      <FiSend /> Resend WhatsApp Receipt
+                    </button>
+                  )}
                 </div>
 
                 {/* Shipping Address */}

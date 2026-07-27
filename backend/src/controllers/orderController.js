@@ -1,5 +1,6 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
+const whatsappService = require('../services/whatsappService');
 
 const createOrder = async (req, res) => {
   try {
@@ -28,6 +29,7 @@ const createOrder = async (req, res) => {
         payment_method: paymentMethod,
         payment_status: paymentMethod === 'online' ? 'paid' : 'pending',
         payment_id: paymentId || null,
+        whatsapp_status: 'pending',
         items: {
           create: items.map(item => ({
             product_id: parseInt(item.id),
@@ -43,10 +45,26 @@ const createOrder = async (req, res) => {
       }
     });
 
+    // Automatically send WhatsApp notification to Owner
+    let whatsappResult = { status: 'pending' };
+    try {
+      whatsappResult = await whatsappService.notifyOwnerNewOrder(newOrder);
+    } catch (waErr) {
+      console.error('WhatsApp notification error on order creation:', waErr.message);
+      whatsappResult = { status: 'failed', error: waErr.message };
+    }
+
+    // Fetch final order state with whatsapp status
+    const savedOrder = await prisma.order.findUnique({
+      where: { id: newOrder.id },
+      include: { items: true }
+    });
+
     res.status(201).json({
       success: true,
       message: 'Order placed successfully',
-      order: newOrder
+      order: savedOrder || newOrder,
+      whatsapp: whatsappResult
     });
   } catch (error) {
     console.error('Error creating order:', error);
@@ -91,8 +109,19 @@ const updateOrderStatus = async (req, res) => {
 
     const updatedOrder = await prisma.order.update({
       where: { id: parseInt(id) },
-      data: { status }
+      data: { status },
+      include: { items: true }
     });
+
+    // Send customer WhatsApp notification when status changes
+    const relevantStatuses = ['accepted', 'packed', 'shipped', 'delivered', 'cancelled'];
+    if (status && relevantStatuses.includes(String(status).toLowerCase())) {
+      try {
+        await whatsappService.notifyCustomerStatusChange(updatedOrder, status);
+      } catch (e) {
+        console.error('Customer WhatsApp notification error on status update:', e.message);
+      }
+    }
 
     res.status(200).json({
       success: true,

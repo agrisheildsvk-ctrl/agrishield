@@ -194,18 +194,18 @@ const TrustBadges = () => {
   ];
 
   return (
-    <section className="py-12 md:py-16 bg-white w-full border-t border-b border-gray-100 shadow-sm relative z-10">
+    <section className="py-8 md:py-10 bg-white w-full border-t border-b border-gray-100 shadow-sm relative z-10">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10 md:gap-12 items-center justify-items-center">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 md:gap-10 items-center justify-items-center">
           {badges.map((badge, idx) => (
             <div
               key={idx}
-              className="flex flex-col items-center text-center group cursor-pointer transition-transform duration-300 hover:-translate-y-2"
+              className="flex flex-col items-center text-center group cursor-pointer transition-transform duration-300 hover:-translate-y-1"
             >
-              <div className="w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 mb-4 p-2 rounded-2xl transition-all duration-300 group-hover:drop-shadow-md">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 mb-3 p-1 rounded-2xl transition-all duration-300 group-hover:drop-shadow-md">
                 {badge.icon}
               </div>
-              <h3 className="text-base sm:text-lg md:text-xl font-extrabold text-gray-900 tracking-tight">
+              <h3 className="text-sm sm:text-base md:text-lg font-bold text-gray-900 tracking-tight">
                 {badge.title}
               </h3>
             </div>

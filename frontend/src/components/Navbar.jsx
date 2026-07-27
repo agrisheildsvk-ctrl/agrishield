@@ -40,9 +40,12 @@ const Navbar = () => {
           </button>
 
           {/* Logo */}
-          <Link to="/" className="text-xl md:text-2xl font-bold text-primary flex items-center gap-1 md:gap-2 shrink-0">
-            <span className="text-2xl md:text-3xl text-primary-dark">🌿</span>
-            <span className="hidden sm:inline">Agrishield</span>
+          <Link to="/" className="flex items-center gap-2 shrink-0 group py-0.5">
+            <img 
+              src="/agri%20logo.png" 
+              alt="Agrishield Logo" 
+              className="h-10 sm:h-12 md:h-14 w-auto object-contain transition-transform duration-300 group-hover:scale-105" 
+            />
           </Link>
           
           {/* Desktop Navigation Links */}

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
 
 const CartContext = createContext();
 
@@ -56,13 +56,14 @@ export const CartProvider = ({ children }) => {
   };
 
   const parsePrice = (priceStr) => {
-    if (!priceStr) return 0;
-    const numericStr = priceStr.replace(/[^0-9.]/g, '');
+    if (priceStr === undefined || priceStr === null) return 0;
+    if (typeof priceStr === 'number') return priceStr;
+    const numericStr = String(priceStr).replace(/[^0-9.]/g, '');
     return parseFloat(numericStr) || 0;
   };
 
   const cartSubtotal = cartItems.reduce((total, item) => {
-    return total + (parsePrice(item.price) * item.quantity);
+    return total + (parsePrice(item.price) * (item.quantity || 1));
   }, 0);
 
   const cartTotal = cartSubtotal;

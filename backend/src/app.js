@@ -11,6 +11,8 @@ const productsRoutes = require('./routes/products.js');
 const categoriesRoutes = require('./routes/categories.js');
 const cartRoutes = require('./routes/cart.js');
 const ordersRoutes = require('./routes/orders.js');
+const settingsRoutes = require('./routes/settings.js');
+const notificationsRoutes = require('./routes/notifications.js');
 
 const app = express();
 
@@ -31,6 +33,8 @@ app.use('/api/products', productsRoutes);
 app.use('/api/categories', categoriesRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/orders', ordersRoutes);
+app.use('/api/settings', settingsRoutes);
+app.use('/api/notifications', notificationsRoutes);
 
 // Serve static frontend in production
 const frontendDist = path.join(__dirname, '../../frontend/dist');

@@ -5,7 +5,12 @@ import { FiTrash2, FiMinus, FiPlus, FiArrowLeft, FiShoppingBag } from 'react-ico
 import { useCart } from '../context/CartContext';
 
 const Cart = () => {
-  const { cartItems, updateQuantity, removeFromCart, cartTotal } = useCart();
+  const { cartItems, updateQuantity, removeFromCart, cartSubtotal, cartTotal } = useCart();
+  const activeTotal = cartItems.reduce((total, item) => {
+    const priceNum = parseFloat(String(item.price).replace(/[^0-9.]/g, '')) || 0;
+    const qty = item.quantity || 1;
+    return total + (priceNum * qty);
+  }, 0);
 
   if (cartItems.length === 0) {
     return (
@@ -69,8 +74,15 @@ const Cart = () => {
                   <h3 className="text-lg font-bold text-gray-900 mb-1">{item.name}</h3>
                   <div className="text-sm text-gray-500 font-medium mb-3">Package Size: <span className="text-gray-800">{item.packageSize === '50' ? '50 ml / 50 gm' : item.packageSize === '100' ? '100 ml / 100 gm' : item.packageSize === '250' ? '200 ml / 250 gm' : '1 L / 1 kg'}</span></div>
                   
-                  <div className="flex items-center gap-4 mt-auto">
-                    <div className="text-xl font-extrabold text-gray-900">{item.price}</div>
+                  <div className="flex items-center gap-3 mt-auto">
+                    <div className="text-xl font-extrabold text-gray-900">
+                      ₹{(parseFloat(String(item.price).replace(/[^0-9.]/g, '')) * (item.quantity || 1)).toFixed(2)}
+                    </div>
+                    {(item.quantity || 1) > 1 && (
+                      <span className="text-xs text-gray-400 font-medium">
+                        ({item.price} each)
+                      </span>
+                    )}
                   </div>
                 </div>
 
@@ -104,13 +116,13 @@ const Cart = () => {
 
           {/* Order Summary */}
           <div className="lg:w-1/3">
-            <div className="bg-white p-8 rounded-3xl shadow-xl border border-gray-100 sticky top-24">
+            <div className="bg-white p-5 sm:p-8 rounded-3xl shadow-xl border border-gray-100 sticky top-24">
               <h2 className="text-2xl font-bold text-gray-900 mb-6">Order Summary</h2>
               
               <div className="flex flex-col gap-4 text-gray-600 mb-6 font-medium border-b border-gray-100 pb-6">
                 <div className="flex justify-between">
                   <span>Subtotal</span>
-                  <span className="text-gray-900">₹{cartTotal.toFixed(2)}</span>
+                  <span key={`sub-${activeTotal}`} className="text-gray-900 transition-all duration-200">₹{activeTotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Shipping</span>
@@ -124,7 +136,7 @@ const Cart = () => {
 
               <div className="flex justify-between items-end mb-8">
                 <span className="text-lg font-bold text-gray-900">Total</span>
-                <span className="text-3xl font-extrabold text-primary">₹{cartTotal.toFixed(2)}</span>
+                <span key={`tot-${activeTotal}`} className="text-3xl font-extrabold text-primary transition-all duration-200">₹{activeTotal.toFixed(2)}</span>
               </div>
 
               <Link to="/checkout" className="w-full bg-accent hover:bg-green-500 text-white font-bold py-4 px-6 rounded-2xl shadow-lg transition-all transform hover:scale-[1.02] flex justify-center items-center gap-3">

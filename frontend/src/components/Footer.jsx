@@ -5,7 +5,13 @@ const Footer = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
           
           <div className="flex flex-col">
-            <h3 className="text-xl md:text-2xl font-bold mb-4 flex items-center gap-2">🌿 Agrishield</h3>
+            <a href="/" className="inline-block mb-4">
+              <img 
+                src="/agri%20logo.png" 
+                alt="Agrishield Logo" 
+                className="h-12 sm:h-14 md:h-16 w-auto object-contain bg-white/95 px-3 py-1.5 rounded-xl shadow-md transition-transform duration-300 hover:scale-105"
+              />
+            </a>
             <p className="text-gray-300 text-sm md:text-base leading-relaxed mb-4">Premium agriculture e-commerce platform providing the best seeds, fertilizers, and farm equipment directly to farmers.</p>
             <div className="text-xs md:text-sm text-gray-300 space-y-1.5 border-t border-green-800 pt-4">
               <p className="font-bold text-white">Srii Veerabhadreshwara Krushi Kendra</p>
