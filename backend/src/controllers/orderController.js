@@ -27,7 +27,7 @@ const createOrder = async (req, res) => {
         cod_fee: totals.codFee,
         total_amount: totals.total,
         payment_method: paymentMethod,
-        payment_status: paymentMethod === 'online' ? 'paid' : 'pending',
+        payment_status: paymentMethod === 'online' ? 'Captured' : 'Pending',
         payment_id: paymentId || null,
         whatsapp_status: 'pending',
         items: {

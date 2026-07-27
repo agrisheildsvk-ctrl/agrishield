@@ -132,10 +132,27 @@ const OrderDetailsModal = ({ isOpen, onClose, order, onStatusChange, onResendWha
                         {order.payment_method === 'online' ? 'ONLINE PAYMENT' : 'CASH ON DELIVERY'}
                       </span>
                     </div>
-                    {order.payment_id && (
+                    <div className="flex justify-between items-center pb-3 border-b border-gray-100">
+                      <span className="text-gray-500">Payment Status</span>
+                      <span className={`font-bold px-3 py-1 rounded-full text-xs ${
+                        String(order.payment_status || '').toLowerCase() === 'captured' || String(order.payment_status || '').toLowerCase() === 'paid' ? 'bg-emerald-100 text-emerald-800' :
+                        String(order.payment_status || '').toLowerCase() === 'authorized' ? 'bg-blue-100 text-blue-800' :
+                        String(order.payment_status || '').toLowerCase() === 'failed' ? 'bg-red-100 text-red-800' :
+                        'bg-amber-100 text-amber-800'
+                      }`}>
+                        {String(order.payment_status || '').toUpperCase() || 'PENDING'}
+                      </span>
+                    </div>
+                    {(order.transaction_id || order.payment_id) && (
                       <div className="flex justify-between items-center pb-3 border-b border-gray-100">
                         <span className="text-gray-500">Transaction ID</span>
-                        <span className="font-mono text-sm text-gray-900">{order.payment_id}</span>
+                        <span className="font-mono text-xs text-gray-900 break-all">{order.transaction_id || order.payment_id}</span>
+                      </div>
+                    )}
+                    {order.razorpay_order_id && (
+                      <div className="flex justify-between items-center pb-3 border-b border-gray-100">
+                        <span className="text-gray-500">Razorpay Order ID</span>
+                        <span className="font-mono text-xs text-gray-900 break-all">{order.razorpay_order_id}</span>
                       </div>
                     )}
                     <div className="flex justify-between items-center pb-2">

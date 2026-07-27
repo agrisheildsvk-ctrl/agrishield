@@ -29,11 +29,18 @@ const AdminDashboard = () => {
       navigate('/admin/login');
       return;
     }
-    fetchOrders();
+    fetchOrders(true);
+
+    // Auto-refresh payment status every 10 seconds (no manual refresh needed)
+    const interval = setInterval(() => {
+      fetchOrders(false);
+    }, 10000);
+
+    return () => clearInterval(interval);
   }, [navigate]);
 
-  const fetchOrders = async () => {
-    setLoading(true);
+  const fetchOrders = async (showLoading = true) => {
+    if (showLoading) setLoading(true);
     try {
       const apiUrl = import.meta.env.VITE_API_URL || 'https://agrishield-production-573f.up.railway.app/api';
       const response = await axios.get(`${apiUrl}/orders`);
@@ -46,7 +53,7 @@ const AdminDashboard = () => {
       console.error(err);
       setError('Connection error. Is the backend running?');
     } finally {
-      setLoading(false);
+      if (showLoading) setLoading(false);
     }
   };
 
@@ -311,11 +318,23 @@ const AdminDashboard = () => {
                         </td>
                         <td className="px-6 py-5 font-bold text-primary">₹{order.total_amount}</td>
                         <td className="px-6 py-5">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${
-                            order.payment_method === 'online' ? 'bg-green-100 text-green-800' : 'bg-orange-100 text-orange-800'
-                          }`}>
-                            {order.payment_method === 'online' ? 'ONLINE' : 'COD'}
-                          </span>
+                          <div className="flex flex-col gap-1.5 items-start">
+                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${
+                              order.payment_method === 'online' ? 'bg-green-100 text-green-800' : 'bg-orange-100 text-orange-800'
+                            }`}>
+                              {order.payment_method === 'online' ? 'ONLINE' : 'COD'}
+                            </span>
+                            <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-extrabold ${
+                              String(order.payment_status || '').toLowerCase() === 'captured' || String(order.payment_status || '').toLowerCase() === 'paid' ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' :
+                              String(order.payment_status || '').toLowerCase() === 'authorized' ? 'bg-blue-100 text-blue-800 border border-blue-200' :
+                              String(order.payment_status || '').toLowerCase() === 'failed' ? 'bg-red-100 text-red-800 border border-red-200' :
+                              'bg-amber-100 text-amber-800 border border-amber-200'
+                            }`}>
+                              {String(order.payment_status || '').toLowerCase() === 'captured' || String(order.payment_status || '').toLowerCase() === 'paid' ? '✅ Captured' :
+                               String(order.payment_status || '').toLowerCase() === 'authorized' ? '⏳ Authorized' :
+                               String(order.payment_status || '').toLowerCase() === 'failed' ? '❌ Failed' : '⏳ Pending'}
+                            </span>
+                          </div>
                         </td>
                         <td className="px-6 py-5">
                           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${

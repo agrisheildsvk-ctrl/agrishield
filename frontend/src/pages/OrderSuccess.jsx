@@ -65,9 +65,12 @@ const OrderSuccess = () => {
     doc.setFontSize(10);
     doc.text(`Order ID: ${orderId}`, 14, 58);
     doc.text(`Date: ${date}`, 14, 64);
-    doc.text(`Payment Method: ${paymentMethod === 'online' ? 'Online Payment' : 'Cash on Delivery'}`, 14, 70);
-    if (paymentMethod === 'online' && paymentId) {
-      doc.text(`Transaction ID: ${paymentId}`, 14, 76);
+    doc.text(`Payment Method: ${paymentMethod === 'online' ? 'Online Payment (Captured)' : 'Cash on Delivery'}`, 14, 70);
+    if (paymentMethod === 'online') {
+      doc.text(`Transaction ID: ${paymentId || orderData.razorpay_payment_id || 'N/A'}`, 14, 76);
+      if (orderData.razorpay_order_id) {
+        doc.text(`Razorpay Order ID: ${orderData.razorpay_order_id}`, 14, 82);
+      }
     }
 
     // Bill To
@@ -158,7 +161,7 @@ const OrderSuccess = () => {
       doc.text('Payment Status: PENDING (Cash on Delivery)', 14, currentY + 38);
     } else {
       doc.setTextColor(22, 163, 74); // green
-      doc.text('Payment Status: PAID ONLINE', 14, currentY + 38);
+      doc.text('Payment Status: CAPTURED (Paid Online)', 14, currentY + 38);
     }
 
     // Save PDF
@@ -183,7 +186,12 @@ const OrderSuccess = () => {
           >
             <FiCheckCircle className="w-12 h-12 text-primary" />
           </motion.div>
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-2">Order Confirmed!</h1>
+          {paymentMethod === 'online' && (
+            <div className="inline-flex items-center gap-2 bg-green-100 text-green-800 font-extrabold px-5 py-2 rounded-full text-sm mb-3 shadow-sm border border-green-200">
+              ✅ Payment Successful
+            </div>
+          )}
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-2">Order Confirmed</h1>
           <p className="text-gray-600 font-medium">Thank you for your purchase. Your order has been placed successfully.</p>
         </div>
 

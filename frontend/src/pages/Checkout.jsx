@@ -58,7 +58,7 @@ const Checkout = () => {
 
   const finalTotal = Math.max(0, paymentMethod === 'cod' ? baseTotal + 80 - discount : baseTotal - discount);
 
-  const handlePlaceOrder = (e) => {
+  const handlePlaceOrder = async (e) => {
     e.preventDefault();
 
     if (!/^[0-9]{10}$/.test(formData.phone)) {
@@ -97,35 +97,86 @@ const Checkout = () => {
       }
     };
 
-    if (paymentMethod === 'online') {
-      const options = {
-        key: 'rzp_live_THeLChW5klDXa0',
-        amount: Math.round(finalTotal * 100),
-        currency: 'INR',
-        name: 'Agrishield',
-        description: 'Agricultural Products Purchase',
-        handler: async function (response) {
-          const data = generateOrderData(response.razorpay_payment_id);
-          await saveOrderToDB(data);
-          clearCart();
-          navigate('/order-success', { state: { orderData: data } });
-        },
-        theme: {
-          color: '#16a34a'
-        }
-      };
+    const apiUrl = import.meta.env.VITE_API_URL || 'https://agrishield-production-573f.up.railway.app/api';
 
-      const rzp = new window.Razorpay(options);
-      rzp.on('payment.failed', function (response){
-        alert('Payment failed: ' + response.error.description);
-      });
-      rzp.open();
+    if (paymentMethod === 'online') {
+      try {
+        const createOrderRes = await axios.post(`${apiUrl}/payments/create-order`, {
+          amount: finalTotal,
+          currency: 'INR',
+          receipt: 'ORD-' + Math.random().toString(36).substr(2, 9).toUpperCase(),
+          notes: {
+            phone: formData.phone,
+            email: formData.email,
+            customerName: `${formData.firstName} ${formData.lastName}`.trim()
+          }
+        });
+
+        if (!createOrderRes.data.success) {
+          alert('Failed to initialize online payment. Please try again.');
+          return;
+        }
+
+        const { razorpayOrderId, amount, currency, keyId } = createOrderRes.data;
+
+        const options = {
+          key: keyId || import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_live_THeLChW5klDXa0',
+          amount: amount,
+          currency: currency,
+          name: 'Agrishield',
+          description: 'Agricultural Products Purchase',
+          order_id: razorpayOrderId,
+          handler: async function (response) {
+            const verifyData = {
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              orderData: generateOrderData(response.razorpay_payment_id)
+            };
+
+            try {
+              const verifyRes = await axios.post(`${apiUrl}/payments/verify`, verifyData);
+              if (verifyRes.data.success) {
+                clearCart();
+                navigate('/order-success', { state: { orderData: verifyRes.data.order || verifyData.orderData } });
+              } else {
+                alert('Payment verification failed: ' + (verifyRes.data.message || 'Please contact support.'));
+              }
+            } catch (verErr) {
+              console.error('Payment verification error:', verErr);
+              alert('Payment verification error. If your account was charged, please contact support.');
+            }
+          },
+          prefill: {
+            name: `${formData.firstName} ${formData.lastName}`.trim(),
+            email: formData.email || '',
+            contact: formData.phone || ''
+          },
+          theme: {
+            color: '#16a34a'
+          }
+        };
+
+        const rzp = new window.Razorpay(options);
+        rzp.on('payment.failed', function (response) {
+          console.error('Razorpay payment failed:', response.error);
+          alert('Payment failed: ' + (response.error.description || 'Unknown error'));
+        });
+        rzp.open();
+      } catch (err) {
+        console.error('Error initiating online payment:', err);
+        alert('Could not connect to payment server. Please try again.');
+      }
     } else {
       const data = generateOrderData(null);
-      saveOrderToDB(data).then(() => {
+      try {
+        await axios.post(`${apiUrl}/orders`, data);
         clearCart();
         navigate('/order-success', { state: { orderData: data } });
-      });
+      } catch (err) {
+        console.error('Failed to place COD order:', err);
+        alert('Failed to place COD order. Please try again.');
+      }
     }
   };
 

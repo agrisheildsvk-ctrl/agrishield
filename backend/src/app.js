@@ -11,6 +11,7 @@ const productsRoutes = require('./routes/products.js');
 const categoriesRoutes = require('./routes/categories.js');
 const cartRoutes = require('./routes/cart.js');
 const ordersRoutes = require('./routes/orders.js');
+const paymentsRoutes = require('./routes/payments.js');
 const settingsRoutes = require('./routes/settings.js');
 const notificationsRoutes = require('./routes/notifications.js');
 
@@ -21,7 +22,13 @@ app.use(helmet());
 app.use(cors({ origin: true, credentials: true }));
 app.use(morgan('dev'));
 app.use(compression());
-app.use(express.json());
+app.use(
+  express.json({
+    verify: (req, res, buf) => {
+      req.rawBody = buf.toString();
+    }
+  })
+);
 app.use(express.urlencoded({ extended: true }));
 
 // Serve uploaded files (if any)
@@ -33,6 +40,7 @@ app.use('/api/products', productsRoutes);
 app.use('/api/categories', categoriesRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/orders', ordersRoutes);
+app.use('/api/payments', paymentsRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/notifications', notificationsRoutes);
 

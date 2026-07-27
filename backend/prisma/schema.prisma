@@ -90,10 +90,15 @@ model Order {
   discount         Decimal     @db.Decimal(10, 2)
   cod_fee          Decimal     @db.Decimal(10, 2)
   total_amount     Decimal     @db.Decimal(10, 2)
-  payment_method   String
-  payment_status   String      @default("pending")
-  payment_id       String?
-  status           String      @default("processing")
+  payment_method      String
+  payment_status      String      @default("Pending")
+  payment_id          String?
+  razorpay_order_id   String?
+  razorpay_payment_id String?
+  razorpay_signature  String?
+  capture_timestamp   DateTime?
+  transaction_id      String?
+  status              String      @default("processing")
   whatsapp_status  String      @default("pending")
   whatsapp_error   String?     @db.Text
   created_at       DateTime    @default(now())
