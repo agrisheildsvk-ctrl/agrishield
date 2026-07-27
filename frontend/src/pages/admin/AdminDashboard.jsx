@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
-import { FiLogOut, FiShoppingBag, FiDollarSign, FiClock, FiActivity, FiRefreshCw, FiSearch, FiFilter, FiEye, FiUsers, FiSettings, FiSend } from 'react-icons/fi';
+import { FiLogOut, FiShoppingBag, FiDollarSign, FiClock, FiActivity, FiRefreshCw, FiSearch, FiFilter, FiEye, FiUsers, FiSettings, FiSend, FiMessageSquare } from 'react-icons/fi';
 import { motion } from 'framer-motion';
 import OrderDetailsModal from '../../components/admin/OrderDetailsModal';
 import AdminUsers from './AdminUsers';
@@ -347,6 +347,17 @@ const AdminDashboard = () => {
                           </select>
                         </td>
                         <td className="px-6 py-5 text-right flex items-center justify-end gap-2">
+                          {order.whatsapp_url && (
+                            <a
+                              href={order.whatsapp_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              title="Open in WhatsApp"
+                              className="inline-flex items-center justify-center gap-1 bg-green-500 text-white hover:bg-green-600 px-2.5 py-1.5 rounded-lg shadow-sm transition text-xs font-bold"
+                            >
+                              <FiMessageSquare /> WhatsApp
+                            </a>
+                          )}
                           <button
                             onClick={() => resendWhatsApp(order.id)}
                             title="Resend WhatsApp Notification"

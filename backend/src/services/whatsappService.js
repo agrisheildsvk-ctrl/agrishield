@@ -299,6 +299,15 @@ const retryOrderNotification = async (orderId) => {
   }
 };
 
+/**
+ * Generate Click-to-Chat URL for an Order
+ */
+const getOrderWhatsAppUrl = (order, ownerPhone = DEFAULT_OWNER_WHATSAPP) => {
+  const formattedPhone = formatPhoneNumber(ownerPhone);
+  const message = formatOrderMessage(order);
+  return `https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`;
+};
+
 module.exports = {
   getOwnerWhatsAppNumber,
   formatPhoneNumber,
@@ -307,5 +316,6 @@ module.exports = {
   sendWhatsAppMessage,
   notifyOwnerNewOrder,
   notifyCustomerStatusChange,
-  retryOrderNotification
+  retryOrderNotification,
+  getOrderWhatsAppUrl
 };

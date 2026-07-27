@@ -87,10 +87,16 @@ const getAllOrders = async (req, res) => {
       }
     });
     
+    const ownerPhone = await whatsappService.getOwnerWhatsAppNumber();
+    const ordersWithUrl = orders.map(order => ({
+      ...order,
+      whatsapp_url: whatsappService.getOrderWhatsAppUrl(order, ownerPhone)
+    }));
+    
     res.status(200).json({
       success: true,
-      count: orders.length,
-      orders
+      count: ordersWithUrl.length,
+      orders: ordersWithUrl
     });
   } catch (error) {
     console.error('Error fetching orders:', error);

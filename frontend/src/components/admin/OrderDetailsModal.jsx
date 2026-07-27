@@ -78,14 +78,26 @@ const OrderDetailsModal = ({ isOpen, onClose, order, onStatusChange, onResendWha
                   {order.whatsapp_error && (
                     <p className="text-xs text-red-600 font-semibold mb-3">Error: {order.whatsapp_error}</p>
                   )}
-                  {onResendWhatsApp && (
-                    <button
-                      onClick={() => onResendWhatsApp(order.id)}
-                      className="w-full bg-green-50 border border-green-200 text-green-700 hover:bg-green-100 font-bold py-2.5 px-4 rounded-xl transition flex items-center justify-center gap-2 text-sm"
-                    >
-                      <FiSend /> Resend WhatsApp Receipt
-                    </button>
-                  )}
+                  <div className="flex flex-col gap-2.5">
+                    {order.whatsapp_url && (
+                      <a
+                        href={order.whatsapp_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 px-4 rounded-xl transition flex items-center justify-center gap-2 text-sm shadow-sm"
+                      >
+                        <FiMessageSquare /> Open in WhatsApp
+                      </a>
+                    )}
+                    {onResendWhatsApp && (
+                      <button
+                        onClick={() => onResendWhatsApp(order.id)}
+                        className="w-full bg-green-50 border border-green-200 text-green-700 hover:bg-green-100 font-bold py-2.5 px-4 rounded-xl transition flex items-center justify-center gap-2 text-sm"
+                      >
+                        <FiSend /> Resend WhatsApp Receipt
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 {/* Shipping Address */}
