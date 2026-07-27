@@ -95,16 +95,29 @@ const ProductCard = ({ product }) => {
           {product.name}
         </h3>
         
-        {/* Ratings */}
-        <div className="flex items-center gap-1 mb-3">
-          {[...Array(5)].map((_, i) => (
-            <FiStar 
-              key={i} 
-              className={`w-4 h-4 ${i < Math.floor(product.rating) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} 
-            />
-          ))}
-          <span className="text-sm text-gray-500 ml-1">({product.reviews})</span>
+        {/* Ratings & Reviews */}
+        <div className="flex items-center gap-2 mb-2.5">
+          <div className="flex items-center gap-1 bg-yellow-50 text-yellow-700 px-2 py-0.5 rounded-md text-xs font-bold border border-yellow-200/80 shadow-2xs">
+            <span>{product.rating || '4.5'}</span>
+            <FiStar className="w-3 h-3 text-yellow-500 fill-current" />
+          </div>
+          <div className="flex items-center gap-0.5">
+            {[...Array(5)].map((_, i) => (
+              <FiStar 
+                key={i} 
+                className={`w-3.5 h-3.5 ${i < Math.floor(product.rating || 4.5) ? 'text-yellow-400 fill-current' : 'text-gray-200'}`} 
+              />
+            ))}
+          </div>
+          <span className="text-xs font-semibold text-gray-500">
+            ({product.reviews || 0} reviews)
+          </span>
         </div>
+
+        {/* Short description to eliminate empty space */}
+        <p className="text-xs text-gray-600 line-clamp-2 mb-4 leading-relaxed font-normal">
+          {product.description || product.technicalContent || '100% Organic, eco-friendly protection safe for crops, animals, and soil.'}
+        </p>
 
         <div className="mt-auto pt-4 border-t border-gray-100 flex flex-col gap-3">
           <div className="flex flex-col gap-1 mb-1">
@@ -142,19 +155,24 @@ const ProductCard = ({ product }) => {
                 )}
               </div>
             </div>
+            {product.discount && (
+              <span className="text-[11px] font-bold text-green-700 bg-green-50 px-2 py-1 rounded-md border border-green-200">
+                Save {product.discount}%
+              </span>
+            )}
           </div>
           
           <div className="flex items-center gap-2">
             <button 
               onClick={handleAddToCart}
-              className="flex-1 bg-white border border-primary text-primary hover:bg-green-50 font-bold py-2.5 px-2 rounded-xl shadow-sm transition flex items-center justify-center gap-1 sm:gap-2" 
+              className="flex-1 bg-white border border-primary text-primary hover:bg-green-50 font-bold py-2.5 px-2 rounded-xl shadow-sm transition flex items-center justify-center gap-1 sm:gap-1.5 text-xs sm:text-sm" 
               aria-label="Add to Cart"
             >
-              <FiShoppingCart className="w-4 h-4" /> <span className="hidden sm:inline">Cart</span>
+              <FiShoppingCart className="w-4 h-4" /> <span>Cart</span>
             </button>
             <button 
               onClick={handleBuyNow}
-              className="flex-1 bg-accent hover:bg-green-500 text-white font-bold py-2.5 px-2 rounded-xl shadow-md transition animate-blink text-sm sm:text-base" 
+              className="flex-1 bg-accent hover:bg-green-500 text-white font-bold py-2.5 px-2 rounded-xl shadow-md transition text-xs sm:text-sm" 
               aria-label="Buy Now"
             >
               Buy Now

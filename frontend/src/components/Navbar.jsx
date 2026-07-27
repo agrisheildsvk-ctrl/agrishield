@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { FiShoppingCart, FiUser, FiSearch, FiGlobe, FiMenu, FiX } from 'react-icons/fi';
+import { FiShoppingCart, FiUser, FiSearch, FiGlobe, FiMenu, FiX, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import { useLanguage } from '../context/LanguageContext';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
@@ -11,6 +11,19 @@ const Navbar = () => {
   const { isAuthenticated, user } = useAuth();
   const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const scrollRef = useRef(null);
+
+  const scrollLeft = () => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollBy({ left: -220, behavior: 'smooth' });
+    }
+  };
+
+  const scrollRight = () => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollBy({ left: 220, behavior: 'smooth' });
+    }
+  };
 
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50 w-full">
@@ -113,10 +126,23 @@ const Navbar = () => {
         )}
       </div>
 
-      {/* Secondary Scrolling Navbar */}
-      <div className="bg-primary-dark text-white border-t border-green-800">
-        <div className="container mx-auto">
-          <ul className="flex items-center md:justify-center space-x-3 md:space-x-4 px-4 py-3 overflow-x-auto whitespace-nowrap scrollbar-hide text-sm font-medium">
+      {/* Secondary Scrolling Navbar with Left & Right Arrows */}
+      <div className="bg-primary-dark text-white border-t border-green-800 relative shadow-inner">
+        <div className="container mx-auto px-2 sm:px-4 py-2 flex items-center justify-between gap-1 sm:gap-2">
+          {/* Left Arrow Button */}
+          <button 
+            onClick={scrollLeft}
+            className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 bg-green-700 hover:bg-green-600 active:bg-green-800 text-white rounded-full shadow-md transition-all active:scale-95 border border-white/20 shrink-0 z-10 focus:outline-none"
+            aria-label="Scroll left"
+          >
+            <FiChevronLeft className="w-5 h-5" />
+          </button>
+
+          {/* Scrollable Products List */}
+          <ul 
+            ref={scrollRef}
+            className="flex items-center space-x-2.5 sm:space-x-3 overflow-x-auto whitespace-nowrap scrollbar-hide text-xs sm:text-sm font-medium scroll-smooth flex-grow py-1 px-1"
+          >
             {[
               { id: 1, name: "WILD BOAR" },
               { id: 2, name: "Dr Mullu" },
@@ -127,16 +153,25 @@ const Navbar = () => {
               { id: 8, name: "RAT SPRAY" },
               { id: 9, name: "LIZZARD" }
             ].map((item, idx) => (
-              <li key={idx}>
+              <li key={idx} className="shrink-0">
                 <Link 
                   to={`/product/${item.id}`} 
-                  className="block px-4 py-2 bg-white/5 hover:bg-white/20 border border-white/20 rounded-md transition-all shadow-sm"
+                  className="block px-3.5 py-2 bg-white/10 hover:bg-white/25 border border-white/25 rounded-lg transition-all shadow-sm active:bg-white/30"
                 >
                   {item.name}
                 </Link>
               </li>
             ))}
           </ul>
+
+          {/* Right Arrow Button */}
+          <button 
+            onClick={scrollRight}
+            className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 bg-green-700 hover:bg-green-600 active:bg-green-800 text-white rounded-full shadow-md transition-all active:scale-95 border border-white/20 shrink-0 z-10 focus:outline-none"
+            aria-label="Scroll right"
+          >
+            <FiChevronRight className="w-5 h-5" />
+          </button>
         </div>
       </div>
     </header>

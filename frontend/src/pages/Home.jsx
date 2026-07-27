@@ -9,6 +9,7 @@ import { Link } from 'react-router-dom';
 import { products } from '../data/products';
 import TrustBadges from '../components/TrustBadges';
 import PromoBanners from '../components/PromoBanners';
+import ProductCard from '../components/shop/ProductCard';
 
 const Home = () => {
   const [activeFaq, setActiveFaq] = useState(null);
@@ -181,40 +182,9 @@ const Home = () => {
       <section className="py-12 md:py-16 lg:py-20 bg-gray-50 w-full">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
           <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-center mb-8 md:mb-12 text-primary-dark">Featured Products</h2>
-           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 items-stretch">
               {products.slice(0, 4).map(product => (
-                <div 
-                  key={product.id} 
-                  className="bg-white rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 overflow-hidden group flex flex-col h-full border border-gray-100 p-5"
-                >
-                  {/* Product Image */}
-                  <div className="aspect-square w-full bg-white flex items-center justify-center relative overflow-hidden rounded-xl mb-4 p-4">
-                     {product.image ? (
-                       <img 
-                         src={product.image} 
-                         alt={product.name} 
-                         className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300" 
-                       />
-                     ) : (
-                       <span className="text-gray-300 font-bold text-xl tracking-widest rotate-[-45deg] opacity-50">NO IMAGE</span>
-                     )}
-                  </div>
-                  {/* Name, Price and View Button */}
-                  <div className="flex flex-col flex-grow items-center text-center justify-between p-2">
-                    <h3 className="font-extrabold text-gray-900 text-lg md:text-xl mb-3 line-clamp-2 leading-tight group-hover:text-primary transition-colors">
-                      {product.name}
-                    </h3>
-                    <div className="mt-auto w-full flex flex-col items-center gap-4">
-                      <span className="text-2xl font-extrabold text-primary">{product.price}</span>
-                      <Link 
-                        to="/shop" 
-                        className="w-full bg-gray-900 hover:bg-primary text-white font-bold py-2.5 px-4 rounded-xl transition-all shadow-sm hover:shadow-md text-center text-sm"
-                      >
-                        View
-                      </Link>
-                    </div>
-                  </div>
-                </div>
+                <ProductCard key={product.id} product={product} />
               ))}
            </div>
           <div className="text-center mt-10 md:mt-14">
@@ -249,16 +219,25 @@ const Home = () => {
                   </div>
                 </div>
                 <h3 className="font-extrabold text-gray-900 text-xl mb-1">BONDON-B (500 ml)</h3>
-                <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-3">All Animals & Birds Repellent</p>
+                <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-2">All Animals & Birds Repellent</p>
+                <div className="flex items-center justify-center gap-1.5 mb-4">
+                  <div className="flex items-center gap-1 bg-yellow-50 text-yellow-700 px-2.5 py-0.5 rounded-full text-xs font-bold border border-yellow-200">
+                    <span>4.9</span>
+                    <span className="text-yellow-500">★</span>
+                  </div>
+                  <span className="text-xs font-semibold text-gray-500">(142 reviews)</span>
+                </div>
                 <div className="flex items-center justify-center gap-2 mb-6">
                   <span className="text-3xl font-extrabold text-primary">₹530</span>
                   <span className="text-base text-gray-400 line-through font-medium">₹1050</span>
+                  <span className="text-xs font-bold text-green-700 bg-green-50 px-2 py-0.5 rounded-md border border-green-200 ml-1">Save 50%</span>
                 </div>
                 <Link 
                   to="/product/10"
-                  className="w-full bg-gray-900 hover:bg-primary text-white font-bold py-3.5 px-6 rounded-xl transition-all shadow-md hover:shadow-lg text-sm"
+                  className="w-full bg-primary hover:bg-primary-dark text-white font-bold py-3.5 px-6 rounded-xl transition-all shadow-md hover:shadow-lg text-sm flex items-center justify-center gap-2"
                 >
-                  View Product Details
+                  <span>View Product Details</span>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                 </Link>
               </div>
 
