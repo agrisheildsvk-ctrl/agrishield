@@ -167,14 +167,45 @@ const sendWhatsAppMessage = async (phone, message) => {
   const clickToChatUrl = `https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`;
 
   try {
-    // Check if external WhatsApp API URL is provided in environment
+    // 1. Support Green-API native credentials (GREEN_API_ID_INSTANCE & GREEN_API_TOKEN_INSTANCE or green-api URL)
+    const greenApiId = process.env.GREEN_API_ID_INSTANCE || process.env.GREEN_API_INSTANCE_ID;
+    const greenApiToken = process.env.GREEN_API_TOKEN_INSTANCE || process.env.GREEN_API_TOKEN || process.env.WHATSAPP_API_KEY;
+
+    if (greenApiId && greenApiToken) {
+      const url = `https://api.green-api.com/waInstance${greenApiId}/sendMessage/${greenApiToken}`;
+      console.log(`[WhatsAppService] Sending WhatsApp via Green-API to ${formattedPhone}...`);
+      const response = await axios.post(url, {
+        chatId: `${formattedPhone}@c.us`,
+        message: message
+      }, {
+        headers: { 'Content-Type': 'application/json' },
+        timeout: 10000
+      });
+
+      if (response.status >= 200 && response.status < 300) {
+        return {
+          success: true,
+          status: 'sent',
+          message: 'WhatsApp message sent successfully via Green-API',
+          clickToChatUrl
+        };
+      }
+    }
+
+    // 2. Support generic WHATSAPP_API_URL (including Green-API full URL)
     if (process.env.WHATSAPP_API_URL) {
-      console.log(`[WhatsAppService] Sending WhatsApp via API to ${formattedPhone}...`);
-      const response = await axios.post(process.env.WHATSAPP_API_URL, {
+      const isGreenApiUrl = process.env.WHATSAPP_API_URL.includes('greenapi.com') || process.env.WHATSAPP_API_URL.includes('green-api.com');
+      const payload = isGreenApiUrl ? {
+        chatId: `${formattedPhone}@c.us`,
+        message: message
+      } : {
         phone: formattedPhone,
         message: message,
         apiKey: process.env.WHATSAPP_API_KEY
-      }, {
+      };
+
+      console.log(`[WhatsAppService] Sending WhatsApp via API to ${formattedPhone}...`);
+      const response = await axios.post(process.env.WHATSAPP_API_URL, payload, {
         headers: { 'Content-Type': 'application/json' },
         timeout: 10000
       });
