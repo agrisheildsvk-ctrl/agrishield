@@ -1,10 +1,14 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { FiTrash2, FiMinus, FiPlus, FiArrowLeft, FiShoppingBag } from 'react-icons/fi';
 import { useCart } from '../context/CartContext';
 
 const Cart = () => {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   const { cartItems, updateQuantity, removeFromCart, cartSubtotal, cartTotal } = useCart();
   const activeTotal = cartItems.reduce((total, item) => {
     const priceNum = parseFloat(String(item.price).replace(/[^0-9.]/g, '')) || 0;
@@ -72,7 +76,7 @@ const Cart = () => {
                 <div className="flex-1 flex flex-col items-center sm:items-start text-center sm:text-left">
                   <span className="text-xs font-bold text-primary uppercase tracking-wider mb-1">{item.category}</span>
                   <h3 className="text-lg font-bold text-gray-900 mb-1">{item.name}</h3>
-                  <div className="text-sm text-gray-500 font-medium mb-3">Package Size: <span className="text-gray-800">{item.packageSize === '50' ? '50 ml / 50 gm' : item.packageSize === '100' ? '100 ml / 100 gm' : item.packageSize === '250' ? '200 ml / 250 gm' : '1 L / 1 kg'}</span></div>
+                  <div className="text-sm text-gray-500 font-medium mb-3">Package Size: <span className="font-extrabold text-gray-800 bg-gray-100 px-2 py-0.5 rounded-md">{item.packageSize || '1 kg'}</span></div>
                   
                   <div className="flex items-center gap-3 mt-auto">
                     <div className="text-xl font-extrabold text-gray-900">

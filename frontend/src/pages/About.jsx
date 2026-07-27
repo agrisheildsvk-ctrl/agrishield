@@ -1,7 +1,11 @@
+import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FiCheckCircle, FiShield, FiTrendingUp, FiUsers } from 'react-icons/fi';
 
 const About = () => {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   return (
     <div className="flex flex-col min-h-screen w-full bg-gray-50 pb-16 overflow-hidden">
       {/* Hero Section */}

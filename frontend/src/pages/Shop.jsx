@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FiSearch, FiMic } from 'react-icons/fi';
 import HeroBanner from '../components/shop/HeroBanner';
@@ -10,6 +10,10 @@ import Newsletter from '../components/shop/Newsletter';
 import { products } from '../data/products';
 
 const Shop = () => {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');

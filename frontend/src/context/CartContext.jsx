@@ -18,7 +18,7 @@ export const CartProvider = ({ children }) => {
     localStorage.setItem('agrishield_cart', JSON.stringify(cartItems));
   }, [cartItems]);
 
-  const addToCart = (product) => {
+  const addToCart = (product, qty = 1) => {
     setCartItems(prevItems => {
       const existingItemIndex = prevItems.findIndex(
         item => item.id === product.id && item.packageSize === product.packageSize
@@ -26,10 +26,10 @@ export const CartProvider = ({ children }) => {
 
       if (existingItemIndex >= 0) {
         const newItems = [...prevItems];
-        newItems[existingItemIndex].quantity += 1;
+        newItems[existingItemIndex].quantity += qty;
         return newItems;
       } else {
-        return [...prevItems, { ...product, quantity: 1 }];
+        return [...prevItems, { ...product, quantity: qty }];
       }
     });
   };

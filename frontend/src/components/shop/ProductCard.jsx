@@ -5,19 +5,37 @@ import { useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 
 const ProductCard = ({ product }) => {
-  const [selectedPackage, setSelectedPackage] = useState(product.packageSize || '50');
+  const defaultVariant = product.variants?.find(v => v.isDefault) || product.variants?.[0] || {
+    size: product.packageSize || '1 kg',
+    price: product.price || '₹400',
+    originalPrice: product.originalPrice || '₹680',
+    discount: product.discount || 41
+  };
+  const [selectedVariant, setSelectedVariant] = useState(defaultVariant);
   const { addToCart } = useCart();
   const navigate = useNavigate();
 
   const handleAddToCart = (e) => {
     e.stopPropagation();
-    addToCart({ ...product, packageSize: product.packageSize || selectedPackage });
+    addToCart({ 
+      ...product, 
+      packageSize: selectedVariant.size, 
+      price: selectedVariant.price, 
+      originalPrice: selectedVariant.originalPrice, 
+      discount: selectedVariant.discount 
+    });
     navigate('/cart');
   };
 
   const handleBuyNow = (e) => {
     e.stopPropagation();
-    addToCart({ ...product, packageSize: product.packageSize || selectedPackage });
+    addToCart({ 
+      ...product, 
+      packageSize: selectedVariant.size, 
+      price: selectedVariant.price, 
+      originalPrice: selectedVariant.originalPrice, 
+      discount: selectedVariant.discount 
+    });
     navigate('/checkout');
   };
 
@@ -123,18 +141,33 @@ const ProductCard = ({ product }) => {
           <div className="flex flex-col gap-1 mb-1">
             <label className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Package Size</label>
             <div className="relative">
-              <select 
-                value={selectedPackage}
-                onChange={(e) => setSelectedPackage(e.target.value)}
-                className="appearance-none bg-gray-50 border border-gray-200 text-gray-700 text-sm font-medium rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent block w-full p-2.5 pr-8 cursor-pointer transition"
-              >
-                {product.packageSize && <option value={product.packageSize}>{product.packageSize}</option>}
-                <option value="50">50 ml / 50 gm</option>
-                <option value="100">100 ml / 100 gm</option>
-                <option value="250">200 ml / 250 gm</option>
-                <option value="500 ml">500 ml / 500 gm</option>
-                <option value="1000">1 L / 1 kg</option>
-              </select>
+              {product.variants && product.variants.length > 0 ? (
+                <select 
+                  value={selectedVariant.size}
+                  onChange={(e) => {
+                    e.stopPropagation();
+                    const found = product.variants.find(v => v.size === e.target.value);
+                    if (found) setSelectedVariant(found);
+                  }}
+                  onClick={(e) => e.stopPropagation()}
+                  className="appearance-none bg-gray-50 border border-gray-200 text-gray-700 text-sm font-medium rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent block w-full p-2.5 pr-8 cursor-pointer transition"
+                >
+                  {product.variants.map((v, i) => (
+                    <option key={i} value={v.size}>
+                      {v.size} — {v.price}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <select 
+                  value={selectedVariant.size}
+                  onChange={(e) => setSelectedVariant({ ...selectedVariant, size: e.target.value })}
+                  onClick={(e) => e.stopPropagation()}
+                  className="appearance-none bg-gray-50 border border-gray-200 text-gray-700 text-sm font-medium rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent block w-full p-2.5 pr-8 cursor-pointer transition"
+                >
+                  <option value={product.packageSize || '1 kg'}>{product.packageSize || '1 kg'}</option>
+                </select>
+              )}
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
               </div>
@@ -146,18 +179,18 @@ const ProductCard = ({ product }) => {
               <div className="text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-1">PRICE (Incl GST)</div>
               <div className="flex items-end gap-2">
                 <div className="text-2xl font-extrabold text-gray-900 leading-none">
-                  {product.price}
+                  {selectedVariant.price}
                 </div>
-                {product.originalPrice && (
+                {selectedVariant.originalPrice && (
                   <div className="text-sm text-gray-400 line-through mb-0.5">
-                    MRP {product.originalPrice}
+                    MRP {selectedVariant.originalPrice}
                   </div>
                 )}
               </div>
             </div>
-            {product.discount && (
+            {selectedVariant.discount && (
               <span className="text-[11px] font-bold text-green-700 bg-green-50 px-2 py-1 rounded-md border border-green-200">
-                Save {product.discount}%
+                Save {selectedVariant.discount}%
               </span>
             )}
           </div>

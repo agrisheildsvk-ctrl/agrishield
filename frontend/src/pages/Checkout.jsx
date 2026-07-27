@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { FiArrowLeft, FiCheckCircle, FiCreditCard, FiDollarSign, FiSmartphone, FiTrash2 } from 'react-icons/fi';
@@ -6,6 +6,10 @@ import { useCart } from '../context/CartContext';
 import axios from 'axios';
 
 const Checkout = () => {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   const { cartItems, cartSubtotal, cartTotal, clearCart, removeFromCart } = useCart();
   const baseTotal = cartItems.reduce((total, item) => {
     const priceNum = parseFloat(String(item.price).replace(/[^0-9.]/g, '')) || 0;
@@ -344,8 +348,8 @@ const Checkout = () => {
                     </div>
                     <div className="flex-1 min-w-0">
                       <h4 className="text-sm font-bold text-gray-900 line-clamp-1">{item.name}</h4>
-                      <div className="text-xs text-gray-500 mt-0.5">
-                        Qty: {item.quantity} • {item.packageSize === '50' ? '50 ml / 50 gm' : item.packageSize === '100' ? '100 ml / 100 gm' : item.packageSize === '250' ? '200 ml / 250 gm' : item.packageSize === '1000' ? '1 L / 1 kg' : item.packageSize === '5000' ? '5 L / 5 kg' : `${item.packageSize}`}
+                      <div className="text-xs text-gray-500 mt-0.5 font-medium">
+                        Qty: {item.quantity} • <span className="font-bold text-gray-800">{item.packageSize || '1 kg'}</span>
                       </div>
                     </div>
                     <div className="flex flex-col items-end gap-1.5 flex-shrink-0">

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Pagination, Navigation } from 'swiper/modules';
@@ -12,6 +12,10 @@ import PromoBanners from '../components/PromoBanners';
 import ProductCard from '../components/shop/ProductCard';
 
 const Home = () => {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   const [activeFaq, setActiveFaq] = useState(null);
   
   const faqs = [

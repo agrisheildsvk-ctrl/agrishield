@@ -16,14 +16,51 @@ const ProductDetails = () => {
     .filter(p => p.id !== parseInt(id))
     .sort((a, b) => (a.category === product?.category ? -1 : 1))
     .slice(0, 4);
-  const [selectedPack, setSelectedPack] = useState(product?.packageSize || '1 kg');
+  const defaultVariant = product?.variants?.find(v => v.isDefault) || product?.variants?.[0] || {
+    size: product?.packageSize || '1 kg',
+    price: product?.price || '₹400',
+    originalPrice: product?.originalPrice || '₹680',
+    discount: product?.discount || 41
+  };
+  const [selectedVariant, setSelectedVariant] = useState(defaultVariant);
+  const [quantity, setQuantity] = useState(1);
+  const [selectedImage, setSelectedImage] = useState(product?.image || '');
+  const [selectedThumbIndex, setSelectedThumbIndex] = useState(0);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    if (product?.packageSize) {
-      setSelectedPack(product.packageSize);
+    if (product) {
+      const def = product.variants?.find(v => v.isDefault) || product.variants?.[0] || {
+        size: product.packageSize || '1 kg',
+        price: product.price || '₹400',
+        originalPrice: product.originalPrice || '₹680',
+        discount: product.discount || 41
+      };
+      setSelectedVariant(def);
+      setQuantity(1);
+      setSelectedImage(product.image || '');
+      setSelectedThumbIndex(0);
     }
   }, [id, product]);
+
+  const galleryImages = product?.images && product.images.length > 0 
+    ? product.images 
+    : [
+        product?.image,
+        product?.image,
+        product?.image,
+        product?.image
+      ].filter(Boolean);
+
+  const handleBulkInquiry = (e) => {
+    if (e && e.stopPropagation) e.stopPropagation();
+    const phone = '919739230638';
+    const variantStr = selectedVariant?.size || product.packageSize || '1 kg';
+    const message = `Hello Agrishield / Srii Veerabhadreshwara Krushi Kendra,\n\nI would like to inquire about *Bulk Purchase / Wholesale Pricing* for:\n\n🌾 *Product:* ${product.name}\n📦 *Pack Size:* ${variantStr}\n💰 *Listed Price:* ${selectedVariant?.price || product.price}\n\nPlease share details and best discount for bulk quantity.`;
+    const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
+  };
 
   if (!product) {
     return (
@@ -35,27 +72,24 @@ const ProductDetails = () => {
   }
 
   const handleAddToCart = () => {
-    // Add to cart mapping Pack to 1000 since our Cart format uses "1000" for 1kg
-    const packageMap = {
-      '500 ml': '500',
-      '1 kg': '1000',
-      '5 kg': '5000',
-      '2 kg': '2000',
-      '10 kg': '10000',
-    };
-    addToCart({ ...product, packageSize: packageMap[selectedPack] || product.packageSize || '1000' });
+    addToCart({ 
+      ...product, 
+      packageSize: selectedVariant.size, 
+      price: selectedVariant.price,
+      originalPrice: selectedVariant.originalPrice,
+      discount: selectedVariant.discount
+    }, quantity);
     navigate('/cart');
   };
 
   const handleBuyNow = () => {
-    const packageMap = {
-      '500 ml': '500',
-      '1 kg': '1000',
-      '5 kg': '5000',
-      '2 kg': '2000',
-      '10 kg': '10000',
-    };
-    addToCart({ ...product, packageSize: packageMap[selectedPack] || product.packageSize || '1000' });
+    addToCart({ 
+      ...product, 
+      packageSize: selectedVariant.size, 
+      price: selectedVariant.price,
+      originalPrice: selectedVariant.originalPrice,
+      discount: selectedVariant.discount
+    }, quantity);
     navigate('/checkout');
   };
 
@@ -79,22 +113,37 @@ const ProductDetails = () => {
           
           {/* Left Column - Images */}
           <div className="lg:w-1/2 flex flex-col gap-4">
-            <div className="w-full aspect-square bg-white rounded-2xl flex items-center justify-center relative overflow-hidden group border border-gray-100 p-6">
-               {product.image ? (
-                 <img src={product.image} alt={product.name} className="w-full h-full object-contain" />
+            <div 
+              onClick={() => setIsLightboxOpen(true)}
+              className="w-full aspect-square bg-white rounded-2xl flex items-center justify-center relative overflow-hidden group border border-gray-200 p-6 cursor-zoom-in shadow-sm hover:shadow-md transition"
+              title="Click to view full size image"
+            >
+               {selectedImage ? (
+                 <img src={selectedImage} alt={product.name} className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105" />
                ) : (
                  <span className="text-gray-300 font-bold text-4xl tracking-widest rotate-[-45deg] opacity-50">NO IMAGE</span>
                )}
                <div className="absolute top-4 right-4 bg-green-500 rounded-full w-12 h-12 flex items-center justify-center shadow-lg">
                  <span className="text-white font-extrabold text-xs text-center leading-tight">ECO<br/>Friendly</span>
                </div>
+               <div className="absolute bottom-4 right-4 bg-black/60 hover:bg-black/80 text-white px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 backdrop-blur-sm transition shadow">
+                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" /></svg>
+                 Click to Zoom
+               </div>
             </div>
             {/* Thumbnails */}
-            <div className="flex gap-4">
-              {[1, 2, 3, 4].map(thumb => (
-                <div key={thumb} className={`w-20 h-20 bg-white rounded-xl border-2 flex flex-shrink-0 items-center justify-center cursor-pointer p-2 ${thumb === 1 ? 'border-primary' : 'border-transparent hover:border-gray-200'}`}>
-                  {product.image ? (
-                    <img src={product.image} alt={product.name} className="w-full h-full object-contain" />
+            <div className="flex gap-3 overflow-x-auto pb-2">
+              {galleryImages.map((img, idx) => (
+                <div 
+                  key={idx} 
+                  onClick={() => {
+                    setSelectedImage(img);
+                    setSelectedThumbIndex(idx);
+                  }}
+                  className={`w-20 h-20 bg-white rounded-xl border-2 flex flex-shrink-0 items-center justify-center cursor-pointer p-1.5 transition-all ${selectedThumbIndex === idx ? 'border-primary ring-2 ring-primary/30 shadow-md scale-105' : 'border-gray-200 hover:border-gray-400 opacity-75 hover:opacity-100'}`}
+                >
+                  {img ? (
+                    <img src={img} alt={`${product.name} thumbnail ${idx + 1}`} className="w-full h-full object-contain" />
                   ) : (
                     <span className="text-gray-400 text-xs">IMG</span>
                   )}
@@ -122,11 +171,13 @@ const ProductDetails = () => {
             {/* Price block */}
             <div className="mb-8">
               <div className="flex items-end gap-3 mb-2">
-                <span className="text-4xl font-extrabold text-gray-900">{product.price}</span>
-                {product.originalPrice && <span className="text-lg text-gray-400 line-through mb-1">MRP {product.originalPrice}</span>}
-                {product.discount && <span className="text-xs font-bold text-green-700 bg-green-100 px-2 py-1 rounded mb-2">{product.discount}% OFF</span>}
+                <span className="text-4xl font-extrabold text-gray-900">{selectedVariant.price}</span>
+                {selectedVariant.originalPrice && <span className="text-lg text-gray-400 line-through mb-1">MRP {selectedVariant.originalPrice}</span>}
+                {selectedVariant.discount && <span className="text-xs font-bold text-green-700 bg-green-100 px-2 py-1 rounded mb-2">{selectedVariant.discount}% OFF</span>}
               </div>
-              <p className="text-sm text-gray-500 font-medium">Inclusive of all taxes. <span className="text-green-600 font-bold ml-2 flex inline-flex items-center gap-1"><FiTruck/> Free Delivery</span></p>
+              <p className="text-sm text-gray-500 font-medium">
+                Inclusive of all taxes. <span className="text-green-600 font-bold ml-2 inline-flex items-center gap-1"><FiTruck/> Free Delivery</span> • <span className="text-emerald-700 font-bold ml-1">✅ In Stock</span>
+              </p>
             </div>
 
             {/* Target Species Checklist Badge Grid */}
@@ -155,36 +206,90 @@ const ProductDetails = () => {
               </div>
             )}
 
-            {/* Pack Selector */}
+            {/* Pack Selector (Dropdown + Interactive Buttons Grid) */}
             <div className="mb-8">
-              <h3 className="text-sm font-bold text-gray-900 mb-3">Available Pack Size</h3>
-              <div 
-                onClick={() => setSelectedPack(product.packageSize || '1 kg')}
-                className={`w-40 border-2 rounded-xl p-4 cursor-pointer text-center relative transition-all border-primary bg-green-50`}
-              >
-                {product.discount && <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-yellow-400 text-xs font-bold px-2 py-0.5 rounded-full shadow-sm">{product.discount}% OFF</div>}
-                <div className="font-bold text-gray-900 mb-1">{product.packageSize || '1 kg'}</div>
-                <div className="text-sm font-extrabold text-primary">{product.price}</div>
-                <div className="text-[10px] text-green-600 font-bold uppercase mt-1">Best Seller</div>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-bold text-gray-900">Select Pack Size</h3>
+                {product.variants && product.variants.length > 0 && (
+                  <div className="relative inline-block w-48">
+                    <select
+                      value={selectedVariant.size}
+                      onChange={(e) => {
+                        const found = product.variants.find(v => v.size === e.target.value);
+                        if (found) setSelectedVariant(found);
+                      }}
+                      className="w-full bg-white border-2 border-primary text-gray-900 font-bold text-xs rounded-xl px-3 py-2 outline-none cursor-pointer shadow-sm focus:ring-2 focus:ring-primary/20"
+                    >
+                      {product.variants.map((v, idx) => (
+                        <option key={idx} value={v.size}>
+                          {v.size} — {v.price}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
               </div>
 
-              {product.category !== 'BONDON-B' && (
-                <>
-                  <h3 className="text-sm font-bold text-gray-900 mt-6 mb-3">Big Savings on Multipack</h3>
-                  <div className="flex flex-wrap gap-4">
-                    <div onClick={() => setSelectedPack('5 kg')} className={`flex-1 min-w-[120px] border-2 rounded-xl p-3 cursor-pointer text-center relative transition-all ${selectedPack === '5 kg' ? 'border-primary bg-green-50' : 'border-gray-200 hover:border-gray-300 bg-white'}`}>
-                      <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-yellow-400 text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">14% OFF</div>
-                      <div className="text-xs text-gray-600 mb-1">5 kg (pack of 1 kg x 5)</div>
-                      <div className="text-sm font-extrabold text-gray-900">₹2419</div>
+              {/* Interactive Variant Buttons Grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {(product.variants || []).map((v, idx) => {
+                  const isSelected = selectedVariant.size === v.size;
+                  return (
+                    <div
+                      key={idx}
+                      onClick={() => setSelectedVariant(v)}
+                      className={`border-2 rounded-2xl p-3.5 cursor-pointer text-center relative transition-all flex flex-col items-center justify-center ${
+                        isSelected
+                          ? 'border-primary bg-green-50/80 shadow-md ring-2 ring-primary/20'
+                          : 'border-gray-200 hover:border-primary/50 bg-white hover:bg-gray-50/50'
+                      }`}
+                    >
+                      {v.discount && (
+                        <div className={`absolute -top-2.5 right-2 text-[10px] font-extrabold px-2 py-0.5 rounded-full shadow-2xs ${
+                          isSelected ? 'bg-primary text-white' : 'bg-yellow-400 text-gray-900'
+                        }`}>
+                          {v.discount}% OFF
+                        </div>
+                      )}
+                      <div className={`text-sm font-extrabold mb-0.5 ${isSelected ? 'text-primary' : 'text-gray-900'}`}>
+                        {v.size}
+                      </div>
+                      <div className="text-base font-extrabold text-gray-900">
+                        {v.price}
+                      </div>
+                      {v.originalPrice && (
+                        <div className="text-[11px] text-gray-400 line-through">
+                          ₹{String(v.originalPrice).replace(/[^0-9,.]/g, '')}
+                        </div>
+                      )}
                     </div>
-                    <div onClick={() => setSelectedPack('2 kg')} className={`flex-1 min-w-[120px] border-2 rounded-xl p-3 cursor-pointer text-center relative transition-all ${selectedPack === '2 kg' ? 'border-primary bg-green-50' : 'border-gray-200 hover:border-gray-300 bg-white'}`}>
-                      <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-yellow-400 text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">5% OFF</div>
-                      <div className="text-xs text-gray-600 mb-1">2 kg (pack of 1 kg x 2)</div>
-                      <div className="text-sm font-extrabold text-gray-900">₹1083</div>
-                    </div>
-                  </div>
-                </>
-              )}
+                  );
+                })}
+              </div>
+
+              {/* Quantity Selector */}
+              <div className="flex items-center gap-4 mt-6 pt-6 border-t border-gray-100">
+                <span className="text-sm font-bold text-gray-900">Quantity:</span>
+                <div className="flex items-center bg-gray-50 border border-gray-200 rounded-xl p-1">
+                  <button
+                    type="button"
+                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    className="w-9 h-9 flex items-center justify-center text-gray-600 hover:text-primary font-bold rounded-lg hover:bg-white transition"
+                  >
+                    -
+                  </button>
+                  <span className="w-10 text-center font-extrabold text-gray-900 text-base">
+                    {quantity}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setQuantity(quantity + 1)}
+                    className="w-9 h-9 flex items-center justify-center text-gray-600 hover:text-primary font-bold rounded-lg hover:bg-white transition"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
             </div>
 
             {/* Payment & CTA Note */}
@@ -242,16 +347,25 @@ const ProductDetails = () => {
               </div>
             </div>
 
-            <div className="mt-6 bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl p-4 flex items-center justify-between border border-blue-200 shadow-sm cursor-pointer hover:shadow-md transition">
+            <div 
+              onClick={handleBulkInquiry}
+              className="mt-6 bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl p-4 flex items-center justify-between border border-blue-200 shadow-sm cursor-pointer hover:shadow-md transition group"
+              title="Click to inquire via WhatsApp"
+            >
               <div className="flex items-center gap-4">
-                <span className="text-5xl drop-shadow-md">📦</span>
+                <span className="text-5xl drop-shadow-md group-hover:scale-110 transition-transform">📦</span>
                 <div>
                   <div className="text-blue-900 font-extrabold text-lg leading-none mb-1 tracking-tight">Buy in Bulk</div>
                   <div className="text-orange-500 font-extrabold text-xl italic drop-shadow-sm leading-none">Save More!</div>
                 </div>
               </div>
-              <button className="bg-blue-900 hover:bg-blue-800 text-white font-bold py-2.5 px-5 rounded-lg shadow-sm transition-colors text-sm whitespace-nowrap">
-                Inquire Now
+              <button 
+                onClick={handleBulkInquiry}
+                type="button"
+                className="bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 px-5 rounded-lg shadow-sm transition-colors text-sm whitespace-nowrap flex items-center gap-2"
+              >
+                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.289.072.39-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12 0 2.131.559 4.137 1.545 5.888l-1.642 6.008 6.16-1.617c1.705.932 3.655 1.468 5.737 1.468 6.627 0 12-5.373 12-12 0-6.627-5.373-12-12-12z"/></svg>
+                Inquire on WhatsApp
               </button>
             </div>
           </div>
@@ -339,6 +453,33 @@ const ProductDetails = () => {
           </div>
         </div>
       </div>
+
+      {/* Lightbox Modal for Full Size Image */}
+      {isLightboxOpen && (
+        <div 
+          onClick={() => setIsLightboxOpen(false)}
+          className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4"
+        >
+          <div className="relative max-w-4xl max-h-[90vh] w-full flex flex-col items-center justify-center">
+            <button 
+              onClick={() => setIsLightboxOpen(false)}
+              className="absolute -top-12 right-0 text-white hover:text-yellow-400 bg-white/10 hover:bg-white/20 rounded-full p-2 transition"
+              title="Close Zoom View"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+            <img 
+              src={selectedImage} 
+              alt={product.name} 
+              className="max-h-[80vh] w-auto object-contain rounded-xl shadow-2xl bg-white p-4"
+              onClick={(e) => e.stopPropagation()}
+            />
+            <div className="mt-4 text-white text-sm font-medium tracking-wide">
+              {product.name} — Preview Mode (Click outside to close)
+            </div>
+          </div>
+        </div>
+      )}
     </motion.div>
   );
 };

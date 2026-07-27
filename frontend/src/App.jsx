@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import ScrollToTop from './components/ScrollToTop';
 import MainLayout from './components/MainLayout';
 import Home from './pages/Home';
 import Shop from './pages/Shop';
@@ -11,6 +12,7 @@ import OrderSuccess from './pages/OrderSuccess';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
+import PrivacyPolicy from './pages/PrivacyPolicy';
 import AdminLogin from './pages/admin/AdminLogin';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import { LanguageProvider } from './context/LanguageContext';
@@ -23,6 +25,7 @@ function App() {
       <LanguageProvider>
         <CartProvider>
           <BrowserRouter>
+            <ScrollToTop />
             <Routes>
               <Route path="/" element={<MainLayout />}>
                 <Route index element={<Home />} />
@@ -36,6 +39,7 @@ function App() {
                 <Route path="login" element={<Login />} />
                 <Route path="register" element={<Register />} />
                 <Route path="profile" element={<Profile />} />
+                <Route path="privacy" element={<PrivacyPolicy />} />
               </Route>
               
               {/* Admin Routes (Without MainLayout wrapper) */}

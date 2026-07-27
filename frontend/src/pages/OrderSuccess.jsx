@@ -11,6 +11,7 @@ const OrderSuccess = () => {
   const [orderData, setOrderData] = useState(null);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     if (!location.state || !location.state.orderData) {
       navigate('/shop');
     } else {
@@ -90,7 +91,7 @@ const OrderSuccess = () => {
     items.forEach(item => {
       const unitPrice = parseFloat(item.price.replace(/[^0-9.]/g, ''));
       const itemTotal = unitPrice * item.quantity;
-      const sizeStr = item.packageSize === '50' ? '50ml' : item.packageSize === '1000' ? '1kg' : item.packageSize === '5000' ? '5kg' : 'Pack';
+      const sizeStr = item.packageSize || '1 kg';
       const itemData = [
         `${item.name} (${sizeStr})`,
         `Rs. ${unitPrice.toFixed(2)}`,

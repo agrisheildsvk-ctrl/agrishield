@@ -13,6 +13,14 @@
   body {
     @apply bg-gray-50 text-gray-800 font-sans overflow-x-hidden w-full;
   }
+  a, button {
+    @apply outline-none focus:outline-none transition-colors duration-200;
+    -webkit-tap-highlight-color: transparent;
+  }
+  ::selection {
+    background-color: #2E7D32;
+    color: #ffffff;
+  }
 }
 
 @layer utilities {
