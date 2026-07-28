@@ -29,7 +29,7 @@ const CouponPopup = () => {
   if (!shouldShow) return null;
 
   return (
-    <div className="fixed right-0 bottom-6 sm:bottom-10 z-50 flex items-end">
+    <div className="fixed right-0 bottom-6 sm:bottom-10 z-50 flex items-end max-w-full">
       <AnimatePresence mode="wait">
         {isOpen ? (
           <motion.div
@@ -38,7 +38,7 @@ const CouponPopup = () => {
             animate={{ opacity: 1, x: 0, scale: 1 }}
             exit={{ opacity: 0, x: 100, scale: 0.9 }}
             transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-            className="mr-3 sm:mr-6 w-72 sm:w-80 bg-gradient-to-br from-[#1b5e30] via-[#164e27] to-[#0f381c] text-white rounded-2xl shadow-2xl border-2 border-yellow-400 p-5 relative overflow-hidden"
+            className="mr-2 sm:mr-6 w-[calc(100vw-16px)] max-w-80 bg-gradient-to-br from-[#1b5e30] via-[#164e27] to-[#0f381c] text-white rounded-2xl shadow-2xl border-2 border-yellow-400 p-4 sm:p-5 relative overflow-hidden"
           >
             {/* Background decorative glow */}
             <div className="absolute -top-10 -right-10 w-28 h-28 bg-yellow-400/10 rounded-full blur-xl pointer-events-none"></div>
@@ -101,11 +101,11 @@ const CouponPopup = () => {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 50 }}
             onClick={() => setIsOpen(true)}
-            className="bg-yellow-400 hover:bg-yellow-300 text-gray-950 font-extrabold py-3 px-3 rounded-l-xl shadow-2xl border-l-2 border-t-2 border-b-2 border-yellow-500 flex items-center gap-2 cursor-pointer transition-transform hover:-translate-x-1"
+            className="bg-yellow-400 hover:bg-yellow-300 text-gray-950 font-extrabold py-2.5 sm:py-3 px-2.5 sm:px-3 rounded-l-xl shadow-2xl border-l-2 border-t-2 border-b-2 border-yellow-500 flex items-center gap-1.5 sm:gap-2 cursor-pointer transition-transform hover:-translate-x-1 max-w-[calc(100vw-12px)]"
             title="Open Coupon Code Offer"
           >
-            <FiGift className="w-5 h-5 text-gray-950 animate-bounce" />
-            <span className="text-xs tracking-wider uppercase font-extrabold whitespace-nowrap">
+            <FiGift className="w-4 h-4 sm:w-5 sm:h-5 text-gray-950 animate-bounce shrink-0" />
+            <span className="text-[11px] sm:text-xs tracking-wider uppercase font-extrabold whitespace-nowrap">
               🎁 ₹25 OFF COUPON
             </span>
           </motion.button>

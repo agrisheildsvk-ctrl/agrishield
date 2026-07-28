@@ -2,6 +2,7 @@ import { Outlet } from 'react-router-dom';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import CouponPopup from './CouponPopup';
+import FloatingContact from './FloatingContact';
 
 const MainLayout = () => {
   return (
@@ -11,6 +12,7 @@ const MainLayout = () => {
         <Outlet />
       </main>
       <CouponPopup />
+      <FloatingContact />
       <Footer />
     </div>
   );

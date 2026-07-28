@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import { FiMapPin, FiPhone, FiMail, FiSend } from 'react-icons/fi';
+import { FaWhatsapp } from 'react-icons/fa';
 import SEO from '../components/SEO';
 
 const Contact = () => {
@@ -11,8 +12,15 @@ const Contact = () => {
   const { register, handleSubmit, formState: { errors }, reset } = useForm();
 
   const onSubmit = (data) => {
-    console.log("Contact Data:", data);
-    alert("Thank you for contacting us! We will get back to you soon.");
+    const phone = '919739230638';
+    const message = `*New Farmer Inquiry from Agrishield Website*\n\n` +
+      `👤 *Name:* ${data.name}\n` +
+      `📞 *Phone:* ${data.phone}\n` +
+      `📍 *Place:* ${data.place}\n` +
+      `📧 *Email:* ${data.email || 'N/A'}\n\n` +
+      `💬 *Message:*\n${data.message}`;
+    const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
     reset();
   };
 
@@ -110,7 +118,7 @@ const Contact = () => {
               <h3 className="text-2xl font-bold text-gray-800 mb-6">Send us a Message</h3>
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Full Name *</label>
                   <input 
                     type="text" 
                     {...register("name", { required: "Name is required" })}
@@ -120,22 +128,46 @@ const Contact = () => {
                   {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>}
                 </div>
 
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number *</label>
+                    <input 
+                      type="tel" 
+                      {...register("phone", { 
+                        required: "Phone number is required",
+                        pattern: { value: /^[0-9+\s-]{10,15}$/, message: "Enter a valid 10-digit mobile number" }
+                      })}
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all bg-white"
+                      placeholder="+91 9876543210"
+                    />
+                    {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone.message}</p>}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Place / Location *</label>
+                    <input 
+                      type="text" 
+                      {...register("place", { required: "Place/Village is required" })}
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all bg-white"
+                      placeholder="Village / City / District"
+                    />
+                    {errors.place && <p className="text-red-500 text-sm mt-1">{errors.place.message}</p>}
+                  </div>
+                </div>
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
                   <input 
                     type="email" 
-                    {...register("email", { 
-                      required: "Email is required",
-                      pattern: { value: /\S+@\S+\.\S+/, message: "Invalid email address" }
-                    })}
+                    {...register("email")}
                     className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all bg-white"
-                    placeholder="john@example.com"
+                    placeholder="john@example.com (Optional)"
                   />
                   {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Message</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Message *</label>
                   <textarea 
                     {...register("message", { required: "Message is required" })}
                     rows="4"
@@ -147,9 +179,9 @@ const Contact = () => {
 
                 <button 
                   type="submit" 
-                  className="w-full bg-primary hover:bg-primary-dark text-white font-bold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2 shadow-lg"
+                  className="w-full bg-[#25D366] hover:bg-[#1EBE5D] text-white font-bold py-3.5 px-6 rounded-lg transition-colors flex items-center justify-center gap-2.5 shadow-lg hover:shadow-xl cursor-pointer"
                 >
-                  <FiSend /> Send Message
+                  <FaWhatsapp className="w-5 h-5 shrink-0" /> Send Message via WhatsApp
                 </button>
               </form>
             </motion.div>

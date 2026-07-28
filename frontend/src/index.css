@@ -10,8 +10,16 @@
 }
 
 @layer base {
-  body {
-    @apply bg-gray-50 text-gray-800 font-sans overflow-x-hidden w-full;
+  html, body {
+    @apply bg-gray-50 text-gray-800 font-sans;
+    overflow-x: hidden !important;
+    width: 100%;
+    max-width: 100vw;
+  }
+  #root {
+    overflow-x: hidden !important;
+    width: 100%;
+    max-width: 100vw;
   }
   a, button {
     @apply outline-none focus:outline-none transition-colors duration-200;

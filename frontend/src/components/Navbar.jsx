@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { FiShoppingCart, FiUser, FiSearch, FiGlobe, FiMenu, FiX, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import { useLanguage } from '../context/LanguageContext';
 import { useCart } from '../context/CartContext';
@@ -11,7 +11,17 @@ const Navbar = () => {
   const { isAuthenticated, user } = useAuth();
   const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const navigate = useNavigate();
   const scrollRef = useRef(null);
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/shop?search=${encodeURIComponent(searchQuery.trim())}`);
+      setIsMenuOpen(false);
+    }
+  };
 
   const scrollLeft = () => {
     if (scrollRef.current) {
@@ -62,17 +72,19 @@ const Navbar = () => {
           </nav>
 
           {/* Desktop Search Bar */}
-          <div className="hidden sm:block flex-grow max-w-xs lg:max-w-md w-full relative mx-2">
+          <form onSubmit={handleSearchSubmit} className="hidden sm:block flex-grow max-w-xs lg:max-w-md w-full relative mx-2">
             <input 
               type="text" 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={t('search_placeholder')}
               aria-label="Search agricultural products"
               className="w-full bg-gray-100 text-gray-800 border border-transparent focus:bg-white focus:border-primary rounded-full py-2 pl-4 pr-10 outline-none transition-all text-sm"
             />
-            <button className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-primary transition-colors" aria-label="Search">
+            <button type="submit" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-primary transition-colors cursor-pointer" aria-label="Search">
               <FiSearch size={18} />
             </button>
-          </div>
+          </form>
           
           {/* Actions & Language */}
           <div className="flex items-center space-x-3 sm:space-x-4 lg:space-x-5 text-gray-700 shrink-0">
@@ -115,17 +127,19 @@ const Navbar = () => {
         </div>
 
         {/* Mobile Search (visible only on very small screens) */}
-        <div className="sm:hidden mt-3 relative w-full flex">
+        <form onSubmit={handleSearchSubmit} className="sm:hidden mt-3 relative w-full flex">
           <input 
             type="text" 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={t('search_placeholder')}
             aria-label="Search agricultural products"
             className="w-full bg-gray-100 text-gray-800 border border-transparent focus:bg-white focus:border-primary rounded-full py-2.5 pl-4 pr-10 outline-none transition-colors text-sm"
           />
-          <button className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-primary transition-colors" aria-label="Search">
+          <button type="submit" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-primary transition-colors cursor-pointer" aria-label="Search">
             <FiSearch size={18} />
           </button>
-        </div>
+        </form>
 
         {/* Mobile Menu Dropdown */}
         {isMenuOpen && (

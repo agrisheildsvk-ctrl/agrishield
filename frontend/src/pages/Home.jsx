@@ -11,6 +11,7 @@ import TrustBadges from '../components/TrustBadges';
 import PromoBanners from '../components/PromoBanners';
 import ProductCard from '../components/shop/ProductCard';
 import SEO from '../components/SEO';
+import { FaWhatsapp } from 'react-icons/fa';
 
 const Home = () => {
   useEffect(() => {
@@ -364,27 +365,52 @@ const Home = () => {
             {/* Contact Form */}
             <div className="w-full lg:w-2/3">
               <div className="bg-white rounded-3xl p-8 md:p-10 shadow-2xl">
-                <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); alert('Message sent! We will contact you soon.'); }}>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <form 
+                  className="space-y-5" 
+                  onSubmit={(e) => { 
+                    e.preventDefault();
+                    const form = e.target;
+                    const name = form.name.value;
+                    const phone = form.phone.value;
+                    const place = form.place.value;
+                    const email = form.email.value || 'N/A';
+                    const message = form.message.value;
+                    const targetPhone = '919739230638';
+                    const formattedMsg = `*New Farmer Inquiry from Agrishield Website*\n\n` +
+                      `👤 *Name:* ${name}\n` +
+                      `📞 *Phone:* ${phone}\n` +
+                      `📍 *Place:* ${place}\n` +
+                      `📧 *Email:* ${email}\n\n` +
+                      `💬 *Message:*\n${message}`;
+                    const url = `https://wa.me/${targetPhone}?text=${encodeURIComponent(formattedMsg)}`;
+                    window.open(url, '_blank', 'noopener,noreferrer');
+                    form.reset();
+                  }}
+                >
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">Full Name *</label>
+                    <input name="name" type="text" required className="w-full bg-gray-50 text-gray-900 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" placeholder="John Doe" />
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-bold text-gray-700 mb-2">First Name</label>
-                      <input type="text" required className="w-full bg-gray-50 text-gray-900 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" placeholder="John" />
+                      <label className="block text-sm font-bold text-gray-700 mb-2">Phone Number *</label>
+                      <input name="phone" type="tel" required pattern="[0-9+\s-]{10,15}" title="Enter a valid 10-digit mobile number" className="w-full bg-gray-50 text-gray-900 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" placeholder="+91 9876543210" />
                     </div>
                     <div>
-                      <label className="block text-sm font-bold text-gray-700 mb-2">Last Name</label>
-                      <input type="text" required className="w-full bg-gray-50 text-gray-900 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" placeholder="Doe" />
+                      <label className="block text-sm font-bold text-gray-700 mb-2">Place / Location *</label>
+                      <input name="place" type="text" required className="w-full bg-gray-50 text-gray-900 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" placeholder="Village / City / District" />
                     </div>
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-2">Email Address</label>
-                    <input type="email" required className="w-full bg-gray-50 text-gray-900 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" placeholder="john@example.com" />
+                    <input name="email" type="email" className="w-full bg-gray-50 text-gray-900 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" placeholder="john@example.com (Optional)" />
                   </div>
                   <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-2">Your Message</label>
-                    <textarea required rows="4" className="w-full bg-gray-50 text-gray-900 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" placeholder="How can we help you?"></textarea>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">Your Message *</label>
+                    <textarea name="message" required rows="4" className="w-full bg-gray-50 text-gray-900 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors resize-none" placeholder="How can we help you?"></textarea>
                   </div>
-                  <button type="submit" className="w-full bg-primary hover:bg-primary-dark text-white font-bold py-4 px-6 rounded-xl transition-all shadow-md hover:shadow-lg hover:-translate-y-1 transform duration-300">
-                    Send Message
+                  <button type="submit" className="w-full bg-[#25D366] hover:bg-[#1EBE5D] text-white font-bold py-4 px-6 rounded-xl transition-all shadow-md hover:shadow-lg hover:-translate-y-1 transform duration-300 flex items-center justify-center gap-2.5 cursor-pointer">
+                    <FaWhatsapp className="w-5 h-5 shrink-0" /> Send Message via WhatsApp
                   </button>
                 </form>
               </div>

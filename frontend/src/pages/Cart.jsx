@@ -55,12 +55,12 @@ const Cart = () => {
         canonical="https://agrishield.in/cart"
       />
       <div className="max-w-7xl mx-auto">
-        <div className="flex items-center gap-4 mb-8">
-          <Link to="/shop" className="text-gray-500 hover:text-primary transition bg-white p-3 rounded-full shadow-sm">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-4 mb-6 sm:mb-8">
+          <Link to="/shop" className="text-gray-500 hover:text-primary transition bg-white p-2.5 sm:p-3 rounded-full shadow-sm shrink-0">
             <FiArrowLeft className="w-5 h-5" />
           </Link>
-          <h1 className="text-3xl font-extrabold text-gray-900">Shopping Cart</h1>
-          <span className="bg-primary text-white text-sm font-bold px-3 py-1 rounded-full">{cartItems.length} items</span>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900">Shopping Cart</h1>
+          <span className="bg-primary text-white text-xs sm:text-sm font-bold px-2.5 sm:px-3 py-1 rounded-full shrink-0">{cartItems.length} items</span>
         </div>
 
         <div className="flex flex-col lg:flex-row gap-8">
