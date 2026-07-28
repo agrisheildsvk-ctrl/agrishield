@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
+import SEO from '../components/SEO';
 import { 
   FaGoogle, 
   FaPhoneAlt, 
@@ -174,6 +175,11 @@ const Login = () => {
 
   return (
     <div className="min-h-[85vh] bg-gradient-to-b from-emerald-50 via-white to-emerald-50 flex items-center justify-center px-4 py-8">
+      <SEO
+        title="Farmer Login & Account | Agrishield India"
+        description="Log in to your Agrishield farmer account using phone OTP or Google to manage agricultural crop protection orders and advisory."
+        canonical="https://agrishield.in/login"
+      />
       <div className="w-full max-w-md bg-white rounded-3xl shadow-xl border border-emerald-100 overflow-hidden">
         
         {/* Header Section */}

@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { FiShield, FiLock, FiEye, FiUserCheck, FiShare2, FiHelpCircle, FiMail, FiPhone, FiMapPin } from 'react-icons/fi';
+import SEO from '../components/SEO';
 
 const PrivacyPolicy = () => {
   useEffect(() => {
@@ -118,6 +119,11 @@ const PrivacyPolicy = () => {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
     >
+      <SEO
+        title="Privacy Policy & Terms | Agrishield India"
+        description="Read Agrishield India's privacy policy, data collection terms, and customer security guidelines for agricultural crop protection purchases."
+        canonical="https://agrishield.in/privacy"
+      />
       <div className="max-w-4xl mx-auto">
         
         {/* Header Banner */}

@@ -6,6 +6,7 @@ const translations = {
     shop: "Shop",
     about: "About",
     contact: "Contact",
+    blog: "Blog",
     search_placeholder: "Search for seeds, fertilizers...",
     login: "Login",
     cart: "Cart"
@@ -15,6 +16,7 @@ const translations = {
     shop: "दुकान",
     about: "हमारे बारे में",
     contact: "संपर्क करें",
+    blog: "ब्लॉग",
     search_placeholder: "बीज, उर्वरक खोजें...",
     login: "लॉग इन करें",
     cart: "कार्ट"
@@ -24,6 +26,7 @@ const translations = {
     shop: "ಅಂಗಡಿ",
     about: "ನಮ್ಮ ಬಗ್ಗೆ",
     contact: "ಸಂಪರ್ಕಿಸಿ",
+    blog: "ಬ್ಲಾಗ್",
     search_placeholder: "ಬೀಜಗಳು, ರಸಗೊಬ್ಬರಗಳನ್ನು ಹುಡುಕಿ...",
     login: "ಲಾಗಿನ್",
     cart: "ಕಾರ್ಟ್"

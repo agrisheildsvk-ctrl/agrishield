@@ -10,6 +10,7 @@ import { products } from '../data/products';
 import TrustBadges from '../components/TrustBadges';
 import PromoBanners from '../components/PromoBanners';
 import ProductCard from '../components/shop/ProductCard';
+import SEO from '../components/SEO';
 
 const Home = () => {
   useEffect(() => {
@@ -27,6 +28,12 @@ const Home = () => {
 
   return (
     <div className="flex flex-col min-h-screen w-full overflow-x-hidden">
+      <SEO
+        title="Agrishield India | Best Organic Crop Protection & Pest Control Products"
+        description="Shop India's trusted organic crop protection products, wild animal deterrents, solar alarm strobes, and pest control repellents at Agrishield."
+        keywords={['Agrishield', 'crop protection India', 'wild boar repellent', 'solar alarm light', 'organic snake repellent', 'farm fence', 'pest control products for agriculture']}
+        canonical="https://agrishield.in"
+      />
       {/* Desktop Hero Banner Section */}
       <section className="relative w-full hidden md:block">
         <Swiper
@@ -41,7 +48,8 @@ const Home = () => {
             <SwiperSlide key={`desktop-${num}`}>
               <img 
                 src={`/Desktop%20header${num}.png`} 
-                alt={`Desktop Banner ${num}`} 
+                alt={`Agrishield Organic Crop Protection Desktop Banner ${num}`}
+                title={`agrishield-desktop-header-${num}.png`}
                 className="w-full h-auto object-contain block" 
               />
             </SwiperSlide>
@@ -63,7 +71,8 @@ const Home = () => {
             <SwiperSlide key={`mobile-${num}`}>
               <img 
                 src={`/header${num}.png`} 
-                alt={`Mobile Banner ${num}`} 
+                alt={`Agrishield Crop Protection Mobile Banner ${num}`}
+                title={`agrishield-mobile-header-${num}.png`}
                 className="w-full h-auto object-contain block" 
               />
             </SwiperSlide>
@@ -85,7 +94,8 @@ const Home = () => {
                 {/* Main Full-Cover Farm Image */}
                 <img 
                   src="/About.png" 
-                  alt="Farmer checking crops with Agrishield" 
+                  alt="Indian farmer inspecting agricultural crops protected by Agrishield organic repellents"
+                  title="agrishield-about-indian-farmer-crop-protection.png"
                   className="w-full h-[420px] sm:h-[540px] object-cover group-hover:scale-105 transition-transform duration-700"
                 />
                 

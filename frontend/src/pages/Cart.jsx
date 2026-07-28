@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { FiTrash2, FiMinus, FiPlus, FiArrowLeft, FiShoppingBag } from 'react-icons/fi';
 import { useCart } from '../context/CartContext';
+import SEO from '../components/SEO';
 
 const Cart = () => {
   useEffect(() => {
@@ -23,6 +24,11 @@ const Cart = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
       >
+        <SEO
+          title="Your Shopping Cart | Agrishield Shop"
+          description="Review your selected agricultural crop protection products and proceed to secure checkout on Agrishield India."
+          canonical="https://agrishield.in/cart"
+        />
         <div className="bg-white p-12 rounded-3xl shadow-xl flex flex-col items-center max-w-lg w-full text-center border border-gray-50">
           <div className="w-32 h-32 bg-green-50 rounded-full flex items-center justify-center mb-6">
             <FiShoppingBag className="w-12 h-12 text-primary" />
@@ -43,6 +49,11 @@ const Cart = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
     >
+      <SEO
+        title="Your Shopping Cart | Agrishield Shop"
+        description="Review your selected agricultural crop protection products and proceed to secure checkout on Agrishield India."
+        canonical="https://agrishield.in/cart"
+      />
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center gap-4 mb-8">
           <Link to="/shop" className="text-gray-500 hover:text-primary transition bg-white p-3 rounded-full shadow-sm">

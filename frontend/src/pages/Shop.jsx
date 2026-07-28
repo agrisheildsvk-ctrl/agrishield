@@ -8,6 +8,7 @@ import ShopFeatures from '../components/shop/ShopFeatures';
 import Newsletter from '../components/shop/Newsletter';
 
 import { products } from '../data/products';
+import SEO from '../components/SEO';
 
 const Shop = () => {
   useEffect(() => {
@@ -59,6 +60,12 @@ const Shop = () => {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.5 }}
     >
+      <SEO
+        title="Agrishield Shop | Buy Organic Crop Protection & Repellents Online in India"
+        description="Browse and buy certified organic wild boar repellents, snake repellents, solar alarm strobes, and agricultural fencing products at Agrishield India."
+        keywords={['buy agricultural repellents India', 'organic crop protection products online', 'wild boar repellent price', 'snake repellent powder buy', 'Agrishield shop']}
+        canonical="https://agrishield.in/shop"
+      />
       <HeroBanner />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

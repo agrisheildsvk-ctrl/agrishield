@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import { FiMapPin, FiPhone, FiMail, FiSend } from 'react-icons/fi';
+import SEO from '../components/SEO';
 
 const Contact = () => {
   useEffect(() => {
@@ -17,10 +18,16 @@ const Contact = () => {
 
   return (
     <div className="flex flex-col min-h-screen w-full bg-gray-50 pb-16 overflow-hidden">
+      <SEO
+        title="Contact Agrishield India | Customer Support & Agricultural Advisory"
+        description="Get in touch with Agrishield customer service, agricultural expert support, and bulk order advisory for crop protection products."
+        keywords={['contact Agrishield', 'Agrishield customer care number', 'agricultural advisory support India', 'crop protection help']}
+        canonical="https://agrishield.in/contact"
+      />
       {/* Hero Section */}
       <section className="relative w-full bg-primary-dark text-white py-16 md:py-24">
         <div className="absolute inset-0 overflow-hidden opacity-20">
-          <img src="/header3.png" alt="Agriculture background" className="w-full h-full object-cover" />
+          <img src="/header3.png" alt="Agrishield Contact Customer Support Agriculture Banner" title="agrishield-contact-support-banner.png" className="w-full h-full object-cover" />
         </div>
         <div className="container mx-auto px-4 relative z-10 text-center">
           <motion.h1 

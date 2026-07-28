@@ -52,6 +52,7 @@ const Navbar = () => {
           <nav className="hidden md:flex space-x-4 lg:space-x-8">
             <Link to="/" className="text-gray-700 hover:text-primary font-medium transition-colors">{t('home')}</Link>
             <Link to="/shop" className="text-gray-700 hover:text-primary font-medium transition-colors">{t('shop')}</Link>
+            <Link to="/blog" className="text-gray-700 hover:text-primary font-medium transition-colors">{t('blog') || 'Blog'}</Link>
             <Link to="/about" className="text-gray-700 hover:text-primary font-medium transition-colors">{t('about')}</Link>
             <Link to="/contact" className="text-gray-700 hover:text-primary font-medium transition-colors">{t('contact')}</Link>
           </nav>
@@ -123,6 +124,7 @@ const Navbar = () => {
           <nav className="md:hidden mt-4 pt-4 border-t border-gray-100 flex flex-col space-y-4 pb-2 w-full overflow-hidden">
             <Link to="/" onClick={() => setIsMenuOpen(false)} className="text-gray-700 hover:text-primary font-medium px-2 py-1">{t('home')}</Link>
             <Link to="/shop" onClick={() => setIsMenuOpen(false)} className="text-gray-700 hover:text-primary font-medium px-2 py-1">{t('shop')}</Link>
+            <Link to="/blog" onClick={() => setIsMenuOpen(false)} className="text-gray-700 hover:text-primary font-medium px-2 py-1">{t('blog') || 'Blog'}</Link>
             <Link to="/about" onClick={() => setIsMenuOpen(false)} className="text-gray-700 hover:text-primary font-medium px-2 py-1">{t('about')}</Link>
             <Link to="/contact" onClick={() => setIsMenuOpen(false)} className="text-gray-700 hover:text-primary font-medium px-2 py-1">{t('contact')}</Link>
           </nav>

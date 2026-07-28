@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FiCheckCircle, FiShield, FiTrendingUp, FiUsers } from 'react-icons/fi';
+import SEO from '../components/SEO';
 
 const About = () => {
   useEffect(() => {
@@ -8,10 +9,16 @@ const About = () => {
   }, []);
   return (
     <div className="flex flex-col min-h-screen w-full bg-gray-50 pb-16 overflow-hidden">
+      <SEO
+        title="About Agrishield | Protecting Indian Agriculture & Farmers"
+        description="Learn about Agrishield India's mission to protect agricultural crops and farmers from wild animal attacks, pests, snakes, and crop damage."
+        keywords={['about Agrishield', 'Agrishield India company profile', 'agricultural crop protection brand India', 'farmer protection company']}
+        canonical="https://agrishield.in/about"
+      />
       {/* Hero Section */}
       <section className="relative w-full bg-primary-dark text-white py-20 md:py-32">
         <div className="absolute inset-0 overflow-hidden opacity-20">
-          <img src="/header2.png" alt="Agriculture background" className="w-full h-full object-cover" />
+          <img src="/header2.png" alt="Agrishield Agriculture Crop Protection Background" title="agrishield-about-hero-background.png" className="w-full h-full object-cover" />
         </div>
         <div className="container mx-auto px-4 relative z-10 text-center">
           <motion.h1 
@@ -56,7 +63,7 @@ const About = () => {
               transition={{ delay: 0.5 }}
               className="relative rounded-3xl overflow-hidden shadow-2xl border border-gray-100 bg-gray-900 group"
             >
-              <img src="/About.png" alt="About Agrishield" className="w-full h-[380px] md:h-[480px] object-cover group-hover:scale-105 transition-transform duration-700" />
+              <img src="/About.png" alt="Agrishield Indian farmers crop protection community" title="agrishield-about-story-farmer-community.png" className="w-full h-[380px] md:h-[480px] object-cover group-hover:scale-105 transition-transform duration-700" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
               <div className="absolute bottom-6 left-6 bg-white/95 backdrop-blur-md px-5 py-3 rounded-xl shadow-lg border border-white">
                 <p className="font-extrabold text-lg text-gray-900">10,000+ Happy Farmers</p>

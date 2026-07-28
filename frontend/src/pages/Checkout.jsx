@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { FiArrowLeft, FiCheckCircle, FiCreditCard, FiDollarSign, FiSmartphone, FiTrash2 } from 'react-icons/fi';
 import { useCart } from '../context/CartContext';
 import axios from 'axios';
+import SEO from '../components/SEO';
 
 const Checkout = () => {
   useEffect(() => {
@@ -207,6 +208,11 @@ const Checkout = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
     >
+      <SEO
+        title="Secure Checkout | Agrishield Shop"
+        description="Complete your order for certified agricultural crop protection products with secure Razorpay and cash-on-delivery options."
+        canonical="https://agrishield.in/checkout"
+      />
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center gap-4 mb-8">
           <Link to="/cart" className="text-gray-500 hover:text-primary transition bg-white p-3 rounded-full shadow-sm">

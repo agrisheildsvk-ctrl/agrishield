@@ -3,8 +3,8 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FiStar, FiChevronRight, FiShield, FiTruck, FiCheckCircle, FiGlobe } from 'react-icons/fi';
 import { useCart } from '../context/CartContext';
-import { products } from '../data/products';
 import ProductCard from '../components/shop/ProductCard';
+import SEO from '../components/SEO';
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -101,6 +101,39 @@ const ProductDetails = () => {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
     >
+      {product && (
+        <SEO
+          title={`${product.title} (${selectedVariant.size}) | Agrishield Shop`}
+          description={`Buy ${product.title} at ${selectedVariant.price} in India. ${product.shortDescription || product.description}`}
+          keywords={[product.title, product.category, 'Agrishield crop protection', 'buy agriculture product online India']}
+          canonical={`https://agrishield.in/product/${product.id}`}
+          image={selectedImage || product.image}
+          type="product"
+          schema={{
+            "@context": "https://schema.org/",
+            "@type": "Product",
+            "name": product.title,
+            "image": selectedImage || product.image,
+            "description": product.shortDescription || product.description,
+            "sku": product.badge || `AGRI-PROD-${product.id}`,
+            "brand": {
+              "@type": "Brand",
+              "name": "Agrishield India"
+            },
+            "offers": {
+              "@type": "Offer",
+              "url": `https://agrishield.in/product/${product.id}`,
+              "priceCurrency": "INR",
+              "price": selectedVariant.price ? selectedVariant.price.replace(/[^0-9.]/g, '') : '400',
+              "availability": "https://schema.org/InStock",
+              "seller": {
+                "@type": "Organization",
+                "name": "Agrishield India"
+              }
+            }
+          }}
+        />
+      )}
       {/* Breadcrumbs */}
       <div className="bg-white border-b border-gray-100 py-3 px-4 sm:px-6 lg:px-8 text-sm font-medium text-gray-500 flex items-center gap-2">
         <Link to="/" className="hover:text-primary">Home</Link> <FiChevronRight className="w-4 h-4" />
