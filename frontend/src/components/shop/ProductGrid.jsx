@@ -59,6 +59,7 @@ const ProductGrid = ({ products, onOpenMobileFilters }) => {
             <select 
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
+              aria-label="Sort products by"
               className="w-full appearance-none bg-gray-50 border border-gray-200 text-gray-800 py-2 px-4 pr-8 rounded-lg font-medium focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent cursor-pointer"
             >
               <option>Featured</option>

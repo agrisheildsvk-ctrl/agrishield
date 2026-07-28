@@ -47,9 +47,14 @@ const Home = () => {
           {[1, 2, 3, 4, 5].map((num) => (
             <SwiperSlide key={`desktop-${num}`}>
               <img 
-                src={`/Desktop%20header${num}.png`} 
+                src={`/Desktop%20header${num}.webp`} 
                 alt={`Agrishield Organic Crop Protection Desktop Banner ${num}`}
-                title={`agrishield-desktop-header-${num}.png`}
+                title={`agrishield-desktop-header-${num}.webp`}
+                width="1600"
+                height="400"
+                loading={num === 1 ? "eager" : "lazy"}
+                fetchpriority={num === 1 ? "high" : "auto"}
+                decoding={num === 1 ? "sync" : "async"}
                 className="w-full h-auto object-contain block" 
               />
             </SwiperSlide>
@@ -70,9 +75,14 @@ const Home = () => {
           {[1, 2, 3, 4, 5, 6, 7].map((num) => (
             <SwiperSlide key={`mobile-${num}`}>
               <img 
-                src={`/header${num}.png`} 
+                src={`/header${num}.webp`} 
                 alt={`Agrishield Crop Protection Mobile Banner ${num}`}
-                title={`agrishield-mobile-header-${num}.png`}
+                title={`agrishield-mobile-header-${num}.webp`}
+                width="800"
+                height="600"
+                loading={num === 1 ? "eager" : "lazy"}
+                fetchpriority={num === 1 ? "high" : "auto"}
+                decoding={num === 1 ? "sync" : "async"}
                 className="w-full h-auto object-contain block" 
               />
             </SwiperSlide>
@@ -93,9 +103,13 @@ const Home = () => {
               <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-gray-100 bg-gray-900 group">
                 {/* Main Full-Cover Farm Image */}
                 <img 
-                  src="/About.png" 
+                  src="/About.webp" 
                   alt="Indian farmer inspecting agricultural crops protected by Agrishield organic repellents"
-                  title="agrishield-about-indian-farmer-crop-protection.png"
+                  title="agrishield-about-indian-farmer-crop-protection.webp"
+                  width="800"
+                  height="540"
+                  loading="lazy"
+                  decoding="async"
                   className="w-full h-[420px] sm:h-[540px] object-cover group-hover:scale-105 transition-transform duration-700"
                 />
                 
@@ -163,7 +177,7 @@ const Home = () => {
                       ✓
                     </div>
                     <div>
-                      <h4 className="font-bold text-gray-900 text-base">{item.title}</h4>
+                      <h3 className="font-bold text-gray-900 text-base">{item.title}</h3>
                       <p className="text-sm text-gray-500 mt-0.5">{item.desc}</p>
                     </div>
                   </div>

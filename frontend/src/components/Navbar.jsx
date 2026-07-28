@@ -40,10 +40,12 @@ const Navbar = () => {
           </button>
 
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 shrink-0 group py-0.5">
+          <Link to="/" aria-label="Agrishield Home" className="flex items-center gap-2 shrink-0 group py-0.5">
             <img 
               src="/agri%20logo.png" 
-              alt="Agrishield Logo" 
+              alt="Agrishield Logo"
+              width="180"
+              height="56"
               className="h-10 sm:h-12 md:h-14 w-auto object-contain transition-transform duration-300 group-hover:scale-105" 
             />
           </Link>
@@ -62,6 +64,7 @@ const Navbar = () => {
             <input 
               type="text" 
               placeholder={t('search_placeholder')}
+              aria-label="Search agricultural products"
               className="w-full bg-gray-100 text-gray-800 border border-transparent focus:bg-white focus:border-primary rounded-full py-2 pl-4 pr-10 outline-none transition-all text-sm"
             />
             <button className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-primary transition-colors" aria-label="Search">
@@ -87,7 +90,7 @@ const Navbar = () => {
               </select>
             </div>
 
-            <Link to="/cart" className="hover:text-primary transition-colors relative flex items-center gap-1 p-1">
+            <Link to="/cart" aria-label="Shopping Cart" className="hover:text-primary transition-colors relative flex items-center gap-1 p-1">
               <FiShoppingCart size={22} />
               {cartCount > 0 && (
                 <span className="absolute -top-1 -right-1 bg-secondary text-white text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center">
@@ -96,7 +99,7 @@ const Navbar = () => {
               )}
             </Link>
 
-            <Link to={isAuthenticated ? "/profile" : "/login"} className="hover:text-primary transition-colors flex items-center gap-1.5 p-1 font-bold text-sm">
+            <Link to={isAuthenticated ? "/profile" : "/login"} aria-label="User Account" className="hover:text-primary transition-colors flex items-center gap-1.5 p-1 font-bold text-sm">
               <FiUser size={22} />
               {isAuthenticated && user && (
                 <span className="hidden sm:inline bg-emerald-100 text-emerald-800 text-xs px-2 py-0.5 rounded-full">
@@ -112,6 +115,7 @@ const Navbar = () => {
           <input 
             type="text" 
             placeholder={t('search_placeholder')}
+            aria-label="Search agricultural products"
             className="w-full bg-gray-100 text-gray-800 border border-transparent focus:bg-white focus:border-primary rounded-full py-2.5 pl-4 pr-10 outline-none transition-colors text-sm"
           />
           <button className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-primary transition-colors" aria-label="Search">

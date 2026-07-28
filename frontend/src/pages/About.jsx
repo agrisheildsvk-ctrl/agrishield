@@ -63,7 +63,16 @@ const About = () => {
               transition={{ delay: 0.5 }}
               className="relative rounded-3xl overflow-hidden shadow-2xl border border-gray-100 bg-gray-900 group"
             >
-              <img src="/About.png" alt="Agrishield Indian farmers crop protection community" title="agrishield-about-story-farmer-community.png" className="w-full h-[380px] md:h-[480px] object-cover group-hover:scale-105 transition-transform duration-700" />
+              <img 
+                src="/About.webp" 
+                alt="Agrishield Indian farmers crop protection community" 
+                title="agrishield-about-story-farmer-community.webp" 
+                width="800"
+                height="480"
+                loading="lazy"
+                decoding="async"
+                className="w-full h-[380px] md:h-[480px] object-cover group-hover:scale-105 transition-transform duration-700" 
+              />
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
               <div className="absolute bottom-6 left-6 bg-white/95 backdrop-blur-md px-5 py-3 rounded-xl shadow-lg border border-white">
                 <p className="font-extrabold text-lg text-gray-900">10,000+ Happy Farmers</p>
