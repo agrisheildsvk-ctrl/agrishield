@@ -14,6 +14,10 @@ const PromoBanners = () => {
             <img
               src="/coupen.webp"
               alt="Get Rs 100 OFF on your first app order - Coupon Code APP100"
+              width="600"
+              height="184"
+              loading="lazy"
+              decoding="async"
               className="w-full h-auto object-contain block group-hover:scale-[1.02] transition-transform duration-500"
             />
           </Link>
@@ -26,6 +30,10 @@ const PromoBanners = () => {
             <img
               src="/order.webp"
               alt="Free Delivery on orders above Rs 499"
+              width="600"
+              height="175"
+              loading="lazy"
+              decoding="async"
               className="w-full h-auto object-contain block group-hover:scale-[1.02] transition-transform duration-500"
             />
           </Link>

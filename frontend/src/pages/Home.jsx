@@ -87,9 +87,9 @@ const Home = () => {
                 <img 
                   src="/About.webp" 
                   alt="Indian farmer inspecting agricultural crops protected by Agrishield organic repellents"
-                  title="agrishield-about-indian-farmer-crop-protection.webp"
-                  width="800"
-                  height="540"
+                  title="Agrishield Indian Farmer - Organic Crop Protection & Farm Security"
+                  width="600"
+                  height="300"
                   loading="lazy"
                   decoding="async"
                   className="w-full h-[420px] sm:h-[540px] object-cover group-hover:scale-105 transition-transform duration-700"
@@ -223,7 +223,7 @@ const Home = () => {
               {/* Left: Single Product Card Preview */}
               <div className="md:col-span-5 flex flex-col items-center text-center bg-gray-50 rounded-2xl p-6 border border-gray-100 shadow-sm">
                 <div className="aspect-square w-48 bg-white rounded-xl shadow-sm flex items-center justify-center relative mb-4 border border-gray-100 p-4">
-                  <img src="/BONDON-B.webp" alt="BONDON-B All-in-One" width="180" height="180" loading="lazy" decoding="async" className="w-full h-full object-contain" />
+                  <img src="/agrishield-bondon-b-animal-bird-repellent.webp" alt="Agrishield BONDON-B All-in-One Animal and Bird Repellent" title="Agrishield BONDON-B Multi-Animal & Bird Crop Protector" width="180" height="180" loading="lazy" decoding="async" className="w-full h-full object-contain" />
                   <div className="absolute top-2 right-2 bg-green-500 text-white font-extrabold text-[10px] px-2.5 py-1 rounded-full shadow">
                     50% OFF
                   </div>

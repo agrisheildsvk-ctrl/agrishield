@@ -22,4 +22,28 @@ export default defineConfig({
     host: "0.0.0.0",
     allowedHosts: true,
   },
+  build: {
+    chunkSizeWarningLimit: 600,
+    rollupOptions: {
+      output: {
+        manualChunks: (id) => {
+          if (id.includes('node_modules')) {
+            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
+              return 'vendor';
+            }
+            if (id.includes('framer-motion')) {
+              return 'motion';
+            }
+            if (id.includes('swiper')) {
+              return 'swiper';
+            }
+            if (id.includes('react-icons')) {
+              return 'icons';
+            }
+            return 'modules';
+          }
+        }
+      }
+    }
+  },
 })

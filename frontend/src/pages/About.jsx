@@ -18,7 +18,7 @@ const About = () => {
       {/* Hero Section */}
       <section className="relative w-full bg-primary-dark text-white py-20 md:py-32">
         <div className="absolute inset-0 overflow-hidden opacity-20">
-          <img src="/header2.webp" alt="Agrishield Agriculture Crop Protection Background" title="agrishield-about-hero-background.webp" className="w-full h-full object-cover" />
+          <img src="/header2.webp" alt="Agrishield Agriculture Crop Protection Background" title="Agrishield Agriculture & Organic Crop Protection" width="600" height="326" loading="lazy" decoding="async" className="w-full h-full object-cover" />
         </div>
         <div className="container mx-auto px-4 relative z-10 text-center">
           <motion.h1 
@@ -66,9 +66,9 @@ const About = () => {
               <img 
                 src="/About.webp" 
                 alt="Agrishield Indian farmers crop protection community" 
-                title="agrishield-about-story-farmer-community.webp" 
-                width="800"
-                height="480"
+                title="Agrishield Indian Farmer Community - Organic Crop Protection" 
+                width="600"
+                height="300"
                 loading="lazy"
                 decoding="async"
                 className="w-full h-[380px] md:h-[480px] object-cover group-hover:scale-105 transition-transform duration-700" 

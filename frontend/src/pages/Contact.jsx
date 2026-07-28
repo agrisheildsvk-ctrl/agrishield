@@ -27,7 +27,7 @@ const Contact = () => {
       {/* Hero Section */}
       <section className="relative w-full bg-primary-dark text-white py-16 md:py-24">
         <div className="absolute inset-0 overflow-hidden opacity-20">
-          <img src="/header3.webp" alt="Agrishield Contact Customer Support Agriculture Banner" title="agrishield-contact-support-banner.webp" className="w-full h-full object-cover" />
+          <img src="/header3.webp" alt="Agrishield Contact Customer Support Agriculture Banner" title="Agrishield Contact Customer Support & Agriculture Advisory" width="600" height="326" loading="lazy" decoding="async" className="w-full h-full object-cover" />
         </div>
         <div className="container mx-auto px-4 relative z-10 text-center">
           <motion.h1 

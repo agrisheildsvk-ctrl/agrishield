@@ -58,14 +58,22 @@
     </style>
     <script type="text/javascript">
       function googleTranslateElementInit() {
-        new google.translate.TranslateElement({
-          pageLanguage: 'en', 
-          includedLanguages: 'en,hi,kn',
-          autoDisplay: false
-        }, 'google_translate_element');
+        if (window.google && window.google.translate) {
+          new google.translate.TranslateElement({
+            pageLanguage: 'en', 
+            includedLanguages: 'en,hi,kn',
+            autoDisplay: false
+          }, 'google_translate_element');
+        }
       }
+      window.addEventListener('load', function() {
+        var gtScript = document.createElement('script');
+        gtScript.src = "https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
+        gtScript.async = true;
+        gtScript.defer = true;
+        document.head.appendChild(gtScript);
+      });
     </script>
-    <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" async defer></script>
   </head>
   <body>
     <div id="google_translate_element"></div>

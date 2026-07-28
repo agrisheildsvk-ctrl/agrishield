@@ -44,9 +44,17 @@ app.use('/api/payments', paymentsRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/notifications', notificationsRoutes);
 
-// Serve static frontend in production
+// Serve static frontend in production with 1-year Cache-Control for assets
 const frontendDist = path.join(__dirname, '../../frontend/dist');
-app.use(express.static(frontendDist));
+app.use(express.static(frontendDist, {
+  maxAge: '31536000000',
+  etag: true,
+  setHeaders: (res, pathStr) => {
+    if (pathStr.endsWith('.html')) {
+      res.setHeader('Cache-Control', 'no-cache');
+    }
+  }
+}));
 
 // For any route not matched by API, serve frontend index.html
 app.get('*', (req, res, next) => {
