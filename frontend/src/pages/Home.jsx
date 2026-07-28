@@ -34,57 +34,39 @@ const Home = () => {
         keywords={['Agrishield', 'crop protection India', 'wild boar repellent', 'solar alarm light', 'organic snake repellent', 'farm fence', 'pest control products for agriculture']}
         canonical="https://agrishield.in"
       />
-      {/* Desktop Hero Banner Section */}
-      <section className="relative w-full hidden md:block">
+      {/* Responsive Hero Banner Section (Single Swiper with <picture> element for 0 wasted bytes & perfect AI accessibility tree) */}
+      <section aria-label="Featured Crop Protection Banners" className="relative w-full">
         <Swiper
           spaceBetween={0}
           centeredSlides={true}
           autoplay={{ delay: 5000, disableOnInteraction: false }}
           pagination={{ clickable: true }}
           modules={[Autoplay, Pagination]}
-          className="w-full h-auto pb-10"
+          className="w-full h-auto pb-6 sm:pb-10"
         >
-          {[1, 2, 3, 4, 5].map((num) => (
-            <SwiperSlide key={`desktop-${num}`}>
-              <img 
-                src={`/Desktop%20header${num}.webp`} 
-                alt={`Agrishield Organic Crop Protection Desktop Banner ${num}`}
-                title={`agrishield-desktop-header-${num}.webp`}
-                width="1600"
-                height="400"
-                loading={num === 1 ? "eager" : "lazy"}
-                fetchpriority={num === 1 ? "high" : "auto"}
-                decoding={num === 1 ? "sync" : "async"}
-                className="w-full h-auto object-contain block" 
-              />
-            </SwiperSlide>
-          ))}
-        </Swiper>
-      </section>
-
-      {/* Mobile Hero Banner Section */}
-      <section className="relative w-full md:hidden block">
-        <Swiper
-          spaceBetween={0}
-          centeredSlides={true}
-          autoplay={{ delay: 5000, disableOnInteraction: false }}
-          pagination={{ clickable: true }}
-          modules={[Autoplay, Pagination]}
-          className="w-full h-auto pb-10"
-        >
-          {[1, 2, 3, 4, 5, 6, 7].map((num) => (
-            <SwiperSlide key={`mobile-${num}`}>
-              <img 
-                src={`/header${num}.webp`} 
-                alt={`Agrishield Crop Protection Mobile Banner ${num}`}
-                title={`agrishield-mobile-header-${num}.webp`}
-                width="800"
-                height="600"
-                loading={num === 1 ? "eager" : "lazy"}
-                fetchpriority={num === 1 ? "high" : "auto"}
-                decoding={num === 1 ? "sync" : "async"}
-                className="w-full h-auto object-contain block" 
-              />
+          {[
+            { id: 1, alt: "Agrishield India - Certified Organic Crop Protection & Wild Animal Repellents Store", title: "Agrishield India - #1 Organic Crop Protection & Farm Repellent Shop" },
+            { id: 2, alt: "Agrishield Organic Wild Boar & Snake Repellents for Agricultural Farm Boundary Defense", title: "Agrishield Wild Boar & Snake Repellent Granules & Powder" },
+            { id: 3, alt: "Agrishield Solar Strobe Alarm Lights and Night Animal Deterrent Systems", title: "Agrishield Solar Alarm Strobe Lights & Animal Deterrents" },
+            { id: 4, alt: "Agrishield 100% Eco-Friendly Farming Advisory and Plant Crop Defense Solutions", title: "100% Eco-Friendly Agricultural Advisory & Crop Defense" },
+            { id: 5, alt: "Agrishield Direct from Manufacturer Agricultural Repellents with Fast Free Shipping", title: "Direct Manufacturer Agricultural Repellents - Fast Free Shipping" }
+          ].map((banner) => (
+            <SwiperSlide key={`banner-${banner.id}`}>
+              <picture>
+                <source media="(max-width: 767px)" srcSet={`/header${banner.id}.webp`} />
+                <source media="(min-width: 768px)" srcSet={`/Desktop%20header${banner.id}.webp`} />
+                <img 
+                  src={`/Desktop%20header${banner.id}.webp`} 
+                  alt={banner.alt}
+                  title={banner.title}
+                  width="1600"
+                  height="400"
+                  loading={banner.id === 1 ? "eager" : "lazy"}
+                  fetchpriority={banner.id === 1 ? "high" : "auto"}
+                  decoding={banner.id === 1 ? "sync" : "async"}
+                  className="w-full h-auto object-contain block" 
+                />
+              </picture>
             </SwiperSlide>
           ))}
         </Swiper>
@@ -241,7 +223,7 @@ const Home = () => {
               {/* Left: Single Product Card Preview */}
               <div className="md:col-span-5 flex flex-col items-center text-center bg-gray-50 rounded-2xl p-6 border border-gray-100 shadow-sm">
                 <div className="aspect-square w-48 bg-white rounded-xl shadow-sm flex items-center justify-center relative mb-4 border border-gray-100 p-4">
-                  <img src="/BONDON-B.png" alt="BONDON-B All-in-One" className="w-full h-full object-contain" />
+                  <img src="/BONDON-B.webp" alt="BONDON-B All-in-One" width="180" height="180" loading="lazy" decoding="async" className="w-full h-full object-contain" />
                   <div className="absolute top-2 right-2 bg-green-500 text-white font-extrabold text-[10px] px-2.5 py-1 rounded-full shadow">
                     50% OFF
                   </div>

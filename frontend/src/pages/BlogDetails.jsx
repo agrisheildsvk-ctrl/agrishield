@@ -14,9 +14,10 @@ import {
   FiShoppingBag,
   FiCheck,
 } from 'react-icons/fi';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { getBlogById, getRelatedBlogs } from '../data/blogsData';
 import BlogCard from '../components/blog/BlogCard';
+import SEO from '../components/SEO';
 
 const BlogDetails = () => {
   const { id } = useParams();
@@ -93,7 +94,7 @@ const BlogDetails = () => {
               "name": "Agrishield India",
               "logo": {
                 "@type": "ImageObject",
-                "url": "https://agrishield.in/agri%20logo.png"
+                "url": "https://agrishield.in/agri%20logo.webp"
               }
             },
             "datePublished": blog.date

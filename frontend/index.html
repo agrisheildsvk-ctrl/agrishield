@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/agri%20logo.png" />
+    <link rel="icon" type="image/webp" href="/agri%20logo.webp" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Agrishield India | Advanced Crop Protection & Organic Farming Products</title>
     <meta name="description" content="Shop India&apos;s trusted organic crop protection products, wild animal deterrents, solar alarm strobes, and pest control repellents at Agrishield." />
@@ -29,7 +29,7 @@
         "@type": "Organization",
         "name": "Agrishield India",
         "url": "https://agrishield.in",
-        "logo": "https://agrishield.in/agri%20logo.png",
+        "logo": "https://agrishield.in/agri%20logo.webp",
         "description": "Advanced agricultural crop protection and organic farming products for Indian farmers.",
         "contactPoint": {
           "@type": "ContactPoint",
@@ -40,7 +40,10 @@
         }
       }
     </script>
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js" async defer></script>
+    <!-- Preload LCP Hero Images for instant First Contentful Paint & LCP on Mobile and Desktop -->
+    <link rel="preload" as="image" href="/header1.webp" media="(max-width: 767px)" fetchpriority="high" />
+    <link rel="preload" as="image" href="/Desktop%20header1.webp" media="(min-width: 768px)" fetchpriority="high" />
     <style>
       /* Hide the default Google Translate widget and top bar */
       body { top: 0px !important; position: static !important; }

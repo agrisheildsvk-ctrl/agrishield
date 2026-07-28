@@ -32,17 +32,18 @@ const Navbar = () => {
           
           {/* Mobile Menu Button */}
           <button 
-            className="md:hidden text-gray-700 hover:text-primary transition-colors p-1"
+            className="md:hidden text-gray-700 hover:text-primary transition-colors p-2 min-h-[44px] min-w-[44px] flex items-center justify-center"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             aria-label="Toggle Menu"
+            aria-expanded={isMenuOpen}
           >
             {isMenuOpen ? <FiX size={26} /> : <FiMenu size={26} />}
           </button>
 
           {/* Logo */}
-          <Link to="/" aria-label="Agrishield Home" className="flex items-center gap-2 shrink-0 group py-0.5">
+          <Link to="/" aria-label="Agrishield Home" className="flex items-center gap-2 shrink-0 group py-0.5 min-h-[44px]">
             <img 
-              src="/agri%20logo.png" 
+              src="/agri%20logo.webp" 
               alt="Agrishield Logo"
               width="180"
               height="56"
@@ -78,10 +79,12 @@ const Navbar = () => {
             {/* Language Dropdown (Desktop & Mobile) */}
             <div className="flex items-center gap-0.5 sm:gap-1 bg-gray-50 px-1 sm:px-2 py-1 sm:py-1.5 rounded-md border border-gray-200 hover:border-primary transition-colors cursor-pointer">
               <FiGlobe className="text-primary hidden sm:block" size={16} />
+              <label htmlFor="navbar-lang-select" className="sr-only">Select Language</label>
               <select 
+                id="navbar-lang-select"
                 value={language}
                 onChange={(e) => setLanguage(e.target.value)}
-                className="bg-transparent border-none text-[10px] sm:text-xs lg:text-sm outline-none cursor-pointer text-gray-700 font-bold sm:font-medium"
+                className="bg-transparent border-none text-[10px] sm:text-xs lg:text-sm outline-none cursor-pointer text-gray-700 font-bold sm:font-medium min-h-[44px] px-1"
                 aria-label="Language"
               >
                 <option value="en">EN</option>
@@ -90,7 +93,7 @@ const Navbar = () => {
               </select>
             </div>
 
-            <Link to="/cart" aria-label="Shopping Cart" className="hover:text-primary transition-colors relative flex items-center gap-1 p-1">
+            <Link to="/cart" aria-label="Shopping Cart" className="hover:text-primary transition-colors relative flex items-center justify-center gap-1 min-w-[44px] min-h-[44px] p-2">
               <FiShoppingCart size={22} />
               {cartCount > 0 && (
                 <span className="absolute -top-1 -right-1 bg-secondary text-white text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center">
@@ -99,7 +102,7 @@ const Navbar = () => {
               )}
             </Link>
 
-            <Link to={isAuthenticated ? "/profile" : "/login"} aria-label="User Account" className="hover:text-primary transition-colors flex items-center gap-1.5 p-1 font-bold text-sm">
+            <Link to={isAuthenticated ? "/profile" : "/login"} aria-label="User Account" className="hover:text-primary transition-colors flex items-center justify-center gap-1.5 min-w-[44px] min-h-[44px] p-2 font-bold text-sm">
               <FiUser size={22} />
               {isAuthenticated && user && (
                 <span className="hidden sm:inline bg-emerald-100 text-emerald-800 text-xs px-2 py-0.5 rounded-full">

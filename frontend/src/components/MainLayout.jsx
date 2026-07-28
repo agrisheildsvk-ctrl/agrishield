@@ -7,7 +7,7 @@ const MainLayout = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 font-sans">
       <Navbar />
-      <main className="flex-grow">
+      <main id="main-content" role="main" aria-label="Main Content" className="flex-grow">
         <Outlet />
       </main>
       <CouponPopup />

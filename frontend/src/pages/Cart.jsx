@@ -77,7 +77,7 @@ const Cart = () => {
                 {/* Item Image */}
                 <div className="w-32 h-32 bg-white rounded-xl flex flex-shrink-0 items-center justify-center overflow-hidden border border-gray-100 p-2">
                    {item.image ? (
-                     <img src={item.image} alt={item.name} className="w-full h-full object-contain" />
+                     <img src={item.image} alt={item.seoAlt || `${item.name} - Agrishield India Crop Protection`} title={item.seoTitle || `${item.name} | Agrishield Farm Store`} className="w-full h-full object-contain" />
                    ) : (
                      <div className="text-gray-400 font-bold text-xs tracking-widest rotate-[-45deg] opacity-50">NO IMAGE</div>
                    )}

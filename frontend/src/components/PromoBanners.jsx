@@ -12,7 +12,7 @@ const PromoBanners = () => {
             className="w-full md:w-auto flex-1 max-w-xl group block rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 transform focus:outline-none focus:ring-2 focus:ring-white/80"
           >
             <img
-              src="/coupen.png"
+              src="/coupen.webp"
               alt="Get Rs 100 OFF on your first app order - Coupon Code APP100"
               className="w-full h-auto object-contain block group-hover:scale-[1.02] transition-transform duration-500"
             />
@@ -24,7 +24,7 @@ const PromoBanners = () => {
             className="w-full md:w-auto flex-1 max-w-xl group block rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 transform focus:outline-none focus:ring-2 focus:ring-white/80"
           >
             <img
-              src="/order.png"
+              src="/order.webp"
               alt="Free Delivery on orders above Rs 499"
               className="w-full h-auto object-contain block group-hover:scale-[1.02] transition-transform duration-500"
             />

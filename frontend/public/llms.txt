@@ -1,0 +1,23 @@
+# Agrishield India
+
+> Agrishield (operated by Srii Veerabhadreshwara Krushi Kendra) is an advanced agricultural e-commerce and crop protection advisory platform in India. We provide organic and certified crop protection solutions, wild animal deterrents, repellents, seeds, and fertilizers directly to farmers.
+
+## Core Pages
+
+- [Home](https://agrishield.in/): Official homepage featuring our top organic crop protection products, wild boar repellents, and solar alarm strobes.
+- [Shop](https://agrishield.in/shop): Full product catalog of agricultural repellents, strobes, and organic farm defense systems.
+- [About Us](https://agrishield.in/about): Learn about Srii Veerabhadreshwara Krushi Kendra and our mission to protect Indian crops.
+- [Contact](https://agrishield.in/contact): Get direct agricultural advisory and customer support from our expert agronomists.
+- [Blog & Advisory](https://agrishield.in/blog): Farming guides, pest control techniques, and organic crop defense articles.
+
+## Featured Crop Protection Products
+
+- [Wild Boar Repellent](https://agrishield.in/product/1): Certified organic repellent granules and sprays to keep wild boars out of crops.
+- [Organic Snake Repellent Powder](https://agrishield.in/product/2): Natural boundary line defense against venomous and non-venomous snakes.
+- [Solar Alarm Strobe Light](https://agrishield.in/product/3): Solar-powered night animal deterrent with siren and flashing strobe.
+- [Monkey Repellent Nuts](https://agrishield.in/product/4): Non-toxic taste aversion repellent to protect fruit orchards and plantations.
+
+## Policies & Support
+
+- [Privacy Policy](https://agrishield.in/privacy): Our data privacy policy and farmer account protection guidelines.
+- [Terms of Service](https://agrishield.in/terms): Conditions of sale and agricultural product usage terms.

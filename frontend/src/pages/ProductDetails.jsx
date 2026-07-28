@@ -152,7 +152,7 @@ const ProductDetails = () => {
               title="Click to view full size image"
             >
                {selectedImage ? (
-                 <img src={selectedImage} alt={product.name} className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105" />
+                 <img src={selectedImage} alt={product.seoAlt || `${product.name} - Agrishield Organic Crop Protection India`} title={product.seoTitle || `${product.name} | Agrishield India Agriculture Store`} className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105" />
                ) : (
                  <span className="text-gray-300 font-bold text-4xl tracking-widest rotate-[-45deg] opacity-50">NO IMAGE</span>
                )}
@@ -176,7 +176,7 @@ const ProductDetails = () => {
                   className={`w-20 h-20 bg-white rounded-xl border-2 flex flex-shrink-0 items-center justify-center cursor-pointer p-1.5 transition-all ${selectedThumbIndex === idx ? 'border-primary ring-2 ring-primary/30 shadow-md scale-105' : 'border-gray-200 hover:border-gray-400 opacity-75 hover:opacity-100'}`}
                 >
                   {img ? (
-                    <img src={img} alt={`${product.name} thumbnail ${idx + 1}`} className="w-full h-full object-contain" />
+                    <img src={img} alt={product.seoAlt ? `${product.seoAlt} - view ${idx + 1}` : `${product.name} thumbnail ${idx + 1}`} title={`${product.seoTitle || product.name} - View ${idx + 1}`} className="w-full h-full object-contain" />
                   ) : (
                     <span className="text-gray-400 text-xs">IMG</span>
                   )}

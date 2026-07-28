@@ -2,14 +2,14 @@ import { Link } from 'react-router-dom';
 
 const Footer = () => {
   return (
-    <footer className="bg-primary-dark text-white pt-12 pb-8 w-full overflow-hidden">
+    <footer aria-label="Site Footer" role="contentinfo" className="bg-primary-dark text-white pt-12 pb-8 w-full overflow-hidden">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
           
           <div className="flex flex-col">
             <Link to="/" aria-label="Agrishield Home" className="inline-block mb-4">
               <img 
-                src="/agri%20logo.png" 
+                src="/agri%20logo.webp" 
                 alt="Agrishield Logo"
                 width="180"
                 height="56"
@@ -28,18 +28,18 @@ const Footer = () => {
           <div className="flex flex-col">
             <h2 className="text-lg font-bold mb-4 text-secondary">Quick Links</h2>
             <ul className="space-y-2 text-gray-200 text-sm md:text-base">
-              <li><Link to="/shop" className="inline-block py-0.5 text-gray-200 hover:text-yellow-400 hover:translate-x-1.5 transition-all duration-200 select-none outline-none focus:outline-none bg-transparent hover:bg-transparent">Shop Products</Link></li>
-              <li><Link to="/about" className="inline-block py-0.5 text-gray-200 hover:text-yellow-400 hover:translate-x-1.5 transition-all duration-200 select-none outline-none focus:outline-none bg-transparent hover:bg-transparent">About Us</Link></li>
-              <li><Link to="/contact" className="inline-block py-0.5 text-gray-200 hover:text-yellow-400 hover:translate-x-1.5 transition-all duration-200 select-none outline-none focus:outline-none bg-transparent hover:bg-transparent">Contact</Link></li>
+              <li><Link to="/shop" className="inline-flex items-center py-1.5 min-h-[44px] text-gray-200 hover:text-yellow-400 hover:translate-x-1.5 transition-all duration-200 select-none outline-none focus:outline-none bg-transparent hover:bg-transparent">Shop Products</Link></li>
+              <li><Link to="/about" className="inline-flex items-center py-1.5 min-h-[44px] text-gray-200 hover:text-yellow-400 hover:translate-x-1.5 transition-all duration-200 select-none outline-none focus:outline-none bg-transparent hover:bg-transparent">About Us</Link></li>
+              <li><Link to="/contact" className="inline-flex items-center py-1.5 min-h-[44px] text-gray-200 hover:text-yellow-400 hover:translate-x-1.5 transition-all duration-200 select-none outline-none focus:outline-none bg-transparent hover:bg-transparent">Contact</Link></li>
             </ul>
           </div>
           
           <div className="flex flex-col">
             <h2 className="text-lg font-bold mb-4 text-secondary">Customer Service</h2>
             <ul className="space-y-2 text-gray-200 text-sm md:text-base">
-              <li><Link to="/faq" className="inline-block py-0.5 text-gray-200 hover:text-yellow-400 hover:translate-x-1.5 transition-all duration-200 select-none outline-none focus:outline-none bg-transparent hover:bg-transparent">FAQ</Link></li>
-              <li><Link to="/shipping" className="inline-block py-0.5 text-gray-200 hover:text-yellow-400 hover:translate-x-1.5 transition-all duration-200 select-none outline-none focus:outline-none bg-transparent hover:bg-transparent">Shipping Policy</Link></li>
-              <li><Link to="/returns" className="inline-block py-0.5 text-gray-200 hover:text-yellow-400 hover:translate-x-1.5 transition-all duration-200 select-none outline-none focus:outline-none bg-transparent hover:bg-transparent">Return Policy</Link></li>
+              <li><Link to="/faq" className="inline-flex items-center py-1.5 min-h-[44px] text-gray-200 hover:text-yellow-400 hover:translate-x-1.5 transition-all duration-200 select-none outline-none focus:outline-none bg-transparent hover:bg-transparent">FAQ</Link></li>
+              <li><Link to="/shipping" className="inline-flex items-center py-1.5 min-h-[44px] text-gray-200 hover:text-yellow-400 hover:translate-x-1.5 transition-all duration-200 select-none outline-none focus:outline-none bg-transparent hover:bg-transparent">Shipping Policy</Link></li>
+              <li><Link to="/returns" className="inline-flex items-center py-1.5 min-h-[44px] text-gray-200 hover:text-yellow-400 hover:translate-x-1.5 transition-all duration-200 select-none outline-none focus:outline-none bg-transparent hover:bg-transparent">Return Policy</Link></li>
             </ul>
           </div>
           
@@ -47,13 +47,15 @@ const Footer = () => {
             <h2 className="text-lg font-bold mb-4 text-secondary">Newsletter</h2>
             <p className="text-gray-300 mb-4 text-sm md:text-base">Subscribe to get updates on new products and offers.</p>
             <div className="flex flex-col sm:flex-row w-full gap-2 sm:gap-0">
+              <label htmlFor="footer-newsletter-input" className="sr-only">Your email address</label>
               <input 
+                id="footer-newsletter-input"
                 type="email" 
                 placeholder="Your email" 
                 aria-label="Your email address for newsletter"
-                className="px-4 py-2.5 sm:py-2 w-full text-gray-900 rounded-md sm:rounded-r-none sm:rounded-l-md focus:outline-none text-sm" 
+                className="px-4 py-2.5 sm:py-2 w-full text-gray-900 rounded-md sm:rounded-r-none sm:rounded-l-md focus:outline-none text-sm min-h-[44px]" 
               />
-              <button className="bg-secondary text-primary-dark px-4 py-2.5 sm:py-2 rounded-md sm:rounded-l-none sm:rounded-r-md font-bold hover:bg-yellow-500 transition-colors w-full sm:w-auto shrink-0 text-sm">
+              <button className="bg-secondary text-primary-dark px-4 py-2.5 sm:py-2 rounded-md sm:rounded-l-none sm:rounded-r-md font-bold hover:bg-yellow-500 transition-colors w-full sm:w-auto shrink-0 text-sm min-h-[44px]">
                 Subscribe
               </button>
             </div>

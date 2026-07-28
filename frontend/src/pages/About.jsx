@@ -18,7 +18,7 @@ const About = () => {
       {/* Hero Section */}
       <section className="relative w-full bg-primary-dark text-white py-20 md:py-32">
         <div className="absolute inset-0 overflow-hidden opacity-20">
-          <img src="/header2.png" alt="Agrishield Agriculture Crop Protection Background" title="agrishield-about-hero-background.png" className="w-full h-full object-cover" />
+          <img src="/header2.webp" alt="Agrishield Agriculture Crop Protection Background" title="agrishield-about-hero-background.webp" className="w-full h-full object-cover" />
         </div>
         <div className="container mx-auto px-4 relative z-10 text-center">
           <motion.h1 
