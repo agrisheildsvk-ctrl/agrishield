@@ -44,9 +44,10 @@ const Navbar = () => {
           <Link to="/" aria-label="Agrishield Home" className="flex items-center gap-2 shrink-0 group py-0.5 min-h-[44px]">
             <img 
               src="/agri%20logo.webp" 
-              alt="Agrishield Logo"
-              width="180"
-              height="56"
+              alt="Agrishield Logo - India's #1 Organic Crop Protection"
+              title="Agrishield - Natural Agricultural Repellents & Farm Defense"
+              width="240"
+              height="63"
               className="h-10 sm:h-12 md:h-14 w-auto object-contain transition-transform duration-300 group-hover:scale-105" 
             />
           </Link>

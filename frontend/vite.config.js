@@ -28,8 +28,8 @@ export default defineConfig({
       output: {
         manualChunks: (id) => {
           if (id.includes('node_modules')) {
-            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
-              return 'vendor';
+            if (id.includes('jspdf')) {
+              return 'pdf';
             }
             if (id.includes('framer-motion')) {
               return 'motion';
@@ -40,7 +40,9 @@ export default defineConfig({
             if (id.includes('react-icons')) {
               return 'icons';
             }
-            return 'modules';
+            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
+              return 'vendor';
+            }
           }
         }
       }

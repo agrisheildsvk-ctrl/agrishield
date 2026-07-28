@@ -73,8 +73,8 @@ const ProductCard = ({ product }) => {
               src={product.image} 
               alt={product.seoAlt || `${product.name} - Agrishield Organic Crop Protection India`}
               title={product.seoTitle || `${product.name} | Agrishield India Agriculture Store`}
-              width="400"
-              height="400"
+              width="300"
+              height="300"
               loading="lazy"
               decoding="async"
               className="w-full h-full object-contain p-2 transition-transform duration-300"
