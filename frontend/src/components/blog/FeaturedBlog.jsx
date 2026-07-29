@@ -23,13 +23,13 @@ const FeaturedBlog = ({ blog }) => {
       <div className="bg-white rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 border border-green-100/80 group">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-0">
           {/* Left: Large Image */}
-          <div className="lg:col-span-7 relative overflow-hidden h-72 sm:h-96 lg:h-auto min-h-[300px]">
+          <div className="lg:col-span-7 relative overflow-hidden h-72 sm:h-96 lg:h-auto min-h-[300px] bg-gray-900 flex items-center justify-center">
             <motion.img
               whileHover={{ scale: 1.05 }}
               transition={{ duration: 0.7, ease: 'easeOut' }}
               src={blog.image}
               alt={blog.title}
-              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent lg:hidden" />
             <div className="absolute top-4 left-4 z-10">

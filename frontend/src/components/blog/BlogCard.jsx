@@ -16,13 +16,13 @@ const BlogCard = ({ blog, index = 0 }) => {
       className="bg-white rounded-3xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-500 border border-gray-100/80 flex flex-col h-full group"
     >
       {/* Top: Large Image with Category Overlay */}
-      <div className="relative h-56 sm:h-60 w-full overflow-hidden shrink-0">
+      <div className="relative aspect-[16/9] w-full overflow-hidden shrink-0 bg-gray-900 flex items-center justify-center">
         <Link to={`/blog/${blog.id}`} className="block h-full w-full">
           <img
             src={blog.image}
             alt={blog.imageAlt || blog.title}
             title={blog.imageName || `${blog.slug}.jpg`}
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+            className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105"
             loading="lazy"
           />
         </Link>

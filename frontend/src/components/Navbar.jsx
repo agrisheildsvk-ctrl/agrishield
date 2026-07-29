@@ -172,13 +172,14 @@ const Navbar = () => {
           >
             {[
               { id: 1, name: "WILD BOAR" },
-              { id: 2, name: "Dr Mullu" },
-              { id: 3, name: "SNAKE REPELLENT" },
-              { id: 4, name: "MONKEY REPELLENT NUTS" },
-              { id: 5, name: "RAT/SQUIRELL/RABBIT" },
-              { id: 7, name: "SNAIL REPELLENT" },
-              { id: 8, name: "RAT SPRAY" },
-              { id: 9, name: "LIZZARD" }
+              { id: 9, name: "Dr Mullu" },
+              { id: 2, name: "SNAKE REPELLENT" },
+              { id: 8, name: "MONKEY REPELLENT NUTS" },
+              { id: 3, name: "RAT/SQUIRELL/RABBIT" },
+              { id: 4, name: "SNAIL REPELLENT" },
+              { id: 6, name: "RAT SPRAY" },
+              { id: 5, name: "LIZZARD" },
+              { id: 7, name: "BONDON-B" }
             ].map((item, idx) => (
               <li key={idx} className="shrink-0">
                 <Link 

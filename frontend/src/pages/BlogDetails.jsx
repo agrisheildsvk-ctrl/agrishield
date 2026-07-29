@@ -19,6 +19,37 @@ import { getBlogById, getRelatedBlogs } from '../data/blogsData';
 import BlogCard from '../components/blog/BlogCard';
 import SEO from '../components/SEO';
 
+// Helper to render markdown links [Text](url) as clickable blue underlined links
+const renderFormattedText = (text) => {
+  if (typeof text !== 'string' || !text) return text;
+  const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+  const parts = [];
+  let lastIndex = 0;
+  let match;
+
+  while ((match = linkRegex.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push(text.substring(lastIndex, match.index));
+    }
+    parts.push(
+      <Link
+        key={`${match.index}-${match[1]}`}
+        to={match[2]}
+        className="text-blue-600 hover:text-blue-800 underline font-semibold transition-colors"
+      >
+        {match[1]}
+      </Link>
+    );
+    lastIndex = linkRegex.lastIndex;
+  }
+
+  if (lastIndex < text.length) {
+    parts.push(text.substring(lastIndex));
+  }
+
+  return parts.length > 0 ? parts : text;
+};
+
 const BlogDetails = () => {
   const { id } = useParams();
   const [blog, setBlog] = useState(null);
@@ -197,13 +228,13 @@ const BlogDetails = () => {
           initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.6 }}
-          className="rounded-3xl overflow-hidden shadow-2xl bg-gray-900 relative max-h-[500px]"
+          className="rounded-3xl overflow-hidden shadow-2xl bg-gray-900 relative flex items-center justify-center"
         >
           <img
             src={blog.image}
             alt={blog.imageAlt || blog.title}
             title={blog.imageName || `${blog.slug}.jpg`}
-            className="w-full h-full object-cover max-h-[500px]"
+            className="w-full h-auto object-contain block mx-auto"
           />
           <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/70 to-transparent p-4 sm:p-6 text-right">
             <span className="text-xs text-white/80 font-medium">
@@ -217,9 +248,11 @@ const BlogDetails = () => {
       <div className="max-w-3xl mx-auto px-4">
         {/* Intro */}
         {content?.intro && (
-          <p className="text-lg sm:text-xl text-gray-700 leading-relaxed font-normal mb-10 border-l-4 border-primary pl-5 py-1 bg-green-50/50 rounded-r-2xl">
-            {content.intro}
-          </p>
+          <div className="text-lg sm:text-xl text-gray-700 leading-relaxed font-normal mb-10 border-l-4 border-primary pl-5 py-2 bg-green-50/50 rounded-r-2xl space-y-4">
+            {content.intro.split('\n\n').map((paragraph, pIdx) => (
+              <p key={pIdx}>{renderFormattedText(paragraph)}</p>
+            ))}
+          </div>
         )}
 
         {/* Sections */}
@@ -228,9 +261,136 @@ const BlogDetails = () => {
             <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-4 tracking-tight">
               {section.heading}
             </h2>
-            <p className="text-gray-700 text-base sm:text-lg leading-relaxed mb-6 font-normal">
-              {section.body}
-            </p>
+
+            {section.body && (
+              <div className="text-gray-700 text-base sm:text-lg leading-relaxed mb-6 font-normal space-y-4">
+                {section.body.split('\n\n').map((para, pIdx) => (
+                  <p key={pIdx}>{renderFormattedText(para)}</p>
+                ))}
+              </div>
+            )}
+
+            {/* Optional list */}
+            {section.listTitle && (
+              <h4 className="text-lg sm:text-xl font-bold text-gray-900 mt-6 mb-3">
+                {section.listTitle}
+              </h4>
+            )}
+            {section.list && section.list.length > 0 && (
+              <ul className="space-y-3 my-5 bg-white p-6 rounded-2xl border border-gray-200/80 shadow-xs">
+                {section.list.map((item, lIdx) => (
+                  <li key={lIdx} className="flex items-start gap-3 text-gray-700 text-base sm:text-lg font-medium">
+                    <span className="w-2.5 h-2.5 rounded-full bg-primary mt-2 shrink-0" />
+                    <span>{renderFormattedText(item)}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            {/* Optional afterListBody */}
+            {section.afterListBody && (
+              <div className="text-gray-700 text-base sm:text-lg leading-relaxed my-6 font-normal space-y-4">
+                {section.afterListBody.split('\n\n').map((para, pIdx) => (
+                  <p key={pIdx}>{renderFormattedText(para)}</p>
+                ))}
+              </div>
+            )}
+
+            {/* Optional subsections */}
+            {section.subsections && (
+              <div className="space-y-5 my-6">
+                {section.subsections.map((sub, sIdx) => (
+                  <div key={sIdx} className="bg-white p-6 rounded-2xl border border-gray-200/80 shadow-xs hover:shadow-md transition-shadow">
+                    <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
+                      {sub.title}
+                    </h3>
+                    {sub.body && (
+                      <p className="text-gray-700 text-base sm:text-lg leading-relaxed mb-3">
+                        {renderFormattedText(sub.body)}
+                      </p>
+                    )}
+                    {sub.list && (
+                      <ul className="space-y-2.5 mt-3">
+                        {sub.list.map((item, lIdx) => (
+                          <li key={lIdx} className="flex items-start gap-2.5 text-gray-700 text-base font-medium">
+                            <span className="w-2 h-2 rounded-full bg-primary mt-2 shrink-0" />
+                            <span>{renderFormattedText(item)}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Optional Table */}
+            {section.table && (
+              <div className="my-8 overflow-x-auto rounded-2xl border border-gray-200 shadow-sm bg-white">
+                <table className="w-full text-left border-collapse min-w-[600px]">
+                  <thead>
+                    <tr className="bg-gradient-to-r from-primary/15 to-green-50 border-b border-gray-200">
+                      {section.table.headers.map((header, hIdx) => (
+                        <th key={hIdx} className="p-4 sm:p-5 text-sm sm:text-base font-extrabold text-gray-900 tracking-wide">
+                          {header}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {section.table.rows.map((row, rIdx) => (
+                      <tr key={rIdx} className="hover:bg-green-50/40 transition-colors">
+                        {row.map((cell, cIdx) => (
+                          <td key={cIdx} className="p-4 sm:p-5 text-sm sm:text-base text-gray-700 font-medium">
+                            {cIdx === 0 ? (
+                              <span className="font-bold text-gray-900">{renderFormattedText(cell)}</span>
+                            ) : (
+                              renderFormattedText(cell)
+                            )}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {/* Optional Product Highlight card */}
+            {section.productHighlight && (
+              <div className="my-10 bg-gradient-to-br from-green-50 via-white to-emerald-50 rounded-3xl p-6 sm:p-8 border border-green-200 shadow-lg flex flex-col sm:flex-row items-center gap-6">
+                <img
+                  src={section.productHighlight.image}
+                  alt={section.productHighlight.name}
+                  className="w-32 h-32 sm:w-40 sm:h-40 object-contain p-2 bg-white rounded-2xl border border-gray-100 shadow-sm shrink-0"
+                />
+                <div className="flex-1 text-center sm:text-left">
+                  <span className="inline-block px-3 py-1 bg-green-100 text-primary rounded-full text-xs font-bold mb-2">
+                    Recommended Agrishield Solution
+                  </span>
+                  <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
+                    {section.productHighlight.name}
+                  </h3>
+                  <p className="text-gray-600 text-sm sm:text-base mb-4">
+                    {section.productHighlight.description}
+                  </p>
+                  <div className="flex items-center justify-center sm:justify-start gap-4">
+                    <Link
+                      to={section.productHighlight.link}
+                      className="inline-flex items-center gap-2 bg-primary hover:bg-primary-dark text-white font-bold px-6 py-3 rounded-full text-sm sm:text-base shadow-md transition-transform hover:scale-105"
+                    >
+                      <FiShoppingBag className="w-4 h-4" />
+                      <span>View Product • {section.productHighlight.price}</span>
+                    </Link>
+                    {section.productHighlight.originalPrice && (
+                      <span className="text-gray-400 line-through text-sm font-medium">
+                        {section.productHighlight.originalPrice}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Optional image between sections */}
             {section.image && (
@@ -266,7 +426,7 @@ const BlogDetails = () => {
               {content.tipsBox.items.map((tip, idx) => (
                 <li key={idx} className="flex items-start gap-3 text-gray-700 text-base">
                   <span className="w-2 h-2 rounded-full bg-primary mt-2.5 shrink-0" />
-                  <span>{tip}</span>
+                  <span>{renderFormattedText(tip)}</span>
                 </li>
               ))}
             </ul>
@@ -285,7 +445,7 @@ const BlogDetails = () => {
               </h3>
             </div>
             <p className="text-amber-950 text-base leading-relaxed font-medium">
-              {content.warningBox.content}
+              {renderFormattedText(content.warningBox.content)}
             </p>
           </div>
         )}
@@ -330,7 +490,7 @@ const BlogDetails = () => {
                           className="overflow-hidden"
                         >
                           <div className="px-5 pb-5 text-gray-600 text-sm sm:text-base leading-relaxed border-t border-gray-100 pt-3">
-                            {faq.answer}
+                            {renderFormattedText(faq.answer)}
                           </div>
                         </motion.div>
                       )}
