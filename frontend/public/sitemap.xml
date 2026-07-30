@@ -52,22 +52,52 @@
 
   <!-- Top Products -->
   <url>
-    <loc>https://agrishield.in/product/1</loc>
+    <loc>https://agrishield.in/product/organic-wild-boar-repellent</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://agrishield.in/product/2</loc>
+    <loc>https://agrishield.in/product/organic-snake-repellent</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://agrishield.in/product/3</loc>
+    <loc>https://agrishield.in/product/organic-rat-squirrel-rabbit-repellent</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://agrishield.in/product/4</loc>
+    <loc>https://agrishield.in/product/organic-snail-repellent</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://agrishield.in/product/organic-lizard-repellent</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://agrishield.in/product/organic-rat-repellent-spray</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://agrishield.in/product/organic-animal-and-bird-repellent</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://agrishield.in/product/organic-monkey-repellent-nuts</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://agrishield.in/product/dr-mullu-organic-animal-repellent</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://agrishield.in/product/organic-ant-and-insect-repellent</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>

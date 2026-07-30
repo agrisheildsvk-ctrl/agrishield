@@ -171,19 +171,20 @@ const Navbar = () => {
             className="flex items-center space-x-2.5 sm:space-x-3 overflow-x-auto whitespace-nowrap scrollbar-hide text-xs sm:text-sm font-medium scroll-smooth flex-grow py-1 px-1"
           >
             {[
-              { id: 1, name: "WILD BOAR" },
-              { id: 9, name: "Dr Mullu" },
-              { id: 2, name: "SNAKE REPELLENT" },
-              { id: 8, name: "MONKEY REPELLENT NUTS" },
-              { id: 3, name: "RAT/SQUIRELL/RABBIT" },
-              { id: 4, name: "SNAIL REPELLENT" },
-              { id: 6, name: "RAT SPRAY" },
-              { id: 5, name: "LIZZARD" },
-              { id: 7, name: "BONDON-B" }
+              { id: 1, name: "WILD BOAR", slug: "organic-wild-boar-repellent" },
+              { id: 9, name: "Dr Mullu", slug: "dr-mullu-organic-animal-repellent" },
+              { id: 2, name: "SNAKE REPELLENT", slug: "organic-snake-repellent" },
+              { id: 8, name: "MONKEY REPELLENT NUTS", slug: "organic-monkey-repellent-nuts" },
+              { id: 3, name: "RAT/SQUIRELL/RABBIT", slug: "organic-rat-squirrel-rabbit-repellent" },
+              { id: 4, name: "SNAIL REPELLENT", slug: "organic-snail-repellent" },
+              { id: 6, name: "RAT SPRAY", slug: "organic-rat-repellent-spray" },
+              { id: 5, name: "LIZZARD", slug: "organic-lizard-repellent" },
+              { id: 7, name: "BONDON-B", slug: "organic-animal-and-bird-repellent" },
+              { id: 10, name: "INSECT/ANT REPELLENT", slug: "organic-ant-and-insect-repellent" }
             ].map((item, idx) => (
               <li key={idx} className="shrink-0">
                 <Link 
-                  to={`/product/${item.id}`} 
+                  to={`/product/${item.slug || item.id}`} 
                   className="block px-3.5 py-2 bg-white/10 hover:bg-white/25 border border-white/25 rounded-lg transition-all shadow-sm active:bg-white/30"
                 >
                   {item.name}

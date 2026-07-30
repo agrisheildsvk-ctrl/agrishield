@@ -9,13 +9,14 @@ import SEO from '../components/SEO';
 import { products } from '../data/products';
 
 const ProductDetails = () => {
-  const { id } = useParams();
+  const { slug, id } = useParams();
+  const param = slug || id;
   const navigate = useNavigate();
   const { addToCart } = useCart();
   
-  const product = products.find(p => p.id === parseInt(id));
+  const product = products.find(p => p.slug === param || p.id === parseInt(param) || String(p.id) === String(param));
   const relatedProducts = products
-    .filter(p => p.id !== parseInt(id))
+    .filter(p => p.id !== product?.id)
     .sort((a, b) => (a.category === product?.category ? -1 : 1))
     .slice(0, 4);
   const defaultVariant = product?.variants?.find(v => v.isDefault) || product?.variants?.[0] || {
@@ -33,6 +34,10 @@ const ProductDetails = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
     if (product) {
+      if (param !== product.slug && product.slug) {
+        navigate(`/product/${product.slug}`, { replace: true });
+        return;
+      }
       const def = product.variants?.find(v => v.isDefault) || product.variants?.[0] || {
         size: product.packageSize || '1 kg',
         price: product.price || '₹400',
@@ -44,7 +49,7 @@ const ProductDetails = () => {
       setSelectedImage(product.image || '');
       setSelectedThumbIndex(0);
     }
-  }, [id, product]);
+  }, [param, product, navigate]);
 
   const galleryImages = product?.images && product.images.length > 0 
     ? product.images 
@@ -108,7 +113,7 @@ const ProductDetails = () => {
           title={`${product.title} (${selectedVariant.size}) | Agrishield Shop`}
           description={`Buy ${product.title} at ${selectedVariant.price} in India. ${product.shortDescription || product.description}`}
           keywords={[product.title, product.category, 'Agrishield crop protection', 'buy agriculture product online India']}
-          canonical={`https://agrishield.in/product/${product.id}`}
+          canonical={`https://agrishield.in/product/${product.slug || product.id}`}
           image={selectedImage || product.image}
           type="product"
           schema={{
@@ -124,7 +129,7 @@ const ProductDetails = () => {
             },
             "offers": {
               "@type": "Offer",
-              "url": `https://agrishield.in/product/${product.id}`,
+              "url": `https://agrishield.in/product/${product.slug || product.id}`,
               "priceCurrency": "INR",
               "price": selectedVariant.price ? selectedVariant.price.replace(/[^0-9.]/g, '') : '400',
               "availability": "https://schema.org/InStock",

@@ -61,7 +61,7 @@ const ProductCard = ({ product }) => {
       {/* Image Container with Zoom Effect */}
       <div 
         className="relative h-64 bg-gray-50 overflow-hidden flex items-center justify-center p-6 cursor-pointer"
-        onClick={(e) => { e.stopPropagation(); navigate(`/product/${product.id}`); }}
+        onClick={(e) => { e.stopPropagation(); navigate(`/product/${product.slug || product.id}`); }}
       >
         <motion.div 
           className="w-full h-full bg-white rounded-xl relative overflow-hidden flex items-center justify-center"
@@ -92,7 +92,7 @@ const ProductCard = ({ product }) => {
         {/* Hover Action Buttons */}
         <div className="absolute inset-0 flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/5 pointer-events-none">
           <button 
-            onClick={(e) => { e.stopPropagation(); navigate(`/product/${product.id}`); }}
+            onClick={(e) => { e.stopPropagation(); navigate(`/product/${product.slug || product.id}`); }}
             className="pointer-events-auto bg-white p-3 rounded-full shadow-lg text-gray-700 hover:text-primary hover:bg-green-50 transition transform hover:scale-110" 
             aria-label="Quick View"
           >
@@ -113,7 +113,7 @@ const ProductCard = ({ product }) => {
         </span>
         <h3 
           className="text-lg font-bold text-gray-900 mb-2 line-clamp-2 hover:text-primary transition-colors cursor-pointer"
-          onClick={(e) => { e.stopPropagation(); navigate(`/product/${product.id}`); }}
+          onClick={(e) => { e.stopPropagation(); navigate(`/product/${product.slug || product.id}`); }}
         >
           {product.name}
         </h3>

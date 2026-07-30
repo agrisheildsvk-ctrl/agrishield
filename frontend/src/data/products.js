@@ -1,6 +1,7 @@
 export const products = [
   {
     id: 1,
+    slug: 'organic-wild-boar-repellent',
     name: 'WILD BOAR',
     category: 'Repellents',
     price: '₹400',
@@ -22,6 +23,7 @@ export const products = [
   },
   {
     id: 2,
+    slug: 'organic-snake-repellent',
     name: 'SNAKE REPELLENT',
     category: 'Repellents',
     brand: 'SuiBio',
@@ -65,6 +67,7 @@ export const products = [
   },
   {
     id: 3,
+    slug: 'organic-rat-squirrel-rabbit-repellent',
     name: 'RAT/SQUIRELL/RABBIT',
     category: 'Rodent Control',
     price: '₹425',
@@ -86,6 +89,7 @@ export const products = [
   },
   {
     id: 4,
+    slug: 'organic-snail-repellent',
     name: 'SNAIL REPELLENT',
     category: 'Pest Control',
     price: '₹425',
@@ -108,6 +112,7 @@ export const products = [
   },
   {
     id: 5,
+    slug: 'organic-lizard-repellent',
     name: 'LIZZARD',
     category: 'Specialty',
     price: '₹140',
@@ -129,6 +134,7 @@ export const products = [
   },
   {
     id: 6,
+    slug: 'organic-rat-repellent-spray',
     name: 'RAT SPRAY',
     category: 'Rodent Control',
     price: '₹350',
@@ -149,6 +155,7 @@ export const products = [
   },
   {
     id: 7,
+    slug: 'organic-animal-and-bird-repellent',
     name: 'BONDON-B (All Animals & Birds Repellent)',
     category: 'BONDON-B',
     brand: 'Agrishield',
@@ -205,6 +212,7 @@ export const products = [
   },
   {
     id: 8,
+    slug: 'organic-monkey-repellent-nuts',
     name: 'MONKEY REPELLENT NUTS',
     category: 'Repellents',
     price: '₹350',
@@ -226,6 +234,7 @@ export const products = [
   },
   {
     id: 9,
+    slug: 'dr-mullu-organic-animal-repellent',
     name: 'Dr Mullu',
     category: 'Specialty',
     price: '₹150',
@@ -247,6 +256,7 @@ export const products = [
   },
   {
     id: 10,
+    slug: 'organic-ant-and-insect-repellent',
     name: 'ORGANIC INSECTS / ANT REPELLENT',
     category: 'Pest Control',
     price: '₹380',

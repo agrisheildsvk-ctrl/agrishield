@@ -46,7 +46,6 @@ const Home = () => {
           className="w-full h-auto pb-6 sm:pb-10"
         >
           {[
-            { id: 1, alt: "Agrishield India - Certified Organic Crop Protection & Wild Animal Repellents Store", title: "Agrishield India - #1 Organic Crop Protection & Farm Repellent Shop" },
             { id: 2, alt: "Agrishield Organic Wild Boar & Snake Repellents for Agricultural Farm Boundary Defense", title: "Agrishield Wild Boar & Snake Repellent Granules & Powder" },
             { id: 3, alt: "Agrishield Solar Strobe Alarm Lights and Night Animal Deterrent Systems", title: "Agrishield Solar Alarm Strobe Lights & Animal Deterrents" },
             { id: 4, alt: "Agrishield 100% Eco-Friendly Farming Advisory and Plant Crop Defense Solutions", title: "100% Eco-Friendly Agricultural Advisory & Crop Defense" },
@@ -62,9 +61,9 @@ const Home = () => {
                   title={banner.title}
                   width="1600"
                   height="400"
-                  loading={banner.id === 1 ? "eager" : "lazy"}
-                  fetchpriority={banner.id === 1 ? "high" : "auto"}
-                  decoding={banner.id === 1 ? "sync" : "async"}
+                  loading={banner.id === 2 ? "eager" : "lazy"}
+                  fetchpriority={banner.id === 2 ? "high" : "auto"}
+                  decoding={banner.id === 2 ? "sync" : "async"}
                   className="w-full h-auto object-contain block" 
                 />
               </picture>
@@ -244,7 +243,7 @@ const Home = () => {
                   <span className="text-xs font-bold text-green-700 bg-green-50 px-2 py-0.5 rounded-md border border-green-200 ml-1">Save 50%</span>
                 </div>
                 <Link 
-                  to="/product/10"
+                  to="/product/organic-animal-and-bird-repellent"
                   className="w-full bg-primary hover:bg-primary-dark text-white font-bold py-3.5 px-6 rounded-xl transition-all shadow-md hover:shadow-lg text-sm flex items-center justify-center gap-2"
                 >
                   <span>View Product Details</span>
