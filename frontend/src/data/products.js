@@ -11,6 +11,11 @@ export const products = [
     discount: 41,
     isBestSeller: true,
     image: '/agrishield-wild-boar-repellent.webp',
+    images: [
+      '/agrishield-wild-boar-repellent.webp',
+      '/wild boar repellent method of application eng .jpeg'
+    ],
+    methodImage: '/wild boar repellent method of application eng .jpeg',
     seoTitle: 'Agrishield Organic Wild Boar Repellent - 100% Crop Protection Granules',
     seoAlt: 'Agrishield Organic Wild Boar Repellent Granules for Indian Farmland Protection',
     packageSize: '1 kg',
@@ -34,6 +39,11 @@ export const products = [
     discount: 39,
     isBestSeller: true,
     image: '/agrishield-organic-snake-repellent.webp',
+    images: [
+      '/agrishield-organic-snake-repellent.webp',
+      '/Snake repellent method of application eng .jpeg'
+    ],
+    methodImage: '/Snake repellent method of application eng .jpeg',
     seoTitle: 'Agrishield Natural Snake Repellent Powder - Farmland & Boundary Protection',
     seoAlt: 'Agrishield Organic Snake Repellent Powder for Farm Boundary Line Defense',
     packageSize: '1 kg',
@@ -77,6 +87,11 @@ export const products = [
     discount: 39,
     isBestSeller: true,
     image: '/agrishield-rat-squirrel-rabbit-repellent.webp',
+    images: [
+      '/agrishield-rat-squirrel-rabbit-repellent.webp',
+      '/Rat Repellent method of application eng.jpeg'
+    ],
+    methodImage: '/Rat Repellent method of application eng.jpeg',
     seoTitle: 'Agrishield Organic Rat Squirrel & Rabbit Repellent for Farmland',
     seoAlt: 'Agrishield Organic Repellent against Rats Squirrels and Rabbits in Agriculture',
     packageSize: '1 kg',
@@ -99,6 +114,9 @@ export const products = [
     discount: 39,
     isBestSeller: false,
     image: '/agrishield-organic-snail-repellent.webp',
+    images: [
+      '/agrishield-organic-snail-repellent.webp'
+    ],
     seoTitle: 'Agrishield Organic Snail Repellent - Garden & Agriculture Crop Protection',
     seoAlt: 'Agrishield Organic Snail Repellent Powder for Agricultural Farmland and Gardens',
     description: 'Effective organic repellent protection against Snails and crop pests in agricultural farmland and gardens.',
@@ -122,6 +140,11 @@ export const products = [
     discount: 48,
     isBestSeller: false,
     image: '/agrishield-lizard-repellent.webp',
+    images: [
+      '/agrishield-lizard-repellent.webp',
+      '/Lizaard method of application eng.jpeg'
+    ],
+    methodImage: '/Lizaard method of application eng.jpeg',
     seoTitle: 'Agrishield Organic Lizard Repellent Spray & Solution for Home and Farm',
     seoAlt: 'Agrishield Organic Lizard Repellent for Agricultural Warehouses and Farm Buildings',
     packageSize: '100 ml',
@@ -144,6 +167,11 @@ export const products = [
     discount: 46,
     isBestSeller: false,
     image: '/agrishield-rat-repellent-spray.webp',
+    images: [
+      '/agrishield-rat-repellent-spray.webp',
+      '/Rat Repellent method of application eng.jpeg'
+    ],
+    methodImage: '/Rat Repellent method of application eng.jpeg',
     seoTitle: 'Agrishield Long-Lasting Organic Rat Repellent Spray for Agriculture',
     seoAlt: 'Agrishield Organic Rat Repellent Spray bottle for agricultural crops and storage',
     packageSize: '200 ml',
@@ -160,6 +188,9 @@ export const products = [
     category: 'BONDON-B',
     brand: 'Agrishield',
     image: '/agrishield-bondon-b-animal-bird-repellent.webp',
+    images: [
+      '/agrishield-bondon-b-animal-bird-repellent.webp'
+    ],
     seoTitle: 'BONDON-B All Animals & Birds Repellent Liquid - Agrishield India',
     seoAlt: 'BONDON-B Comprehensive Organic Animal and Bird Crop Repellent by Agrishield',
     price: '₹530',
@@ -222,6 +253,11 @@ export const products = [
     discount: 42,
     isBestSeller: false,
     image: '/agrishield-monkey-repellent-nuts.webp',
+    images: [
+      '/agrishield-monkey-repellent-nuts.webp',
+      '/Monkey repelling nuts method of application eng.jpeg'
+    ],
+    methodImage: '/Monkey repelling nuts method of application eng.jpeg',
     seoTitle: 'Agrishield Organic Monkey Repellent Nuts - Fruit Orchard & Crop Defense',
     seoAlt: 'Agrishield Organic Monkey Repellent Nuts for protecting fruit orchards and plantations',
     packageSize: '250 gm',
@@ -244,6 +280,9 @@ export const products = [
     discount: 46,
     isBestSeller: false,
     image: '/agrishield-dr-mullu-crop-defender.webp',
+    images: [
+      '/agrishield-dr-mullu-crop-defender.webp'
+    ],
     seoTitle: 'Agrishield Dr Mullu Specialty Crop Defender & Plant Protector',
     seoAlt: 'Agrishield Dr Mullu Crop Protection Specialty Liquid for Agricultural Farms',
     packageSize: '50 ml',
@@ -266,6 +305,9 @@ export const products = [
     discount: 41,
     isBestSeller: true,
     image: '/agrishield-organic-insect-repellent.webp',
+    images: [
+      '/agrishield-organic-insect-repellent.webp'
+    ],
     seoTitle: 'Agrishield Organic Insect & Ant Repellent - 100% Eco-Friendly Pest Control',
     seoAlt: 'Agrishield Organic Insects and Ant Repellent for Farmland and Organic Farms',
     description: '100% organic and eco-friendly repellent to protect crops from ants, caterpillars, aphids, and harmful farmland insects.',

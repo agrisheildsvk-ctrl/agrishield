@@ -480,6 +480,35 @@ const ProductDetails = () => {
               <li><strong>Application:</strong> {product.usage?.application || 'Follow standard operating procedures detailed on package.'}</li>
             </ul>
 
+            {product.methodImage && (
+              <div className="mt-4 mb-8 bg-green-50/70 border-2 border-green-200 rounded-2xl p-5 shadow-sm">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-xl">📋</span>
+                  <h5 className="text-base font-extrabold text-gray-900">
+                    Method of Application Guide
+                  </h5>
+                </div>
+                <p className="text-xs text-gray-600 mb-3 font-medium">
+                  Illustrated method of application diagram for effective protection:
+                </p>
+                <div 
+                  onClick={() => { setSelectedImage(product.methodImage); setIsLightboxOpen(true); }}
+                  className="bg-white border-2 border-green-200 hover:border-primary rounded-xl overflow-hidden p-3 cursor-zoom-in shadow-sm hover:shadow-md transition-all group inline-block max-w-lg w-full"
+                  title="Click to zoom Method of Application diagram"
+                >
+                  <img 
+                    src={product.methodImage} 
+                    alt={`${product.name} - Method of Application Diagram`} 
+                    className="w-full h-auto rounded-lg object-contain group-hover:scale-[1.01] transition-transform duration-300"
+                  />
+                  <div className="text-center text-xs font-extrabold text-primary pt-2 flex items-center justify-center gap-1.5">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" /></svg>
+                    Click to Zoom Full Size Diagram
+                  </div>
+                </div>
+              </div>
+            )}
+
             <h4 className="text-lg font-bold text-gray-900 mb-3">Additional Information</h4>
             <ul className="list-disc pl-5 mb-6 space-y-2 text-sm">
               {product.additionalInfo ? product.additionalInfo.map((info, i) => <li key={i}>{info}</li>) : (
