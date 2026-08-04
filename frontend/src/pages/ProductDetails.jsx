@@ -7,6 +7,7 @@ import { useCart } from '../context/CartContext';
 import ProductCard from '../components/shop/ProductCard';
 import SEO from '../components/SEO';
 import { products } from '../data/products';
+import { trackViewContent } from '../utils/analytics';
 
 const ProductDetails = () => {
   const { slug, id } = useParams();
@@ -48,6 +49,7 @@ const ProductDetails = () => {
       setQuantity(1);
       setSelectedImage(product.image || '');
       setSelectedThumbIndex(0);
+      trackViewContent(product);
     }
   }, [param, product, navigate]);
 

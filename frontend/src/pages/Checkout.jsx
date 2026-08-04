@@ -5,18 +5,22 @@ import { FiArrowLeft, FiCheckCircle, FiCreditCard, FiDollarSign, FiSmartphone, F
 import { useCart } from '../context/CartContext';
 import axios from 'axios';
 import SEO from '../components/SEO';
+import { trackBeginCheckout } from '../utils/analytics';
 
 const Checkout = () => {
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
-
   const { cartItems, cartSubtotal, cartTotal, clearCart, removeFromCart } = useCart();
   const baseTotal = cartItems.reduce((total, item) => {
     const priceNum = parseFloat(String(item.price).replace(/[^0-9.]/g, '')) || 0;
     const qty = item.quantity || 1;
     return total + (priceNum * qty);
   }, 0);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    if (cartItems.length > 0) {
+      trackBeginCheckout(cartItems, baseTotal);
+    }
+  }, []);
   const navigate = useNavigate();
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState('online');

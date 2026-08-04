@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import { trackPageView } from '../utils/analytics';
 
 const ScrollToTop = () => {
   const { pathname, search } = useLocation();
@@ -14,6 +15,12 @@ const ScrollToTop = () => {
     } catch (e) {
       window.scrollTo(0, 0);
     }
+
+    const timer = setTimeout(() => {
+      trackPageView(pathname + search);
+    }, 100);
+
+    return () => clearTimeout(timer);
   }, [pathname, search]);
 
   return null;

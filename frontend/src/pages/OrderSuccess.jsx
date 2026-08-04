@@ -4,6 +4,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { FiCheckCircle, FiDownload, FiArrowRight, FiFileText } from 'react-icons/fi';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { trackPurchase } from '../utils/analytics';
 
 const OrderSuccess = () => {
   const location = useLocation();
@@ -15,7 +16,18 @@ const OrderSuccess = () => {
     if (!location.state || !location.state.orderData) {
       navigate('/shop');
     } else {
-      setOrderData(location.state.orderData);
+      const data = location.state.orderData;
+      setOrderData(data);
+      const orderId = data.orderId || data.id;
+      if (orderId) {
+        const trackedKey = `agrishield_tracked_${orderId}`;
+        if (!sessionStorage.getItem(trackedKey)) {
+          sessionStorage.setItem(trackedKey, 'true');
+          trackPurchase(data);
+        }
+      } else {
+        trackPurchase(data);
+      }
     }
   }, [location, navigate]);
 
