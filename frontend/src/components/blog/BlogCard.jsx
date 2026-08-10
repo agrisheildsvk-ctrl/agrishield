@@ -17,12 +17,12 @@ const BlogCard = ({ blog, index = 0 }) => {
     >
       {/* Top: Large Image with Category Overlay */}
       <div className="relative aspect-[16/9] w-full overflow-hidden shrink-0 bg-gray-900 flex items-center justify-center">
-        <Link to={`/blog/${blog.id}`} className="block h-full w-full">
+        <Link to={`/blog/${blog.slug}`} className="block h-full w-full">
           <img
             src={blog.image}
             alt={blog.imageAlt || blog.title}
             title={blog.imageName || `${blog.slug}.jpg`}
-            className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105"
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
             loading="lazy"
           />
         </Link>
@@ -50,7 +50,7 @@ const BlogCard = ({ blog, index = 0 }) => {
           </div>
 
           {/* Title */}
-          <Link to={`/blog/${blog.id}`} className="block">
+          <Link to={`/blog/${blog.slug}`} className="block">
             <h3 className="text-lg sm:text-xl font-bold text-gray-900 group-hover:text-primary transition-colors leading-snug mb-3 line-clamp-2">
               {blog.title}
             </h3>
@@ -76,7 +76,7 @@ const BlogCard = ({ blog, index = 0 }) => {
           </div>
 
           <Link
-            to={`/blog/${blog.id}`}
+            to={`/blog/${blog.slug}`}
             className="inline-flex items-center gap-1.5 text-primary hover:text-primary-dark font-bold text-sm transition-colors group/btn"
           >
             <span>Read More</span>

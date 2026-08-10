@@ -29,7 +29,7 @@ const FeaturedBlog = ({ blog }) => {
               transition={{ duration: 0.7, ease: 'easeOut' }}
               src={blog.image}
               alt={blog.title}
-              className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105"
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent lg:hidden" />
             <div className="absolute top-4 left-4 z-10">
@@ -56,7 +56,7 @@ const FeaturedBlog = ({ blog }) => {
               </div>
 
               {/* Title */}
-              <Link to={`/blog/${blog.id}`} className="block group/link">
+              <Link to={`/blog/${blog.slug}`} className="block group/link">
                 <h2 className="text-2xl sm:text-3xl lg:text-3xl font-extrabold text-gray-900 group-hover/link:text-primary transition-colors leading-tight mb-4">
                   {blog.title}
                 </h2>
@@ -89,7 +89,7 @@ const FeaturedBlog = ({ blog }) => {
 
                 {/* Read More CTA */}
                 <Link
-                  to={`/blog/${blog.id}`}
+                  to={`/blog/${blog.slug}`}
                   className="inline-flex items-center gap-2 bg-gradient-to-r from-primary to-green-600 hover:from-primary-dark hover:to-green-700 text-white font-bold text-xs sm:text-sm px-5 py-3 rounded-xl shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/35 transition-all duration-300 hover:-translate-y-0.5"
                 >
                   <span>Read More</span>

@@ -281,7 +281,8 @@ export const products = [
     isBestSeller: false,
     image: '/agrishield-dr-mullu-crop-defender.webp',
     images: [
-      '/agrishield-dr-mullu-crop-defender.webp'
+      '/agrishield-dr-mullu-crop-defender.webp',
+      '/dr-mullu.webp'
     ],
     seoTitle: 'Agrishield Dr Mullu Specialty Crop Defender & Plant Protector',
     seoAlt: 'Agrishield Dr Mullu Crop Protection Specialty Liquid for Agricultural Farms',

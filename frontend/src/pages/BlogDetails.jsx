@@ -15,7 +15,7 @@ import {
   FiCheck,
 } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
-import { getBlogById, getRelatedBlogs } from '../data/blogsData';
+import { getBlogBySlug, getRelatedBlogs } from '../data/blogsData';
 import BlogCard from '../components/blog/BlogCard';
 import SEO from '../components/SEO';
 
@@ -51,22 +51,22 @@ const renderFormattedText = (text) => {
 };
 
 const BlogDetails = () => {
-  const { id } = useParams();
+  const { slug } = useParams();
   const [blog, setBlog] = useState(null);
   const [relatedBlogs, setRelatedBlogs] = useState([]);
   const [copied, setCopied] = useState(false);
   const [openFaqIndex, setOpenFaqIndex] = useState(0);
 
   useEffect(() => {
-    const foundBlog = getBlogById(id);
+    const foundBlog = getBlogBySlug(slug);
     if (foundBlog) {
       setBlog(foundBlog);
-      setRelatedBlogs(getRelatedBlogs(foundBlog.id, foundBlog.category, 3));
+      setRelatedBlogs(getRelatedBlogs(foundBlog.slug, foundBlog.category, 3));
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
       setBlog(null);
     }
-  }, [id]);
+  }, [slug]);
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(window.location.href);

@@ -5,7 +5,7 @@ import { FiArrowDown, FiShoppingBag, FiRefreshCw } from 'react-icons/fi';
 import { blogsData } from '../data/blogsData';
 import SearchBar from '../components/blog/SearchBar';
 import BlogCard from '../components/blog/BlogCard';
-import FeaturedBlog from '../components/blog/FeaturedBlog';
+
 import BlogNewsletter from '../components/blog/BlogNewsletter';
 import SEO from '../components/SEO';
 
@@ -109,10 +109,7 @@ const Blog = () => {
       {/* Anchor for Explore Blogs scroll */}
       <div ref={blogsSectionRef} className="scroll-mt-16 pt-8" />
 
-      {/* Featured Article */}
-      {!searchQuery && filteredBlogs.length > 0 && (
-        <FeaturedBlog blog={filteredBlogs.find((b) => b.isFeatured) || filteredBlogs[0]} />
-      )}
+
 
       {/* 3. Search Bar */}
       <section className="mb-8">
