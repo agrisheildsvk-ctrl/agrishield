@@ -98,8 +98,17 @@ model Order {
   razorpay_signature  String?
   capture_timestamp   DateTime?
   transaction_id      String?
-  status              String      @default("processing")
-  whatsapp_status  String      @default("pending")
+  status                String      @default("processing")
+  shipping_status       String      @default("pending")
+  delhivery_awb         String?
+  delhivery_tracking_id String?
+  delhivery_shipment_id String?
+  delhivery_status      String?
+  delhivery_label_url   String?
+  tracking_url          String?
+  shipment_created_at   DateTime?
+  delhivery_created_at  DateTime?
+  whatsapp_status    String      @default("pending")
   whatsapp_error   String?     @db.Text
   created_at       DateTime    @default(now())
   updated_at       DateTime    @updatedAt

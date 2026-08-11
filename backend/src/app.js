@@ -14,6 +14,7 @@ const ordersRoutes = require('./routes/orders.js');
 const paymentsRoutes = require('./routes/payments.js');
 const settingsRoutes = require('./routes/settings.js');
 const notificationsRoutes = require('./routes/notifications.js');
+const shippingRoutes = require('./routes/shipping.js');
 
 const app = express();
 
@@ -43,6 +44,7 @@ app.use('/api/orders', ordersRoutes);
 app.use('/api/payments', paymentsRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/notifications', notificationsRoutes);
+app.use('/api/shipping', shippingRoutes);
 
 // Serve static frontend in production with 1-year Cache-Control for assets
 const frontendDist = path.join(__dirname, '../../frontend/dist');

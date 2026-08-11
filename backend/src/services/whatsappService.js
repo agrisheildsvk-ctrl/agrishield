@@ -122,6 +122,9 @@ ${pinStr}
 
 ━━━━━━━━━━━━━━━━━━
 
+AWB
+${order.delhivery_awb || 'Pending Manifest'}
+
 Order Time
 ${orderTimeStr}
 

@@ -2,6 +2,7 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const razorpayService = require('../services/razorpayService');
 const whatsappService = require('../services/whatsappService');
+const delhiveryService = require('../services/delhiveryService');
 
 /**
  * Create a Razorpay order on the backend (/api/payments/create-order)
@@ -104,6 +105,34 @@ const verifyAndSavePayment = async (req, res) => {
         orderId: existingOrder.order_id,
         paymentId: razorpay_payment_id
       });
+
+      // If existing order missing shipment and payment captured, attempt Delhivery creation
+      if (!existingOrder.delhivery_awb && existingOrder.payment_status === 'Captured') {
+        try {
+          const delhiveryResult = await delhiveryService.createShipment(existingOrder);
+          if (delhiveryResult && delhiveryResult.success && delhiveryResult.awb) {
+            const updated = await prisma.order.update({
+              where: { id: existingOrder.id },
+              data: {
+                shipping_status: 'shipment_created',
+                delhivery_awb: delhiveryResult.awb,
+                delhivery_status: delhiveryResult.delhivery_status || 'Manifested',
+                tracking_url: delhiveryResult.tracking_url,
+                shipment_created_at: new Date()
+              },
+              include: { items: true }
+            });
+            return res.status(200).json({
+              success: true,
+              message: 'Order already saved, shipment created',
+              order: updated
+            });
+          }
+        } catch (err) {
+          console.error('Error creating Delhivery shipment for existing order:', err.message);
+        }
+      }
+
       return res.status(200).json({
         success: true,
         message: 'Order already saved and verified',
@@ -132,6 +161,7 @@ const verifyAndSavePayment = async (req, res) => {
         razorpay_signature: razorpay_signature,
         capture_timestamp: paymentStatus === 'Captured' ? new Date() : null,
         transaction_id: razorpay_payment_id,
+        shipping_status: 'pending',
         whatsapp_status: 'pending',
         items: {
           create: items.map(item => ({
@@ -148,7 +178,44 @@ const verifyAndSavePayment = async (req, res) => {
       }
     });
 
-    // Step 6: Automatically send WhatsApp notification to Owner
+    // Step 6: Trigger Delhivery Shipment Creation for Captured Payment
+    let delhiveryResult = null;
+    if (paymentStatus === 'Captured') {
+      try {
+        delhiveryResult = await delhiveryService.createShipment(newOrder);
+        if (delhiveryResult && delhiveryResult.success && delhiveryResult.awb) {
+          await prisma.order.update({
+            where: { id: newOrder.id },
+            data: {
+              shipping_status: 'shipment_created',
+              delhivery_awb: delhiveryResult.awb,
+              delhivery_status: delhiveryResult.delhivery_status || 'Manifested',
+              tracking_url: delhiveryResult.tracking_url,
+              shipment_created_at: new Date()
+            }
+          });
+        } else {
+          await prisma.order.update({
+            where: { id: newOrder.id },
+            data: {
+              shipping_status: 'shipping_pending',
+              delhivery_status: delhiveryResult?.error || 'Pending'
+            }
+          });
+        }
+      } catch (dErr) {
+        console.error('Delhivery shipment creation error for online order:', dErr.message);
+        await prisma.order.update({
+          where: { id: newOrder.id },
+          data: {
+            shipping_status: 'shipping_pending',
+            delhivery_status: dErr.message
+          }
+        });
+      }
+    }
+
+    // Step 7: Automatically send WhatsApp notification to Owner
     let whatsappResult = { status: 'pending' };
     try {
       whatsappResult = await whatsappService.notifyOwnerNewOrder(newOrder);
@@ -166,7 +233,8 @@ const verifyAndSavePayment = async (req, res) => {
       success: true,
       message: 'Payment verified and order placed successfully',
       order: savedOrder || newOrder,
-      whatsapp: whatsappResult
+      whatsapp: whatsappResult,
+      delhivery: delhiveryResult
     });
   } catch (error) {
     razorpayService.logPaymentEvent('Payment Verification & Save Failed', {
@@ -223,7 +291,8 @@ const handleWebhook = async (req, res) => {
           rzpOrderId ? { razorpay_order_id: rzpOrderId } : undefined,
           rzpPaymentId ? { razorpay_payment_id: rzpPaymentId } : undefined
         ].filter(Boolean)
-      }
+      },
+      include: { items: true }
     });
 
     if (!order) {
@@ -244,7 +313,6 @@ const handleWebhook = async (req, res) => {
             razorpay_payment_id: rzpPaymentId || order.razorpay_payment_id
           }
         });
-        // Automatically attempt capture in background
         if (rzpPaymentId) {
           razorpayService.ensurePaymentCaptured(rzpPaymentId, Number(order.total_amount), 'INR').catch(e => {
             console.error('Background auto-capture from webhook failed:', e.message);
@@ -254,15 +322,37 @@ const handleWebhook = async (req, res) => {
 
       case 'payment.captured':
         razorpayService.logPaymentEvent('Payment Captured (Webhook)', { orderId: order.order_id });
-        await prisma.order.update({
+        const updatedOrder = await prisma.order.update({
           where: { id: order.id },
           data: {
             payment_status: 'Captured',
             razorpay_payment_id: rzpPaymentId || order.razorpay_payment_id,
             transaction_id: rzpPaymentId || order.transaction_id,
             capture_timestamp: new Date()
-          }
+          },
+          include: { items: true }
         });
+
+        // Trigger Delhivery Shipment creation if not created yet
+        if (!updatedOrder.delhivery_awb) {
+          try {
+            const delhiveryResult = await delhiveryService.createShipment(updatedOrder);
+            if (delhiveryResult && delhiveryResult.success && delhiveryResult.awb) {
+              await prisma.order.update({
+                where: { id: updatedOrder.id },
+                data: {
+                  shipping_status: 'shipment_created',
+                  delhivery_awb: delhiveryResult.awb,
+                  delhivery_status: delhiveryResult.delhivery_status || 'Manifested',
+                  tracking_url: delhiveryResult.tracking_url,
+                  shipment_created_at: new Date()
+                }
+              });
+            }
+          } catch (dErr) {
+            console.error('Webhook shipment creation error:', dErr.message);
+          }
+        }
         break;
 
       case 'payment.failed':
@@ -295,7 +385,6 @@ const handleWebhook = async (req, res) => {
   } catch (error) {
     razorpayService.logPaymentEvent('Webhook Handling Error', { error: error.message });
     console.error('Webhook error:', error);
-    // Always return 200 OK to prevent Razorpay webhook retry storms unless signature is invalid
     return res.status(200).json({ success: false, message: 'Webhook error handled' });
   }
 };

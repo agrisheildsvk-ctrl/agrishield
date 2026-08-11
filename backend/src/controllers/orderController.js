@@ -1,7 +1,11 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const whatsappService = require('../services/whatsappService');
+const delhiveryService = require('../services/delhiveryService');
 
+/**
+ * Create a new Order (COD or fallback)
+ */
 const createOrder = async (req, res) => {
   try {
     const {
@@ -13,10 +17,22 @@ const createOrder = async (req, res) => {
       paymentId
     } = req.body;
 
-    // Optional user ID if the user is authenticated later
     const userId = req.user ? req.user.id : null;
 
-    // Create the order and items in a transaction
+    // Check if order already exists
+    const existingOrder = await prisma.order.findUnique({
+      where: { order_id: orderId },
+      include: { items: true }
+    });
+
+    if (existingOrder) {
+      return res.status(200).json({
+        success: true,
+        message: 'Order already exists',
+        order: existingOrder
+      });
+    }
+
     const newOrder = await prisma.order.create({
       data: {
         order_id: orderId,
@@ -29,6 +45,7 @@ const createOrder = async (req, res) => {
         payment_method: paymentMethod,
         payment_status: paymentMethod === 'online' ? 'Captured' : 'Pending',
         payment_id: paymentId || null,
+        shipping_status: 'pending',
         whatsapp_status: 'pending',
         items: {
           create: items.map(item => ({
@@ -36,7 +53,7 @@ const createOrder = async (req, res) => {
             product_name: item.name,
             package_size: item.packageSize || null,
             quantity: item.quantity,
-            price: parseFloat(item.price.replace(/[^0-9.]/g, ''))
+            price: parseFloat(String(item.price).replace(/[^0-9.]/g, ''))
           }))
         }
       },
@@ -44,6 +61,41 @@ const createOrder = async (req, res) => {
         items: true
       }
     });
+
+    // Create Delhivery Shipment
+    let delhiveryResult = null;
+    try {
+      delhiveryResult = await delhiveryService.createShipment(newOrder);
+      if (delhiveryResult && delhiveryResult.success && delhiveryResult.awb) {
+        await prisma.order.update({
+          where: { id: newOrder.id },
+          data: {
+            shipping_status: 'shipment_created',
+            delhivery_awb: delhiveryResult.awb,
+            delhivery_status: delhiveryResult.delhivery_status || 'Manifested',
+            tracking_url: delhiveryResult.tracking_url,
+            shipment_created_at: new Date()
+          }
+        });
+      } else {
+        await prisma.order.update({
+          where: { id: newOrder.id },
+          data: {
+            shipping_status: 'shipping_pending',
+            delhivery_status: delhiveryResult?.error || 'Pending'
+          }
+        });
+      }
+    } catch (dErr) {
+      console.error('Delhivery shipment creation error on order creation:', dErr.message);
+      await prisma.order.update({
+        where: { id: newOrder.id },
+        data: {
+          shipping_status: 'shipping_pending',
+          delhivery_status: dErr.message
+        }
+      });
+    }
 
     // Automatically send WhatsApp notification to Owner
     let whatsappResult = { status: 'pending' };
@@ -54,7 +106,7 @@ const createOrder = async (req, res) => {
       whatsappResult = { status: 'failed', error: waErr.message };
     }
 
-    // Fetch final order state with whatsapp status
+    // Fetch final order state
     const savedOrder = await prisma.order.findUnique({
       where: { id: newOrder.id },
       include: { items: true }
@@ -64,7 +116,8 @@ const createOrder = async (req, res) => {
       success: true,
       message: 'Order placed successfully',
       order: savedOrder || newOrder,
-      whatsapp: whatsappResult
+      whatsapp: whatsappResult,
+      delhivery: delhiveryResult
     });
   } catch (error) {
     console.error('Error creating order:', error);
@@ -76,6 +129,9 @@ const createOrder = async (req, res) => {
   }
 };
 
+/**
+ * Get all orders for Admin
+ */
 const getAllOrders = async (req, res) => {
   try {
     const orders = await prisma.order.findMany({
@@ -86,13 +142,13 @@ const getAllOrders = async (req, res) => {
         created_at: 'desc'
       }
     });
-    
+
     const ownerPhone = await whatsappService.getOwnerWhatsAppNumber();
     const ordersWithUrl = orders.map(order => ({
       ...order,
       whatsapp_url: whatsappService.getOrderWhatsAppUrl(order, ownerPhone)
     }));
-    
+
     res.status(200).json({
       success: true,
       count: ordersWithUrl.length,
@@ -108,14 +164,21 @@ const getAllOrders = async (req, res) => {
   }
 };
 
+/**
+ * Update order status (Admin)
+ */
 const updateOrderStatus = async (req, res) => {
   try {
     const { id } = req.params;
-    const { status } = req.body;
+    const { status, shipping_status } = req.body;
+
+    const dataToUpdate = {};
+    if (status) dataToUpdate.status = status;
+    if (shipping_status) dataToUpdate.shipping_status = shipping_status;
 
     const updatedOrder = await prisma.order.update({
       where: { id: parseInt(id) },
-      data: { status },
+      data: dataToUpdate,
       include: { items: true }
     });
 
@@ -144,8 +207,145 @@ const updateOrderStatus = async (req, res) => {
   }
 };
 
+/**
+ * Get tracking status for a customer order (/api/orders/:orderId/tracking)
+ */
+const getOrderTracking = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+
+    const isIdNumeric = /^[0-9]+$/.test(orderId);
+    const order = await prisma.order.findFirst({
+      where: {
+        OR: [
+          { order_id: orderId },
+          ...(isIdNumeric ? [{ id: parseInt(orderId) }] : []),
+          { delhivery_awb: orderId }
+        ]
+      },
+      include: { items: true }
+    });
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: 'Order not found'
+      });
+    }
+
+    let delhiveryTracking = null;
+    const awbToQuery = order.delhivery_awb || order.order_id;
+    delhiveryTracking = await delhiveryService.getTracking(awbToQuery);
+
+    const currentShippingStatus = delhiveryTracking?.shipping_status || order.shipping_status || 'pending';
+
+    res.status(200).json({
+      success: true,
+      order: {
+        id: order.id,
+        orderId: order.order_id,
+        date: order.created_at,
+        totalAmount: order.total_amount,
+        paymentStatus: order.payment_status,
+        paymentMethod: order.payment_method,
+        shippingStatus: currentShippingStatus,
+        delhiveryAwb: order.delhivery_awb || delhiveryTracking?.awb || null,
+        delhiveryStatus: delhiveryTracking?.current_status || order.delhivery_status || 'Pending',
+        trackingUrl: order.tracking_url || (order.delhivery_awb ? `https://www.delhivery.com/track/package/${order.delhivery_awb}` : null),
+        shippingAddress: order.shipping_address,
+        items: order.items
+      },
+      tracking: delhiveryTracking
+    });
+  } catch (error) {
+    console.error('Error fetching order tracking:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch order tracking',
+      error: error.message
+    });
+  }
+};
+
+/**
+ * Retry shipment creation for an order (/api/orders/:id/retry-shipment)
+ */
+const retryShipment = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const order = await prisma.order.findUnique({
+      where: { id: parseInt(id) },
+      include: { items: true }
+    });
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: 'Order not found'
+      });
+    }
+
+    if (order.delhivery_awb) {
+      return res.status(200).json({
+        success: true,
+        message: 'Shipment already created for this order',
+        awb: order.delhivery_awb,
+        tracking_url: order.tracking_url
+      });
+    }
+
+    const delhiveryResult = await delhiveryService.createShipment(order);
+
+    if (delhiveryResult && delhiveryResult.success && delhiveryResult.awb) {
+      const updatedOrder = await prisma.order.update({
+        where: { id: order.id },
+        data: {
+          shipping_status: 'shipment_created',
+          delhivery_awb: delhiveryResult.awb,
+          delhivery_status: delhiveryResult.delhivery_status || 'Manifested',
+          tracking_url: delhiveryResult.tracking_url,
+          shipment_created_at: new Date()
+        },
+        include: { items: true }
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: 'Delhivery shipment created successfully',
+        order: updatedOrder,
+        awb: delhiveryResult.awb,
+        tracking_url: delhiveryResult.tracking_url
+      });
+    } else {
+      await prisma.order.update({
+        where: { id: order.id },
+        data: {
+          shipping_status: 'shipping_pending',
+          delhivery_status: delhiveryResult?.error || 'Retry failed'
+        }
+      });
+
+      return res.status(400).json({
+        success: false,
+        message: 'Delhivery shipment creation failed: ' + (delhiveryResult?.error || 'Unknown error'),
+        error: delhiveryResult?.error
+      });
+    }
+  } catch (error) {
+    console.error('Error retrying shipment creation:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to retry shipment creation',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   createOrder,
   getAllOrders,
-  updateOrderStatus
+  updateOrderStatus,
+  getOrderTracking,
+  retryShipment
 };

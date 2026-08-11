@@ -1,12 +1,40 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiX, FiMapPin, FiPackage, FiCreditCard, FiActivity, FiTruck, FiMessageSquare, FiSend } from 'react-icons/fi';
+import { FiX, FiMapPin, FiPackage, FiCreditCard, FiActivity, FiTruck, FiMessageSquare, FiSend, FiExternalLink, FiRefreshCw } from 'react-icons/fi';
+import axios from 'axios';
 
-const OrderDetailsModal = ({ isOpen, onClose, order, onStatusChange, onResendWhatsApp }) => {
+const OrderDetailsModal = ({ isOpen, onClose, order, onStatusChange, onResendWhatsApp, onOrderUpdate }) => {
+  const [retryingShipment, setRetryingShipment] = useState(false);
+  const [retryMessage, setRetryMessage] = useState('');
+
   if (!isOpen || !order) return null;
 
   const addr = order.shipping_address || {};
   const items = order.items || [];
+
+  const handleRetryShipment = async () => {
+    setRetryingShipment(true);
+    setRetryMessage('');
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || 'https://agrishield-production-573f.up.railway.app/api';
+      const res = await axios.post(`${apiUrl}/orders/${order.id}/retry-shipment`);
+      if (res.data.success) {
+        setRetryMessage('✅ Delhivery shipment created! AWB: ' + res.data.awb);
+        if (onOrderUpdate) onOrderUpdate(res.data.order || { ...order, delhivery_awb: res.data.awb, shipping_status: 'shipment_created' });
+      } else {
+        setRetryMessage('❌ Shipment creation failed: ' + (res.data.message || 'Error'));
+      }
+    } catch (err) {
+      console.error('Retry shipment error:', err);
+      setRetryMessage('❌ Error: ' + (err.response?.data?.message || err.message));
+    } finally {
+      setRetryingShipment(false);
+    }
+  };
+
+  const awb = order.delhivery_awb;
+  const shippingStatus = order.shipping_status || (awb ? 'shipment_created' : 'shipping_pending');
+  const trackingUrl = order.tracking_url || (awb ? `https://www.delhivery.com/track/package/${awb}` : null);
 
   return (
     <AnimatePresence>
@@ -40,18 +68,20 @@ const OrderDetailsModal = ({ isOpen, onClose, order, onStatusChange, onResendWha
           {/* Body */}
           <div className="p-6 sm:p-8 overflow-y-auto flex-1">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              
               {/* Left Column */}
               <div className="space-y-8">
+                
                 {/* Status Update */}
                 <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
                   <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-4 flex items-center gap-2">
-                    <FiActivity className="text-blue-500" /> Current Status
+                    <FiActivity className="text-blue-500" /> Order Status
                   </h3>
                   <div className="flex items-center gap-4">
                     <select
                       value={order.status}
                       onChange={(e) => onStatusChange(order.id, e.target.value)}
-                      className="flex-1 bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-primary focus:border-primary block p-2.5 font-semibold"
+                      className="flex-1 bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-xl focus:ring-primary focus:border-primary block p-2.5 font-semibold"
                     >
                       <option value="pending">Pending</option>
                       <option value="processing">Processing</option>
@@ -59,6 +89,67 @@ const OrderDetailsModal = ({ isOpen, onClose, order, onStatusChange, onResendWha
                       <option value="delivered">Delivered</option>
                       <option value="cancelled">Cancelled</option>
                     </select>
+                  </div>
+                </div>
+
+                {/* DELHIVERY ONE LOGISTICS SECTION */}
+                <div className="bg-gradient-to-br from-gray-900 to-gray-800 text-white rounded-2xl p-6 shadow-md border border-gray-800">
+                  <h3 className="text-sm font-bold text-emerald-400 uppercase tracking-wider mb-4 flex items-center justify-between">
+                    <span className="flex items-center gap-2"><FiTruck className="text-emerald-400" /> Delhivery One Logistics</span>
+                    <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${
+                      awb ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                    }`}>
+                      {awb ? 'Manifested' : 'Shipping Pending'}
+                    </span>
+                  </h3>
+
+                  <div className="space-y-3 text-sm">
+                    <div className="flex justify-between items-center pb-2 border-b border-gray-700/60">
+                      <span className="text-gray-400">AWB Number</span>
+                      <span className="font-mono font-extrabold text-emerald-300 text-base">{awb || 'Not Generated'}</span>
+                    </div>
+
+                    <div className="flex justify-between items-center pb-2 border-b border-gray-700/60">
+                      <span className="text-gray-400">Shipping Status</span>
+                      <span className="font-bold text-gray-200 capitalize">{shippingStatus.replace(/_/g, ' ')}</span>
+                    </div>
+
+                    {order.delhivery_status && (
+                      <div className="flex justify-between items-center pb-2 border-b border-gray-700/60">
+                        <span className="text-gray-400">Delhivery Remark</span>
+                        <span className="text-xs text-gray-300 max-w-[200px] text-right truncate">{order.delhivery_status}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {retryMessage && (
+                    <div className="mt-4 p-3 rounded-xl bg-gray-800 border border-gray-700 text-xs font-bold text-emerald-300">
+                      {retryMessage}
+                    </div>
+                  )}
+
+                  <div className="mt-5 flex flex-col gap-2.5">
+                    {trackingUrl && (
+                      <a
+                        href={trackingUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 px-4 rounded-xl transition flex items-center justify-center gap-2 text-sm shadow-md"
+                      >
+                        <FiExternalLink /> Track Shipment on Delhivery
+                      </a>
+                    )}
+
+                    {(!awb || shippingStatus === 'shipping_pending') && (
+                      <button
+                        onClick={handleRetryShipment}
+                        disabled={retryingShipment}
+                        className="w-full bg-amber-500 hover:bg-amber-600 text-gray-950 font-extrabold py-2.5 px-4 rounded-xl transition flex items-center justify-center gap-2 text-sm cursor-pointer"
+                      >
+                        <FiRefreshCw className={retryingShipment ? 'animate-spin' : ''} />
+                        <span>{retryingShipment ? 'Creating Shipment...' : 'Create / Retry Delhivery Shipment'}</span>
+                      </button>
+                    )}
                   </div>
                 </div>
 
@@ -103,16 +194,16 @@ const OrderDetailsModal = ({ isOpen, onClose, order, onStatusChange, onResendWha
                 {/* Shipping Address */}
                 <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
                   <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-4 flex items-center gap-2">
-                    <FiMapPin className="text-orange-500" /> Shipping Details
+                    <FiMapPin className="text-orange-500" /> Customer Shipping Address
                   </h3>
-                  <div className="space-y-2 text-gray-600">
-                    <p className="font-bold text-gray-900 text-lg">{addr.firstName} {addr.lastName}</p>
+                  <div className="space-y-2 text-gray-600 text-sm">
+                    <p className="font-bold text-gray-900 text-base">{addr.firstName} {addr.lastName}</p>
                     <p>{addr.address}</p>
                     {addr.apartment && <p>{addr.apartment}</p>}
-                    <p>{addr.city}, {addr.state} - {addr.pinCode}</p>
+                    <p>{addr.city}, {addr.state} - {addr.pinCode || addr.pin || addr.pincode}</p>
                     <div className="mt-4 pt-4 border-t border-gray-100 flex flex-col gap-1">
                       <p><span className="font-semibold text-gray-900">Phone:</span> {addr.phone}</p>
-                      <p><span className="font-semibold text-gray-900">Email:</span> {addr.email}</p>
+                      <p><span className="font-semibold text-gray-900">Email:</span> {addr.email || 'N/A'}</p>
                     </div>
                   </div>
                 </div>
