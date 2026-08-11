@@ -133,11 +133,11 @@ export const products = [
     slug: 'organic-lizard-repellent',
     name: 'LIZZARD',
     category: 'Specialty',
-    price: '₹1',
+    price: '₹140',
     originalPrice: '₹270',
     rating: 4.5,
     reviews: 88,
-    discount: 99,
+    discount: 48,
     isBestSeller: false,
     image: '/agrishield-lizard-repellent.webp',
     images: [
@@ -149,7 +149,7 @@ export const products = [
     seoAlt: 'Agrishield Organic Lizard Repellent for Agricultural Warehouses and Farm Buildings',
     packageSize: '100 ml',
     variants: [
-      { size: '100 ml', price: '₹1', originalPrice: '₹270', discount: 99, isDefault: true },
+      { size: '100 ml', price: '₹140', originalPrice: '₹270', discount: 48, isDefault: true },
       { size: '250 ml', price: '₹350', originalPrice: '₹670', discount: 48, isDefault: false },
       { size: '500 ml', price: '₹700', originalPrice: '₹1,350', discount: 48, isDefault: false },
       { size: '1 L', price: '₹1,400', originalPrice: '₹2,700', discount: 48, isDefault: false },
