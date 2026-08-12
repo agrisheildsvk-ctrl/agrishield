@@ -42,18 +42,25 @@ const SEO = ({
     }
     canonicalTag.setAttribute('href', canonical);
 
+    // Format image URL to absolute URL if relative
+    const fullImageUrl = image
+      ? image.startsWith('http')
+        ? image
+        : `https://agrishield.in${encodeURI(image)}`
+      : 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=1200&q=80';
+
     // 5. Open Graph (og:*) Tags
     setMetaTag('meta[property="og:title"]', 'property', 'og:title', title);
     setMetaTag('meta[property="og:description"]', 'property', 'og:description', description);
     setMetaTag('meta[property="og:url"]', 'property', 'og:url', canonical);
-    setMetaTag('meta[property="og:image"]', 'property', 'og:image', image);
+    setMetaTag('meta[property="og:image"]', 'property', 'og:image', fullImageUrl);
     setMetaTag('meta[property="og:type"]', 'property', 'og:type', type);
 
     // 6. Twitter Card Tags
     setMetaTag('meta[name="twitter:card"]', 'name', 'twitter:card', 'summary_large_image');
     setMetaTag('meta[name="twitter:title"]', 'name', 'twitter:title', title);
     setMetaTag('meta[name="twitter:description"]', 'name', 'twitter:description', description);
-    setMetaTag('meta[name="twitter:image"]', 'name', 'twitter:image', image);
+    setMetaTag('meta[name="twitter:image"]', 'name', 'twitter:image', fullImageUrl);
 
     // 7. JSON-LD Schema
     if (schema) {
