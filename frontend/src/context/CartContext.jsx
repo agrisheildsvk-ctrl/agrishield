@@ -11,8 +11,8 @@ export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState(() => {
     const savedCart = localStorage.getItem('agrishield_cart');
     const parsed = savedCart ? JSON.parse(savedCart) : [];
-    // Only filter out old individual BONDON-B IDs 11 to 19; keep id 10 (All Animals & Birds Repellent)
-    return parsed.filter(item => !(item.id >= 11 && item.id <= 19));
+    // Preserve all catalog items and cart items
+    return parsed.filter(item => item && item.id);
   });
 
   useEffect(() => {

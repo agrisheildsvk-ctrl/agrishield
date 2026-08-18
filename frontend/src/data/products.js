@@ -319,5 +319,30 @@ export const products = [
       { size: '2 kg', price: '₹720', originalPrice: '₹1,250', discount: 42, isDefault: false },
       { size: '5 kg', price: '₹1,750', originalPrice: '₹3,000', discount: 42, isDefault: false },
     ],
+  },
+  {
+    id: 11,
+    slug: 'hybrid-tomato-seeds',
+    name: 'HYBRID TOMATO SEEDS',
+    category: 'Seeds',
+    price: '₹2',
+    originalPrice: '₹50',
+    rating: 5.0,
+    reviews: 42,
+    discount: 96,
+    isBestSeller: true,
+    image: '/agrishield-tomato-seeds.jpg',
+    images: [
+      '/agrishield-tomato-seeds.jpg'
+    ],
+    seoTitle: 'Agrishield Hybrid Tomato Seeds - High Yield F1 Variety',
+    seoAlt: 'Agrishield Premium Quality Hybrid Tomato Seeds for Indian Farmers',
+    description: 'High-yield F1 Hybrid Tomato Seeds with high disease resistance, fast germination (75-80 days maturity), and large red yielder fruit quality. Special pack available at ₹2.',
+    packageSize: '10 gm',
+    variants: [
+      { size: '10 gm', price: '₹2', originalPrice: '₹50', discount: 96, isDefault: true },
+      { size: '50 gm', price: '₹10', originalPrice: '₹250', discount: 96, isDefault: false },
+      { size: '100 gm', price: '₹20', originalPrice: '₹500', discount: 96, isDefault: false },
+    ],
   }
 ];

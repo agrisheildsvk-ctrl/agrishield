@@ -78,7 +78,7 @@ export const AuthProvider = ({ children }) => {
       localStorage.removeItem('agrishield_user');
       setToken(null);
       setUser(null);
-      window.location.href = '/'; // Return to Home page per prompt requirements
+      window.location.href = '/login'; // Return to login page on logout
     }
   };
 

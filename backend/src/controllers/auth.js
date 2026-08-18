@@ -41,12 +41,17 @@ exports.google = async (req, res) => {
     });
 
     if (existingUser) {
-      // If returning user, update googleId/profileImage if empty
+      // If returning user, fetch and update latest profile info from Google
+      const names = name ? name.split(' ') : [];
       const updatedUser = await prisma.user.update({
         where: { id: existingUser.id },
         data: {
           googleId: existingUser.googleId || googleId,
-          profileImage: existingUser.profileImage || picture,
+          name: existingUser.name || name || existingUser.fullName,
+          firstName: existingUser.firstName || names[0] || undefined,
+          lastName: existingUser.lastName || names.slice(1).join(' ') || undefined,
+          email: existingUser.email || email,
+          profileImage: picture || existingUser.profileImage,
           isVerified: true
         }
       });
