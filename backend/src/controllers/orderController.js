@@ -1,5 +1,6 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
+const jwt = require('jsonwebtoken');
 const whatsappService = require('../services/whatsappService');
 const delhiveryService = require('../services/delhiveryService');
 
@@ -17,7 +18,18 @@ const createOrder = async (req, res) => {
       paymentId
     } = req.body;
 
-    const userId = req.user ? req.user.id : null;
+    let userId = req.user ? parseInt(req.user.id) : null;
+    if (!userId && req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
+      try {
+        const token = req.headers.authorization.split(' ')[1];
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'agrishield_secret_key');
+        if (decoded && decoded.id) {
+          userId = parseInt(decoded.id);
+        }
+      } catch (err) {
+        // token parse fallback
+      }
+    }
 
     // Check if order already exists
     const existingOrder = await prisma.order.findUnique({
@@ -342,9 +354,80 @@ const retryShipment = async (req, res) => {
   }
 };
 
+/**
+ * Get orders for the logged-in customer (/api/orders/my-orders)
+ */
+const getUserOrders = async (req, res) => {
+  try {
+    let userId = req.user ? parseInt(req.user.id) : null;
+    let phone = req.user ? req.user.phone : null;
+    let email = req.user ? req.user.email : null;
+
+    if (!userId && req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
+      try {
+        const token = req.headers.authorization.split(' ')[1];
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'agrishield_secret_key');
+        if (decoded) {
+          userId = decoded.id ? parseInt(decoded.id) : null;
+          phone = decoded.phone || phone;
+          email = decoded.email || email;
+        }
+      } catch (err) {
+        // invalid token
+      }
+    }
+
+    if (!userId && !phone && !email) {
+      return res.status(401).json({
+        success: false,
+        message: 'Unauthorized access. Please login to view orders.'
+      });
+    }
+
+    let orders = [];
+    if (userId) {
+      orders = await prisma.order.findMany({
+        where: { user_id: userId },
+        include: { items: true },
+        orderBy: { created_at: 'desc' }
+      });
+    }
+
+    // Fallback match by phone / email in shipping_address
+    if (orders.length === 0 && (phone || email || userId)) {
+      const allOrders = await prisma.order.findMany({
+        include: { items: true },
+        orderBy: { created_at: 'desc' }
+      });
+
+      orders = allOrders.filter(o => {
+        if (userId && o.user_id === userId) return true;
+        const addr = o.shipping_address || {};
+        if (phone && addr.phone && String(addr.phone).slice(-10) === String(phone).slice(-10)) return true;
+        if (email && addr.email && String(addr.email).toLowerCase() === String(email).toLowerCase()) return true;
+        return false;
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      count: orders.length,
+      orders
+    });
+  } catch (error) {
+    console.error('Error fetching user orders:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch user orders',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   createOrder,
   getAllOrders,
+  getUserOrders,
   updateOrderStatus,
   getOrderTracking,
   retryShipment

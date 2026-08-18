@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { FiCheckCircle, FiDownload, FiArrowRight, FiFileText, FiTruck, FiRefreshCw, FiExternalLink, FiPackage } from 'react-icons/fi';
+import { FiCheckCircle, FiDownload, FiArrowRight, FiFileText, FiTruck, FiRefreshCw, FiExternalLink, FiPackage, FiUser, FiX } from 'react-icons/fi';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import axios from 'axios';
 import { trackPurchase } from '../utils/analytics';
+import { generateInvoicePDF } from '../utils/generateInvoicePDF';
 
 const OrderSuccess = () => {
   const location = useLocation();
@@ -14,6 +15,7 @@ const OrderSuccess = () => {
   const [trackingInfo, setTrackingInfo] = useState(null);
   const [loadingTracking, setLoadingTracking] = useState(false);
   const [trackingError, setTrackingError] = useState('');
+  const [showPopup, setShowPopup] = useState(true);
 
   const apiUrl = import.meta.env.VITE_API_URL || 'https://agrishield-production-573f.up.railway.app/api';
 
@@ -244,10 +246,95 @@ const OrderSuccess = () => {
 
   return (
     <motion.div 
-      className="min-h-screen bg-bg-shop font-sans py-12 px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center"
+      className="min-h-screen bg-bg-shop font-sans py-12 px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center relative"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
     >
+      {/* SUCCESS POPUP MODAL OVERLAY */}
+      <AnimatePresence>
+        {showPopup && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-md">
+            <motion.div
+              initial={{ scale: 0.85, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.85, opacity: 0, y: 20 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+              className="bg-white rounded-3xl shadow-2xl max-w-lg w-full overflow-hidden border border-emerald-100 relative"
+            >
+              {/* Close Button */}
+              <button
+                onClick={() => setShowPopup(false)}
+                className="absolute top-4 right-4 p-2 bg-gray-100 hover:bg-gray-200 text-gray-500 rounded-full transition cursor-pointer z-10"
+              >
+                <FiX className="text-xl" />
+              </button>
+
+              {/* Header Banner */}
+              <div className="bg-gradient-to-r from-emerald-700 via-emerald-600 to-emerald-700 p-8 text-center text-white relative overflow-hidden">
+                <div className="w-20 h-20 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-white shadow-inner">
+                  <FiCheckCircle className="text-4xl text-white animate-pulse" />
+                </div>
+                <span className="inline-block px-3 py-1 bg-white/20 text-white text-xs font-extrabold rounded-full mb-2 uppercase tracking-wider">
+                  {paymentMethod === 'online' ? 'Payment Verified • Paid Online' : 'Cash on Delivery Confirmed'}
+                </span>
+                <h2 className="text-2xl sm:text-3xl font-extrabold">Order Placed Successfully!</h2>
+                <p className="text-emerald-100 text-sm mt-1 font-medium">
+                  Your order has been recorded and saved to your account.
+                </p>
+              </div>
+
+              {/* Modal Body */}
+              <div className="p-6 sm:p-8 space-y-6">
+                
+                {/* Order Highlights Box */}
+                <div className="bg-emerald-50/70 p-4 sm:p-5 rounded-2xl border border-emerald-100 flex items-center justify-between text-sm">
+                  <div>
+                    <span className="text-xs text-gray-500 font-bold uppercase tracking-wider">Order ID</span>
+                    <div className="font-extrabold text-gray-900 text-base">{orderId}</div>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-xs text-gray-500 font-bold uppercase tracking-wider">Total Paid</span>
+                    <div className="font-extrabold text-emerald-700 text-xl">₹{total.toFixed(2)}</div>
+                  </div>
+                </div>
+
+                {/* Primary Popup Action Buttons: Download Invoice & Go to Profile */}
+                <div className="flex flex-col gap-3 pt-2">
+                  <button 
+                    onClick={() => {
+                      generateInvoice();
+                    }}
+                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 px-6 rounded-2xl shadow-lg transition-all transform hover:scale-[1.02] flex justify-center items-center gap-2 text-base cursor-pointer"
+                  >
+                    <FiDownload className="text-xl" />
+                    <span>Download Invoice PDF</span>
+                  </button>
+
+                  <button 
+                    onClick={() => {
+                      setShowPopup(false);
+                      navigate('/profile');
+                    }}
+                    className="w-full bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-bold py-3.5 px-6 rounded-2xl transition-all flex justify-center items-center gap-2 text-sm cursor-pointer"
+                  >
+                    <FiUser className="text-lg" />
+                    <span>View Profile & Bought Products</span>
+                  </button>
+
+                  <button
+                    onClick={() => setShowPopup(false)}
+                    className="w-full bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold py-3 px-6 rounded-2xl text-xs transition-all"
+                  >
+                    Close & View Live Tracking
+                  </button>
+                </div>
+
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
       <div className="max-w-3xl w-full bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100">
         
         {/* Header Section */}
@@ -401,13 +488,21 @@ const OrderSuccess = () => {
           <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
             <button 
               onClick={generateInvoice}
-              className="flex-1 bg-white border-2 border-gray-200 hover:border-primary text-gray-800 hover:text-primary font-bold py-4 px-6 rounded-2xl shadow-sm transition-all flex justify-center items-center gap-2 group cursor-pointer"
+              className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 px-6 rounded-2xl shadow-md transition-all flex justify-center items-center gap-2 cursor-pointer active:scale-98"
             >
-              <FiDownload className="text-gray-400 group-hover:text-primary transition-colors" /> Download Tax Invoice
+              <FiDownload className="text-xl" /> Download Tax Invoice
             </button>
+
+            <button
+              onClick={() => navigate('/profile')}
+              className="flex-1 bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-bold py-4 px-6 rounded-2xl transition-all flex justify-center items-center gap-2 cursor-pointer active:scale-98"
+            >
+              <FiUser className="text-xl" /> View Profile & Orders
+            </button>
+
             <Link 
               to="/shop"
-              className="flex-1 bg-primary hover:bg-primary-dark text-white font-bold py-4 px-6 rounded-2xl shadow-lg transition-all flex justify-center items-center gap-2 transform hover:-translate-y-0.5"
+              className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-4 px-6 rounded-2xl transition-all flex justify-center items-center gap-2"
             >
               Continue Shopping <FiArrowRight />
             </Link>

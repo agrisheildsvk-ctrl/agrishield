@@ -3,10 +3,15 @@ const router = express.Router();
 const {
   createOrder,
   getAllOrders,
+  getUserOrders,
   updateOrderStatus,
   getOrderTracking,
   retryShipment
 } = require('../controllers/orderController');
+
+// Route to get logged-in user orders
+// GET /api/orders/my-orders
+router.get('/my-orders', getUserOrders);
 
 // Route to get all orders (Admin)
 // GET /api/orders

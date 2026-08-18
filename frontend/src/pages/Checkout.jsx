@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
-import { FiArrowLeft, FiCheckCircle, FiCreditCard, FiDollarSign, FiSmartphone, FiTrash2 } from 'react-icons/fi';
+import { FiArrowLeft, FiCheckCircle, FiCreditCard, FiDollarSign, FiSmartphone, FiTrash2, FiLock } from 'react-icons/fi';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 import SEO from '../components/SEO';
 import { trackBeginCheckout } from '../utils/analytics';
 
 const Checkout = () => {
+  const { user, token, isAuthenticated } = useAuth();
   const { cartItems, cartSubtotal, cartTotal, clearCart, removeFromCart } = useCart();
   const baseTotal = cartItems.reduce((total, item) => {
     const priceNum = parseFloat(String(item.price).replace(/[^0-9.]/g, '')) || 0;
@@ -15,12 +17,6 @@ const Checkout = () => {
     return total + (priceNum * qty);
   }, 0);
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-    if (cartItems.length > 0) {
-      trackBeginCheckout(cartItems, baseTotal);
-    }
-  }, []);
   const navigate = useNavigate();
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState('online');
@@ -40,6 +36,28 @@ const Checkout = () => {
     email: ''
   });
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    if (cartItems.length > 0) {
+      trackBeginCheckout(cartItems, baseTotal);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (user) {
+      const names = (user.name || user.fullName || '').split(' ');
+      setFormData(prev => ({
+        ...prev,
+        firstName: prev.firstName || user.firstName || names[0] || '',
+        lastName: prev.lastName || user.lastName || names.slice(1).join(' ') || '',
+        phone: prev.phone || user.phone || '',
+        email: prev.email || user.email || '',
+        address: prev.address || user.village || '',
+        pin: prev.pin || user.pincode || ''
+      }));
+    }
+  }, [user]);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     if (name === 'phone') {
@@ -52,6 +70,41 @@ const Checkout = () => {
       setFormData({ ...formData, [name]: value });
     }
   };
+
+  // If user is NOT logged in, enforce compulsory login before checkout
+  if (!isAuthenticated || !user) {
+    return (
+      <div className="min-h-[75vh] flex flex-col items-center justify-center bg-bg-shop px-4 py-12">
+        <SEO title="Login Required | Agrishield Checkout" description="Please login to place your order on Agrishield India." />
+        <div className="bg-white p-8 sm:p-12 rounded-3xl shadow-xl max-w-md w-full text-center border border-emerald-100">
+          <div className="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6 text-3xl shadow-inner">
+            <FiLock className="w-10 h-10 text-emerald-700" />
+          </div>
+          <span className="inline-block px-3 py-1 bg-amber-100 text-amber-800 text-xs font-extrabold rounded-full mb-3 uppercase tracking-wider">
+            Compulsory Login Required
+          </span>
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-3">Login to Place Order</h2>
+          <p className="text-gray-600 text-sm mb-8 leading-relaxed font-medium">
+            To ensure your agricultural product order is processed safely and linked to your farmer profile, please log in or register before checking out.
+          </p>
+          <div className="flex flex-col gap-3">
+            <button
+              onClick={() => navigate('/login', { state: { from: { pathname: '/checkout' } } })}
+              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 px-6 rounded-2xl shadow-lg transition-all transform hover:scale-[1.02] flex justify-center items-center gap-2 text-base cursor-pointer"
+            >
+              Log In / Register Now →
+            </button>
+            <Link
+              to="/cart"
+              className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3.5 px-6 rounded-2xl transition-all text-sm"
+            >
+              Return to Cart
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // If cart is empty and not ordered, redirect to shop
   if (cartItems.length === 0 && !orderPlaced) {
@@ -97,10 +150,12 @@ const Checkout = () => {
       };
     };
 
+    const authHeader = token ? { Authorization: `Bearer ${token}` } : {};
+
     const saveOrderToDB = async (data) => {
       try {
         const apiUrl = import.meta.env.VITE_API_URL || 'https://agrishield-production-573f.up.railway.app/api';
-        await axios.post(`${apiUrl}/orders`, data);
+        await axios.post(`${apiUrl}/orders`, data, { headers: authHeader });
       } catch (err) {
         console.error('Failed to save order to database:', err);
       }
@@ -119,7 +174,7 @@ const Checkout = () => {
             email: formData.email,
             customerName: `${formData.firstName} ${formData.lastName}`.trim()
           }
-        });
+        }, { headers: authHeader });
 
         if (!createOrderRes.data.success) {
           alert('Failed to initialize online payment. Please try again.');
@@ -144,7 +199,7 @@ const Checkout = () => {
             };
 
             try {
-              const verifyRes = await axios.post(`${apiUrl}/payments/verify`, verifyData);
+              const verifyRes = await axios.post(`${apiUrl}/payments/verify`, verifyData, { headers: authHeader });
               if (verifyRes.data.success) {
                 clearCart();
                 navigate('/order-success', { state: { orderData: verifyRes.data.order || verifyData.orderData } });
@@ -179,7 +234,7 @@ const Checkout = () => {
     } else {
       const data = generateOrderData(null);
       try {
-        await axios.post(`${apiUrl}/orders`, data);
+        await axios.post(`${apiUrl}/orders`, data, { headers: authHeader });
         clearCart();
         navigate('/order-success', { state: { orderData: data } });
       } catch (err) {

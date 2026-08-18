@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 import SEO from '../components/SEO';
+import BoughtProductsList from '../components/BoughtProductsList';
 import { 
   FaGoogle, 
   FaPhoneAlt, 
@@ -19,7 +20,7 @@ import {
 const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { login } = useAuth();
+  const { user, token, isAuthenticated, login, logout } = useAuth();
 
   // Redirect destination after login
   const from = location.state?.from?.pathname || '/';
@@ -172,6 +173,61 @@ const Login = () => {
       setLoading(false);
     }
   };
+
+  // If customer is already logged in, show their account dashboard & bought products list
+  if (isAuthenticated && user) {
+    const farmerName = user.name || user.fullName || `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Farmer';
+    return (
+      <div className="min-h-[85vh] bg-gradient-to-b from-emerald-50 via-white to-emerald-50 py-10 px-4">
+        <SEO
+          title={`${farmerName}'s Account & Bought Products | Agrishield`}
+          description="View your farmer profile, order history, and re-order previously bought agricultural protection products."
+          canonical="https://agrishield.in/login"
+        />
+        <div className="max-w-4xl mx-auto space-y-8">
+          {/* Top Banner */}
+          <div className="bg-gradient-to-r from-emerald-700 to-emerald-600 rounded-3xl p-6 sm:p-8 text-white shadow-xl flex flex-col sm:flex-row items-center justify-between gap-6 relative overflow-hidden">
+            <div className="flex items-center gap-4 text-center sm:text-left">
+              <div className="w-20 h-20 rounded-full bg-white/20 backdrop-blur-md p-1 border-2 border-white overflow-hidden flex-shrink-0 flex items-center justify-center text-3xl font-extrabold shadow-inner">
+                {user.profileImage ? (
+                  <img src={user.profileImage} alt={farmerName} className="w-full h-full object-cover rounded-full" />
+                ) : (
+                  <span>{farmerName.charAt(0)}</span>
+                )}
+              </div>
+              <div>
+                <span className="inline-flex items-center gap-1 px-3 py-0.5 rounded-full bg-white/20 text-xs font-bold uppercase tracking-wider mb-1">
+                  <FaSeedling /> Verified Farmer Account
+                </span>
+                <h1 className="text-2xl sm:text-3xl font-extrabold">{farmerName}</h1>
+                <p className="text-emerald-100 text-sm mt-0.5">
+                  {user.phone ? `+91 ${user.phone}` : user.email} {user.village ? `• ${user.village}` : ''} {user.pincode ? `(${user.pincode})` : ''}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 w-full sm:w-auto">
+              <button
+                onClick={() => navigate('/profile')}
+                className="flex-1 sm:flex-initial px-5 py-3 bg-white/20 hover:bg-white/30 text-white font-bold rounded-2xl text-sm transition-all flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <FaUser /> Edit Profile
+              </button>
+              <button
+                onClick={logout}
+                className="flex-1 sm:flex-initial px-5 py-3 bg-red-500/80 hover:bg-red-600 text-white font-bold rounded-2xl text-sm transition-all cursor-pointer"
+              >
+                Logout
+              </button>
+            </div>
+          </div>
+
+          {/* Already Bought Products & Orders Component */}
+          <BoughtProductsList showTitle={true} />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-[85vh] bg-gradient-to-b from-emerald-50 via-white to-emerald-50 flex items-center justify-center px-4 py-8">
