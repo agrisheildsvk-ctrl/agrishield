@@ -384,35 +384,41 @@ const getUserOrders = async (req, res) => {
       });
     }
 
-    let orders = [];
+    const cleanPhone = phone ? String(phone).replace(/\D/g, '').slice(-10) : null;
+
+    // Fetch all orders matching user_id OR phone OR email
+    const allOrders = await prisma.order.findMany({
+      include: { items: true },
+      orderBy: { created_at: 'desc' }
+    });
+
+    const userOrders = allOrders.filter(o => {
+      if (userId && o.user_id === userId) return true;
+      const addr = o.shipping_address || {};
+      if (cleanPhone && addr.phone && String(addr.phone).replace(/\D/g, '').slice(-10) === cleanPhone) return true;
+      if (email && addr.email && String(addr.email).toLowerCase() === String(email).toLowerCase()) return true;
+      return false;
+    });
+
+    // Auto-link any matching orders that didn't have user_id set previously
     if (userId) {
-      orders = await prisma.order.findMany({
-        where: { user_id: userId },
-        include: { items: true },
-        orderBy: { created_at: 'desc' }
-      });
-    }
-
-    // Fallback match by phone / email in shipping_address
-    if (orders.length === 0 && (phone || email || userId)) {
-      const allOrders = await prisma.order.findMany({
-        include: { items: true },
-        orderBy: { created_at: 'desc' }
-      });
-
-      orders = allOrders.filter(o => {
-        if (userId && o.user_id === userId) return true;
-        const addr = o.shipping_address || {};
-        if (phone && addr.phone && String(addr.phone).slice(-10) === String(phone).slice(-10)) return true;
-        if (email && addr.email && String(addr.email).toLowerCase() === String(email).toLowerCase()) return true;
-        return false;
-      });
+      const unlinkedIds = userOrders.filter(o => !o.user_id).map(o => o.id);
+      if (unlinkedIds.length > 0) {
+        try {
+          await prisma.order.updateMany({
+            where: { id: { in: unlinkedIds } },
+            data: { user_id: userId }
+          });
+        } catch (e) {
+          // ignore linking error
+        }
+      }
     }
 
     res.status(200).json({
       success: true,
-      count: orders.length,
-      orders
+      count: userOrders.length,
+      orders: userOrders
     });
   } catch (error) {
     console.error('Error fetching user orders:', error);

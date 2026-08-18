@@ -116,20 +116,47 @@ exports.verifyOtp = async (req, res) => {
       return res.status(400).json({ success: false, message: verification.message });
     }
 
-    const cleanPhone = String(phone).trim().replace(/\D/g, '');
+    const cleanPhone = String(phone).trim().replace(/\D/g, '').slice(-10);
 
-    // Check if user exists by phone
+    // Check if user exists by phone (10-digit match)
     const user = await prisma.user.findFirst({
-      where: { phone: cleanPhone }
+      where: {
+        OR: [
+          { phone: cleanPhone },
+          { phone: { endsWith: cleanPhone } }
+        ]
+      }
     });
 
     if (user) {
-      // Returning user -> automatic login without asking registration
+      // Auto-link any previous guest/unlinked orders placed with this phone number
+      try {
+        const unlinkedOrders = await prisma.order.findMany({
+          where: { user_id: null }
+        });
+        const orderIdsToUpdate = unlinkedOrders
+          .filter(o => {
+            const p = o.shipping_address?.phone;
+            return p && String(p).replace(/\D/g, '').slice(-10) === cleanPhone;
+          })
+          .map(o => o.id);
+
+        if (orderIdsToUpdate.length > 0) {
+          await prisma.order.updateMany({
+            where: { id: { in: orderIdsToUpdate } },
+            data: { user_id: user.id }
+          });
+        }
+      } catch (e) {
+        console.error('Order linking error:', e.message);
+      }
+
+      // Returning user -> automatic login with complete profile & data history
       const token = generateToken(user);
       return res.status(200).json({
         success: true,
         isNewUser: false,
-        message: 'OTP verified. Login successful',
+        message: 'OTP verified. Welcome back!',
         token,
         user
       });
