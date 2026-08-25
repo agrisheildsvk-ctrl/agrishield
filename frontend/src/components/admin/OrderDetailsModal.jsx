@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiX, FiMapPin, FiPackage, FiCreditCard, FiActivity, FiTruck, FiMessageSquare, FiSend, FiExternalLink, FiRefreshCw } from 'react-icons/fi';
+import { FiX, FiMapPin, FiPackage, FiCreditCard, FiActivity, FiTruck, FiMessageSquare, FiSend, FiExternalLink, FiRefreshCw, FiDollarSign } from 'react-icons/fi';
 import axios from 'axios';
 
 const OrderDetailsModal = ({ isOpen, onClose, order, onStatusChange, onResendWhatsApp, onOrderUpdate }) => {
