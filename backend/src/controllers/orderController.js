@@ -200,6 +200,15 @@ const updateOrderStatus = async (req, res) => {
       include: { items: true }
     });
 
+    // If status is cancelled, also cancel shipment on Delhivery One if AWB exists
+    if (String(status).toLowerCase() === 'cancelled' && updatedOrder.delhivery_awb) {
+      try {
+        await delhiveryService.cancelShipment(updatedOrder.delhivery_awb);
+      } catch (dErr) {
+        console.error('Delhivery shipment cancellation error:', dErr.message);
+      }
+    }
+
     // Send customer WhatsApp notification when status changes
     const relevantStatuses = ['accepted', 'packed', 'shipped', 'delivered', 'cancelled'];
     if (status && relevantStatuses.includes(String(status).toLowerCase())) {
@@ -262,6 +271,15 @@ const cancelOrder = async (req, res) => {
       },
       include: { items: true }
     });
+
+    // Cancel shipment on Delhivery One if AWB exists
+    if (order.delhivery_awb) {
+      try {
+        await delhiveryService.cancelShipment(order.delhivery_awb);
+      } catch (dErr) {
+        console.error('Delhivery shipment cancellation error:', dErr.message);
+      }
+    }
 
     // Notify customer & shop owner about cancellation
     try {

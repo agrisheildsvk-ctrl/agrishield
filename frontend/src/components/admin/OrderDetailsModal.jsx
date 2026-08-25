@@ -5,12 +5,33 @@ import axios from 'axios';
 
 const OrderDetailsModal = ({ isOpen, onClose, order, onStatusChange, onResendWhatsApp, onOrderUpdate }) => {
   const [retryingShipment, setRetryingShipment] = useState(false);
+  const [cancellingShipment, setCancellingShipment] = useState(false);
   const [retryMessage, setRetryMessage] = useState('');
 
   if (!isOpen || !order) return null;
 
   const addr = order.shipping_address || {};
   const items = order.items || [];
+
+  const handleCancelDelhiveryShipment = async () => {
+    setCancellingShipment(true);
+    setRetryMessage('');
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || 'https://agrishield-production-573f.up.railway.app/api';
+      const res = await axios.post(`${apiUrl}/orders/${order.id}/cancel`);
+      if (res.data.success) {
+        setRetryMessage('✅ Delhivery cancellation request sent successfully!');
+        if (onOrderUpdate) onOrderUpdate(res.data.order || { ...order, status: 'cancelled', shipping_status: 'cancelled', delhivery_status: 'Cancelled by Customer' });
+      } else {
+        setRetryMessage('❌ Cancellation failed: ' + (res.data.message || 'Error'));
+      }
+    } catch (err) {
+      console.error('Cancel shipment error:', err);
+      setRetryMessage('❌ Error: ' + (err.response?.data?.message || err.message));
+    } finally {
+      setCancellingShipment(false);
+    }
+  };
 
   const handleRetryShipment = async () => {
     setRetryingShipment(true);
@@ -148,6 +169,17 @@ const OrderDetailsModal = ({ isOpen, onClose, order, onStatusChange, onResendWha
                       >
                         <FiRefreshCw className={retryingShipment ? 'animate-spin' : ''} />
                         <span>{retryingShipment ? 'Creating Shipment...' : 'Create / Retry Delhivery Shipment'}</span>
+                      </button>
+                    )}
+
+                    {awb && (order.status === 'cancelled' || shippingStatus === 'cancelled') && (
+                      <button
+                        onClick={handleCancelDelhiveryShipment}
+                        disabled={cancellingShipment}
+                        className="w-full bg-red-600 hover:bg-red-700 text-white font-extrabold py-2.5 px-4 rounded-xl transition flex items-center justify-center gap-2 text-sm cursor-pointer shadow-md"
+                      >
+                        <FiX className="text-lg" />
+                        <span>{cancellingShipment ? 'Sending Cancellation...' : 'Cancel Shipment on Delhivery One'}</span>
                       </button>
                     )}
                   </div>

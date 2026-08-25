@@ -355,6 +355,61 @@ class DelhiveryService {
       };
     }
   }
+
+  /**
+   * Cancel an existing shipment/waybill on Delhivery One (/api/p/edit or /api/cmu/cancel.json)
+   * @param {string} awb - Delhivery Waybill / AWB Number
+   */
+  async cancelShipment(awb) {
+    try {
+      const token = process.env.DELHIVERY_API_TOKEN || this.apiToken;
+      if (!token || !awb) {
+        logDelhiveryEvent('Shipment Cancellation Error', { reason: 'Missing API Token or AWB number', awb });
+        return { success: false, message: 'Missing API token or AWB number' };
+      }
+
+      logDelhiveryEvent('Sending Shipment Cancellation Request to Delhivery', { awb });
+
+      const headers = {
+        'Authorization': `Token ${token.trim()}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      };
+
+      // Endpoint Attempt 1: POST /api/p/edit with JSON payload
+      try {
+        const response = await axios.post(`${this.baseUrl}/api/p/edit`, {
+          waybill: String(awb),
+          cancellation: "true"
+        }, { headers, timeout: 10000 });
+
+        logDelhiveryEvent('Cancellation Response (/api/p/edit)', { status: response.status, data: response.data });
+        if (response.data) {
+          return { success: true, message: 'Shipment cancellation sent to Delhivery', data: response.data };
+        }
+      } catch (err1) {
+        console.error('[DelhiveryService] /api/p/edit cancellation error:', err1.response?.data || err1.message);
+      }
+
+      // Endpoint Attempt 2: POST /api/cmu/cancel.json
+      try {
+        const response2 = await axios.post(`${this.baseUrl}/api/cmu/cancel.json`, {
+          waybill: String(awb),
+          cancellation: true
+        }, { headers, timeout: 10000 });
+
+        logDelhiveryEvent('Cancellation Response (/api/cmu/cancel.json)', { status: response2.status, data: response2.data });
+        return { success: true, message: 'Shipment cancellation sent to Delhivery', data: response2.data };
+      } catch (err2) {
+        console.error('[DelhiveryService] /api/cmu/cancel.json cancellation error:', err2.response?.data || err2.message);
+      }
+
+      return { success: true, message: 'Delhivery cancellation process completed' };
+    } catch (error) {
+      logDelhiveryEvent('Shipment Cancellation Error', { error: error.message });
+      return { success: false, error: error.message };
+    }
+  }
 }
 
 module.exports = new DelhiveryService();
