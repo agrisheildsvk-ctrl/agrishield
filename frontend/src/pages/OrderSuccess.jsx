@@ -2,8 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { FiCheckCircle, FiDownload, FiArrowRight, FiFileText, FiTruck, FiRefreshCw, FiExternalLink, FiPackage, FiUser, FiX } from 'react-icons/fi';
-import { jsPDF } from 'jspdf';
-import autoTable from 'jspdf-autotable';
 import axios from 'axios';
 import { trackPurchase } from '../utils/analytics';
 import { generateInvoicePDF } from '../utils/generateInvoicePDF';
@@ -118,131 +116,7 @@ const OrderSuccess = () => {
     { label: 'Delivered', step: 6 }
   ];
 
-  const generateInvoice = () => {
-    const doc = new jsPDF();
-    const primaryColor = [22, 163, 74];
 
-    doc.setFontSize(24);
-    doc.setTextColor(...primaryColor);
-    doc.text('Agrishield', 14, 22);
-    
-    doc.setFontSize(10);
-    doc.setTextColor(100);
-    doc.text('Tax Invoice / Receipt', 14, 30);
-
-    doc.setFontSize(10);
-    doc.text('Agrishield Private Limited', 196, 22, { align: 'right' });
-    doc.text('123 Farming Avenue', 196, 28, { align: 'right' });
-    doc.text('contact@agrishield.com', 196, 34, { align: 'right' });
-
-    doc.setDrawColor(200);
-    doc.line(14, 40, 196, 40);
-
-    doc.setFontSize(12);
-    doc.setTextColor(50);
-    doc.text('Order Details', 14, 50);
-    
-    doc.setFontSize(10);
-    doc.text(`Order ID: ${orderId}`, 14, 58);
-    doc.text(`Date: ${date}`, 14, 64);
-    doc.text(`Payment Method: ${paymentMethod === 'online' ? 'Online Payment (Captured)' : 'Cash on Delivery'}`, 14, 70);
-    if (paymentMethod === 'online' && paymentId) {
-      doc.text(`Transaction ID: ${paymentId}`, 14, 76);
-    }
-    if (awbNumber) {
-      doc.text(`Delhivery AWB: ${awbNumber}`, 14, 82);
-    }
-
-    doc.setFontSize(12);
-    doc.text('Bill To / Ship To:', 120, 50);
-    doc.setFontSize(10);
-    doc.text(`${shippingAddress.firstName || ''} ${shippingAddress.lastName || ''}`.trim() || 'Customer', 120, 58);
-    doc.text(shippingAddress.address || '', 120, 64);
-    doc.text(`${shippingAddress.city || ''}, ${shippingAddress.state || ''} - ${shippingAddress.pin || shippingAddress.pincode || ''}`, 120, 70);
-    doc.text(`Phone: ${shippingAddress.phone || ''}`, 120, 76);
-    doc.text(`Email: ${shippingAddress.email || ''}`, 120, 82);
-
-    const tableColumn = ["Item", "Unit Price", "Qty", "Total"];
-    const tableRows = [];
-
-    items.forEach(item => {
-      const priceVal = typeof item.price === 'number' ? item.price : parseFloat(String(item.price).replace(/[^0-9.]/g, '')) || 0;
-      const unitPrice = priceVal;
-      const qty = item.quantity || 1;
-      const itemTotal = unitPrice * qty;
-      const sizeStr = item.packageSize || item.package_size || '1 kg';
-      const itemData = [
-        `${item.name || item.product_name} (${sizeStr})`,
-        `Rs. ${unitPrice.toFixed(2)}`,
-        qty.toString(),
-        `Rs. ${itemTotal.toFixed(2)}`
-      ];
-      tableRows.push(itemData);
-    });
-
-    autoTable(doc, {
-      startY: 95,
-      head: [tableColumn],
-      body: tableRows,
-      theme: 'grid',
-      headStyles: { fillColor: primaryColor, textColor: 255 },
-      styles: { fontSize: 10, cellPadding: 4 },
-      columnStyles: {
-        0: { cellWidth: 80 },
-        1: { halign: 'right' },
-        2: { halign: 'center' },
-        3: { halign: 'right' },
-      }
-    });
-
-    const finalY = doc.lastAutoTable.finalY || 95;
-
-    doc.setFontSize(10);
-    doc.setTextColor(50);
-    const textX = 140;
-    const valueX = 196;
-    let currentY = finalY + 15;
-
-    doc.text('Subtotal:', textX, currentY);
-    doc.text(`Rs. ${subtotal.toFixed(2)}`, valueX, currentY, { align: 'right' });
-    currentY += 8;
-
-    if (discount > 0) {
-      doc.text('Discount:', textX, currentY);
-      doc.text(`-Rs. ${discount.toFixed(2)}`, valueX, currentY, { align: 'right' });
-      currentY += 8;
-    }
-
-    if (paymentMethod === 'cod' && codFee > 0) {
-      doc.text('COD Fee:', textX, currentY);
-      doc.text(`Rs. ${codFee.toFixed(2)}`, valueX, currentY, { align: 'right' });
-      currentY += 8;
-    }
-
-    doc.setDrawColor(200);
-    doc.line(textX, currentY - 4, valueX, currentY - 4);
-    
-    doc.setFontSize(12);
-    doc.setFont(undefined, 'bold');
-    doc.setTextColor(...primaryColor);
-    doc.text('Grand Total:', textX, currentY + 4);
-    doc.text(`Rs. ${total.toFixed(2)}`, valueX, currentY + 4, { align: 'right' });
-
-    doc.setFont(undefined, 'normal');
-    doc.setFontSize(10);
-    doc.setTextColor(150);
-    doc.text('Thank you for choosing Agrishield!', 14, currentY + 30);
-    
-    if (paymentMethod === 'cod') {
-      doc.setTextColor(220, 38, 38);
-      doc.text('Payment Status: PENDING (Cash on Delivery)', 14, currentY + 38);
-    } else {
-      doc.setTextColor(22, 163, 74);
-      doc.text('Payment Status: CAPTURED (Paid Online)', 14, currentY + 38);
-    }
-
-    doc.save(`Invoice_${orderId}.pdf`);
-  };
 
   return (
     <motion.div 
@@ -301,9 +175,7 @@ const OrderSuccess = () => {
                 {/* Primary Popup Action Buttons: Download Invoice & Go to Profile */}
                 <div className="flex flex-col gap-3 pt-2">
                   <button 
-                    onClick={() => {
-                      generateInvoice();
-                    }}
+                    onClick={() => generateInvoicePDF(orderData)}
                     className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 px-6 rounded-2xl shadow-lg transition-all transform hover:scale-[1.02] flex justify-center items-center gap-2 text-base cursor-pointer"
                   >
                     <FiDownload className="text-xl" />
@@ -487,7 +359,7 @@ const OrderSuccess = () => {
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
             <button 
-              onClick={generateInvoice}
+              onClick={() => generateInvoicePDF(orderData)}
               className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 px-6 rounded-2xl shadow-md transition-all flex justify-center items-center gap-2 cursor-pointer active:scale-98"
             >
               <FiDownload className="text-xl" /> Download Tax Invoice

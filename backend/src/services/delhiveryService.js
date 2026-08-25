@@ -180,10 +180,17 @@ class DelhiveryService {
           raw_response: resData
         };
       } else {
-        const errorMsg = pkg?.remarks?.[0] || pkg?.remarks || resData.rmk || 'Shipment creation failed on Delhivery';
+        let errorMsg = 'Shipment creation failed on Delhivery';
+        if (pkg && pkg.remarks) {
+          errorMsg = Array.isArray(pkg.remarks) ? pkg.remarks.join(', ') : String(pkg.remarks);
+        } else if (resData.rmk) {
+          errorMsg = String(resData.rmk);
+        }
+
         logDelhiveryEvent('Shipment Creation Rejected', {
           orderId: order.order_id,
-          errorMsg
+          errorMsg,
+          rawResponse: resData
         });
 
         return {
@@ -194,14 +201,22 @@ class DelhiveryService {
         };
       }
     } catch (error) {
+      const errData = error.response?.data;
+      let errDetail = error.message;
+      if (errData) {
+        if (errData.rmk) errDetail = errData.rmk;
+        else if (errData.remarks) errDetail = Array.isArray(errData.remarks) ? errData.remarks.join(', ') : String(errData.remarks);
+        else if (typeof errData === 'string') errDetail = errData;
+      }
+
       logDelhiveryEvent('Shipment Creation Request Error', {
         orderId: order.order_id,
-        error: error.response?.data || error.message
+        error: errData || error.message
       });
 
       return {
         success: false,
-        error: error.response?.data?.rmk || error.message,
+        error: errDetail,
         shipping_status: 'shipping_pending'
       };
     }

@@ -35,18 +35,23 @@ export const generateInvoicePDF = (order) => {
   const total = parseFloat(order.total_amount || order.totals?.total || (subtotal - discount + codFee));
 
   // Header Banner
-  doc.setFontSize(24);
+  doc.setFontSize(22);
   doc.setTextColor(...primaryColor);
-  doc.text('Agrishield India', 14, 22);
+  doc.text('Agrishield', 14, 18);
 
   doc.setFontSize(10);
   doc.setTextColor(100);
-  doc.text('Certified Crop Protection Tax Invoice / Receipt', 14, 30);
+  doc.text('Certified Crop Protection Tax Invoice / Receipt', 14, 25);
 
-  doc.setFontSize(10);
-  doc.text('Agrishield Private Limited', 196, 22, { align: 'right' });
-  doc.text('Agricultural Support Hub, India', 196, 28, { align: 'right' });
-  doc.text('support@agrishield.in • www.agrishield.in', 196, 34, { align: 'right' });
+  doc.setFontSize(9);
+  doc.setTextColor(50);
+  doc.text('SRI VEERABHADRESHWARA KRUSHI KENDRA', 196, 16, { align: 'right' });
+  doc.setFont(undefined, 'bold');
+  doc.text('GSTIN: 29APSPA0505K1ZV', 196, 21, { align: 'right' });
+  doc.setFont(undefined, 'normal');
+  doc.text('1, Opp. Forest Dept, Alkola Circle, Sagara Road', 196, 26, { align: 'right' });
+  doc.text('Shivamogga, Karnataka - 577204', 196, 31, { align: 'right' });
+  doc.text('Ph: 7892815965 / 9739230638 | agrisheild@gmail.com', 196, 36, { align: 'right' });
 
   doc.setDrawColor(220);
   doc.line(14, 40, 196, 40);
@@ -158,7 +163,7 @@ export const generateInvoicePDF = (order) => {
   doc.setFontSize(9);
   doc.setTextColor(120);
   doc.text('Thank you for purchasing certified Agrishield crop protection products!', 14, 280);
-  doc.text('Farmer Helpline & WhatsApp Support: +91 98765 43210 | www.agrishield.in', 14, 285);
+  doc.text('Sri Veerabhadreshwara Krushi Kendra | Support: +91 7892815965 / 9739230638 | agrisheild@gmail.com', 14, 285);
 
   doc.save(`Agrishield_Invoice_${orderId}.pdf`);
 };
