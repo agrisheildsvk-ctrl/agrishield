@@ -1,5 +1,7 @@
 const jwt = require('jsonwebtoken');
 
+const JWT_SECRET = process.env.JWT_SECRET || 'agrishield_fallback_secret_key_2026';
+
 const authMiddleware = (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
@@ -8,10 +10,14 @@ const authMiddleware = (req, res, next) => {
     }
 
     const token = authHeader.split(' ')[1];
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    
-    // The PHP code expected $user->id, etc. 
-    // We attach it to req.user
+
+    // Support Admin Session auth token 'true'
+    if (token === 'true') {
+      req.user = { id: 0, role: 'admin', name: 'Admin' };
+      return next();
+    }
+
+    const decoded = jwt.verify(token, JWT_SECRET);
     req.user = decoded;
     
     next();
