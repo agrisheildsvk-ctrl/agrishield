@@ -5,6 +5,7 @@ const whatsappService = require('../services/whatsappService');
 const delhiveryService = require('../services/delhiveryService');
 const emailService = require('../services/emailService');
 const smsService = require('../services/smsService');
+const razorpayService = require('../services/razorpayService');
 
 /**
  * Create a new Order (COD or fallback)
@@ -200,12 +201,33 @@ const updateOrderStatus = async (req, res) => {
       include: { items: true }
     });
 
-    // If status is cancelled, also cancel shipment on Delhivery One if AWB exists
-    if (String(status).toLowerCase() === 'cancelled' && updatedOrder.delhivery_awb) {
-      try {
-        await delhiveryService.cancelShipment(updatedOrder.delhivery_awb);
-      } catch (dErr) {
-        console.error('Delhivery shipment cancellation error:', dErr.message);
+    // If status is cancelled, also cancel shipment on Delhivery One and issue Razorpay refund if online payment
+    if (String(status).toLowerCase() === 'cancelled') {
+      if (updatedOrder.delhivery_awb) {
+        try {
+          await delhiveryService.cancelShipment(updatedOrder.delhivery_awb);
+        } catch (dErr) {
+          console.error('Delhivery shipment cancellation error:', dErr.message);
+        }
+      }
+
+      const pId = updatedOrder.payment_id || updatedOrder.razorpay_payment_id || updatedOrder.transaction_id;
+      if (updatedOrder.payment_method === 'online' && pId && String(updatedOrder.payment_status).toLowerCase() !== 'refunded') {
+        try {
+          const refundResult = await razorpayService.refundPayment(pId, updatedOrder.total_amount, {
+            reason: 'Order Cancellation by Admin',
+            orderId: updatedOrder.order_id
+          });
+          if (refundResult && refundResult.id) {
+            await prisma.order.update({
+              where: { id: updatedOrder.id },
+              data: { payment_status: 'Refunded' }
+            });
+            updatedOrder.payment_status = 'Refunded';
+          }
+        } catch (rErr) {
+          console.error('Razorpay auto-refund error on admin status update:', rErr.message);
+        }
       }
     }
 
@@ -262,12 +284,30 @@ const cancelOrder = async (req, res) => {
       });
     }
 
+    // Check if online payment needs automatic Razorpay refund
+    let newPaymentStatus = order.payment_status;
+    const paymentId = order.payment_id || order.razorpay_payment_id || order.transaction_id;
+    if (order.payment_method === 'online' && paymentId && String(order.payment_status).toLowerCase() !== 'refunded') {
+      try {
+        const refund = await razorpayService.refundPayment(paymentId, order.total_amount, {
+          reason: 'Customer Order Cancellation',
+          orderId: order.order_id
+        });
+        if (refund && refund.id) {
+          newPaymentStatus = 'Refunded';
+        }
+      } catch (rErr) {
+        console.error('Razorpay auto-refund error on customer cancellation:', rErr.message);
+      }
+    }
+
     const updatedOrder = await prisma.order.update({
       where: { id: order.id },
       data: {
         status: 'cancelled',
         shipping_status: 'cancelled',
-        delhivery_status: 'Cancelled by Customer'
+        delhivery_status: 'Cancelled by Customer',
+        payment_status: newPaymentStatus
       },
       include: { items: true }
     });
@@ -298,6 +338,53 @@ const cancelOrder = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to cancel order: ' + error.message,
+      error: error.message
+    });
+  }
+};
+
+/**
+ * Issue Razorpay Refund for an order (/api/orders/:id/refund)
+ */
+const refundOrder = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const targetId = parseInt(id) || id;
+
+    const order = await prisma.order.findFirst({
+      where: typeof targetId === 'number' ? { id: targetId } : { order_id: String(targetId) },
+    });
+
+    if (!order) {
+      return res.status(404).json({ success: false, message: 'Order not found' });
+    }
+
+    const paymentId = order.payment_id || order.razorpay_payment_id || order.transaction_id;
+    if (!paymentId) {
+      return res.status(400).json({ success: false, message: 'No Razorpay payment ID associated with this order' });
+    }
+
+    const refund = await razorpayService.refundPayment(paymentId, order.total_amount, {
+      reason: 'Manual Admin Refund',
+      orderId: order.order_id
+    });
+
+    const updatedOrder = await prisma.order.update({
+      where: { id: order.id },
+      data: { payment_status: 'Refunded' }
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Razorpay refund issued successfully!',
+      refund,
+      order: updatedOrder
+    });
+  } catch (error) {
+    console.error('Error issuing Razorpay refund:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Razorpay refund failed: ' + error.message,
       error: error.message
     });
   }
@@ -521,5 +608,6 @@ module.exports = {
   updateOrderStatus,
   getOrderTracking,
   retryShipment,
-  cancelOrder
+  cancelOrder,
+  refundOrder
 };

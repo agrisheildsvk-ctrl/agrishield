@@ -6,12 +6,36 @@ import axios from 'axios';
 const OrderDetailsModal = ({ isOpen, onClose, order, onStatusChange, onResendWhatsApp, onOrderUpdate }) => {
   const [retryingShipment, setRetryingShipment] = useState(false);
   const [cancellingShipment, setCancellingShipment] = useState(false);
+  const [refunding, setRefunding] = useState(false);
   const [retryMessage, setRetryMessage] = useState('');
 
   if (!isOpen || !order) return null;
 
   const addr = order.shipping_address || {};
   const items = order.items || [];
+
+  const handleIssueRazorpayRefund = async () => {
+    const isConfirmed = window.confirm(`Issue ₹${parseFloat(order.total_amount || 0).toFixed(2)} refund via Razorpay for Order #${order.order_id}?`);
+    if (!isConfirmed) return;
+
+    setRefunding(true);
+    setRetryMessage('');
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || 'https://agrishield-production-573f.up.railway.app/api';
+      const res = await axios.post(`${apiUrl}/orders/${order.id}/refund`);
+      if (res.data.success) {
+        setRetryMessage('✅ Razorpay refund issued successfully!');
+        if (onOrderUpdate) onOrderUpdate(res.data.order || { ...order, payment_status: 'Refunded' });
+      } else {
+        setRetryMessage('❌ Refund failed: ' + (res.data.message || 'Error'));
+      }
+    } catch (err) {
+      console.error('Refund error:', err);
+      setRetryMessage('❌ Refund error: ' + (err.response?.data?.message || err.message));
+    } finally {
+      setRefunding(false);
+    }
+  };
 
   const handleCancelDelhiveryShipment = async () => {
     setCancellingShipment(true);
@@ -272,10 +296,16 @@ const OrderDetailsModal = ({ isOpen, onClose, order, onStatusChange, onResendWha
                         <span className="font-mono text-xs text-gray-900 break-all">{order.transaction_id || order.payment_id}</span>
                       </div>
                     )}
-                    {order.razorpay_order_id && (
-                      <div className="flex justify-between items-center pb-3 border-b border-gray-100">
-                        <span className="text-gray-500">Razorpay Order ID</span>
-                        <span className="font-mono text-xs text-gray-900 break-all">{order.razorpay_order_id}</span>
+                    {order.payment_method === 'online' && (order.payment_id || order.razorpay_payment_id || order.transaction_id) && String(order.payment_status).toLowerCase() !== 'refunded' && (
+                      <div className="pt-2 pb-3 border-b border-gray-100">
+                        <button
+                          onClick={handleIssueRazorpayRefund}
+                          disabled={refunding}
+                          className="w-full bg-purple-600 hover:bg-purple-700 text-white font-extrabold py-2 px-3 rounded-xl transition flex items-center justify-center gap-1.5 text-xs cursor-pointer shadow-md disabled:opacity-50"
+                        >
+                          <FiDollarSign className="text-sm" />
+                          <span>{refunding ? 'Processing Refund...' : 'Issue Razorpay Refund'}</span>
+                        </button>
                       </div>
                     )}
                     <div className="flex justify-between items-center pb-2">

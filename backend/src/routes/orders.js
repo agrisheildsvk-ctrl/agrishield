@@ -7,7 +7,8 @@ const {
   updateOrderStatus,
   getOrderTracking,
   retryShipment,
-  cancelOrder
+  cancelOrder,
+  refundOrder
 } = require('../controllers/orderController');
 
 // Route to get logged-in user orders
@@ -33,6 +34,10 @@ router.post('/:id/retry-shipment', retryShipment);
 // Route to cancel an order (Customer & Admin)
 // POST /api/orders/:id/cancel
 router.post('/:id/cancel', cancelOrder);
+
+// Route to issue Razorpay refund for an order (Admin)
+// POST /api/orders/:id/refund
+router.post('/:id/refund', refundOrder);
 
 // Route to update order status (Admin)
 // PATCH /api/orders/:id/status
