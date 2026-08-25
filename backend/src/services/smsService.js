@@ -1,7 +1,9 @@
 const axios = require('axios');
 
+const FAST2SMS_API_KEY = process.env.FAST2SMS_API_KEY || 'PM63HFpC20XKDJqohgEKTZGPAjura35rtwKaHCpxEsaxyQkm6aUxPZNtZV5Q';
+
 /**
- * Send SMS Order Confirmation to Customer's Mobile Number
+ * Send SMS Order Confirmation to Customer's Mobile Number via Fast2SMS
  */
 const sendOrderSMS = async (order) => {
   try {
@@ -22,27 +24,24 @@ const sendOrderSMS = async (order) => {
     
     const smsMessage = `Hi ${customerName}, your Agrishield order #${order.order_id} of Rs.${amountStr} is confirmed.${awbStr} Thank you for choosing Agrishield!`;
 
-    // Option 1: Fast2SMS Gateway (popular Indian SMS route)
-    if (process.env.FAST2SMS_API_KEY) {
+    // Option 1: Fast2SMS Gateway ('q' route)
+    if (FAST2SMS_API_KEY) {
       try {
-        const response = await axios.post('https://www.fast2sms.com/dev/bulkV2', {
-          route: 'q',
-          message: smsMessage,
-          language: 'english',
-          flash: 0,
-          numbers: phone
-        }, {
-          headers: {
-            'authorization': process.env.FAST2SMS_API_KEY,
-            'Content-Type': 'application/json'
-          },
-          timeout: 10000
-        });
+        const url = new URL('https://www.fast2sms.com/dev/bulkV2');
+        url.searchParams.append('authorization', FAST2SMS_API_KEY);
+        url.searchParams.append('message', smsMessage);
+        url.searchParams.append('route', 'q');
+        url.searchParams.append('numbers', phone);
 
-        console.log('[SMSService] Fast2SMS dispatched successfully to +91', phone);
-        return { success: true, provider: 'Fast2SMS', data: response.data };
+        const response = await fetch(url.toString());
+        const data = await response.json();
+
+        console.log(`[SMSService] Fast2SMS Quick SMS response for +91 ${phone}:`, data);
+        if (data && (data.return === true || data.status_code === 200)) {
+          return { success: true, provider: 'Fast2SMS', data };
+        }
       } catch (fErr) {
-        console.error('[SMSService] Fast2SMS error:', fErr.message);
+        console.error('[SMSService] Fast2SMS fetch error:', fErr.message);
       }
     }
 
@@ -79,7 +78,7 @@ const sendOrderSMS = async (order) => {
 
     return {
       success: true,
-      message: 'SMS notification logged. (Set FAST2SMS_API_KEY or TWILIO credentials in Railway for direct SMS delivery)'
+      message: 'SMS notification logged'
     };
   } catch (error) {
     console.error('[SMSService] Error in sendOrderSMS:', error.message);
