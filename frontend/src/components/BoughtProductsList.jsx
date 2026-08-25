@@ -132,6 +132,7 @@ const BoughtProductsList = ({ showTitle = true }) => {
             year: 'numeric'
           }),
           lastOrderId: order.order_id,
+          lastOrderDbId: order.id,
           lastOrderStatus: order.status || order.shipping_status || 'processing',
           paymentStatus: order.payment_status || 'Completed',
           catalogProduct: matchedCatalogProduct || null
@@ -335,22 +336,38 @@ const BoughtProductsList = ({ showTitle = true }) => {
                       <span>Bought <strong className="text-emerald-700">{prod.totalQuantityBought} unit(s)</strong></span>
                     </div>
 
-                    <div className="text-xs text-gray-400 font-medium">
-                      Last Order: <span className="text-gray-600 font-semibold">{prod.lastOrderedDate}</span> ({prod.lastOrderId})
+                    <div className="text-xs text-gray-400 font-medium flex items-center justify-center sm:justify-start gap-2">
+                      <span>Last Order: <span className="text-gray-600 font-semibold">{prod.lastOrderedDate}</span> ({prod.lastOrderId})</span>
+                      {prod.lastOrderStatus === 'cancelled' && (
+                        <span className="px-2 py-0.5 bg-red-100 text-red-800 text-[10px] font-bold rounded-md">❌ Cancelled</span>
+                      )}
                     </div>
 
-                    <div className="pt-2 flex items-center justify-between gap-3">
+                    <div className="pt-2 flex flex-wrap items-center justify-between gap-2">
                       <div className="text-xl font-extrabold text-emerald-700">
                         {prod.price}
                       </div>
 
-                      <button
-                        onClick={() => handleBuyAgain(prod)}
-                        className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
-                      >
-                        <FaRedo className="text-xs" />
-                        <span>Buy Again</span>
-                      </button>
+                      <div className="flex items-center gap-2">
+                        {prod.lastOrderStatus !== 'cancelled' && prod.lastOrderStatus !== 'shipped' && prod.lastOrderStatus !== 'delivered' && (
+                          <button
+                            onClick={() => handleCancelOrder({ id: prod.lastOrderDbId || prod.lastOrderId, order_id: prod.lastOrderId })}
+                            disabled={cancellingId === (prod.lastOrderDbId || prod.lastOrderId)}
+                            className="px-3 py-2 bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 font-bold text-xs rounded-xl transition-all flex items-center gap-1 cursor-pointer disabled:opacity-50"
+                          >
+                            <FaTimesCircle className="text-xs" />
+                            <span>{cancellingId === (prod.lastOrderDbId || prod.lastOrderId) ? '...' : 'Cancel Order'}</span>
+                          </button>
+                        )}
+
+                        <button
+                          onClick={() => handleBuyAgain(prod)}
+                          className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+                        >
+                          <FaRedo className="text-xs" />
+                          <span>Buy Again</span>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
