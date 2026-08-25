@@ -226,6 +226,66 @@ const updateOrderStatus = async (req, res) => {
 };
 
 /**
+ * Customer / Admin Order Cancellation (/api/orders/:id/cancel)
+ */
+const cancelOrder = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const targetId = parseInt(id) || id;
+
+    const order = await prisma.order.findFirst({
+      where: typeof targetId === 'number' ? { id: targetId } : { order_id: String(targetId) },
+      include: { items: true }
+    });
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: 'Order not found'
+      });
+    }
+
+    const currentStatus = String(order.status || '').toLowerCase();
+    if (currentStatus === 'shipped' || currentStatus === 'delivered') {
+      return res.status(400).json({
+        success: false,
+        message: `Order cannot be cancelled because it is already ${currentStatus}. Please contact customer support.`
+      });
+    }
+
+    const updatedOrder = await prisma.order.update({
+      where: { id: order.id },
+      data: {
+        status: 'cancelled',
+        shipping_status: 'cancelled',
+        delhivery_status: 'Cancelled by Customer'
+      },
+      include: { items: true }
+    });
+
+    // Notify customer & shop owner about cancellation
+    try {
+      await whatsappService.notifyCustomerStatusChange(updatedOrder, 'cancelled');
+    } catch (waErr) {
+      console.error('Cancellation WhatsApp notification error:', waErr.message);
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Order cancelled successfully',
+      order: updatedOrder
+    });
+  } catch (error) {
+    console.error('Error cancelling order:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to cancel order: ' + error.message,
+      error: error.message
+    });
+  }
+};
+
+/**
  * Get tracking status for a customer order (/api/orders/:orderId/tracking)
  */
 const getOrderTracking = async (req, res) => {
@@ -442,5 +502,6 @@ module.exports = {
   getUserOrders,
   updateOrderStatus,
   getOrderTracking,
-  retryShipment
+  retryShipment,
+  cancelOrder
 };

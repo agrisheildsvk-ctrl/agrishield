@@ -17,7 +17,8 @@ import {
   FaDollarSign,
   FaRupeeSign,
   FaBoxes,
-  FaShieldAlt
+  FaShieldAlt,
+  FaTimesCircle
 } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
@@ -32,6 +33,7 @@ const BoughtProductsList = ({ showTitle = true }) => {
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState('bought'); // 'bought', 'history', 'prices'
   const [addedToast, setAddedToast] = useState('');
+  const [cancellingId, setCancellingId] = useState(null);
 
   const apiUrl = import.meta.env.VITE_API_URL || 'https://agrishield-production-573f.up.railway.app/api';
 
@@ -59,6 +61,39 @@ const BoughtProductsList = ({ showTitle = true }) => {
 
     fetchUserOrders();
   }, [token, apiUrl]);
+
+  const handleCancelOrder = async (orderToCancel) => {
+    const isConfirmed = window.confirm(`Are you sure you want to cancel Order #${orderToCancel.order_id}?`);
+    if (!isConfirmed) return;
+
+    const targetId = orderToCancel.id || orderToCancel.order_id;
+    setCancellingId(targetId);
+    try {
+      const res = await axios.post(`${apiUrl}/orders/${targetId}/cancel`);
+      if (res.data && res.data.success) {
+        setOrders(prevOrders => prevOrders.map(o => {
+          if (o.id === orderToCancel.id || o.order_id === orderToCancel.order_id) {
+            return {
+              ...o,
+              status: 'cancelled',
+              shipping_status: 'cancelled',
+              delhivery_status: 'Cancelled by Customer'
+            };
+          }
+          return o;
+        }));
+        setAddedToast(`Order #${orderToCancel.order_id} has been cancelled successfully.`);
+        setTimeout(() => setAddedToast(''), 4000);
+      } else {
+        alert(res.data.message || 'Failed to cancel order.');
+      }
+    } catch (err) {
+      console.error('Error cancelling order:', err);
+      alert(err.response?.data?.message || 'Failed to cancel order. Please try again.');
+    } finally {
+      setCancellingId(null);
+    }
+  };
 
   // Extract all unique items bought by customer across orders
   const boughtProductsMap = new Map();
@@ -331,7 +366,7 @@ const BoughtProductsList = ({ showTitle = true }) => {
                   key={order.id || order.order_id}
                   className="bg-white rounded-3xl p-6 shadow-sm border border-emerald-100 space-y-5"
                 >
-                  {/* Order Header & Download Button */}
+                  {/* Order Header & Action Buttons */}
                   <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-gray-100">
                     <div>
                       <div className="flex items-center gap-2">
@@ -339,9 +374,10 @@ const BoughtProductsList = ({ showTitle = true }) => {
                           Order #{order.order_id}
                         </span>
                         <span className={`px-3 py-1 rounded-full text-xs font-bold capitalize ${
+                          order.status === 'cancelled' ? 'bg-red-100 text-red-800' :
                           order.payment_method === 'online' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
                         }`}>
-                          {order.payment_method === 'online' ? 'Pay Online (Paid)' : 'Cash on Delivery'}
+                          {order.status === 'cancelled' ? '❌ Cancelled' : (order.payment_method === 'online' ? 'Pay Online (Paid)' : 'Cash on Delivery')}
                         </span>
                       </div>
                       <p className="text-xs text-gray-500 font-medium mt-1">
@@ -349,13 +385,26 @@ const BoughtProductsList = ({ showTitle = true }) => {
                       </p>
                     </div>
 
-                    <button
-                      onClick={() => generateInvoicePDF(order)}
-                      className="w-full sm:w-auto px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95"
-                    >
-                      <FaFileDownload className="text-sm" />
-                      <span>Download Invoice PDF</span>
-                    </button>
+                    <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
+                      {order.status !== 'cancelled' && order.status !== 'shipped' && order.status !== 'delivered' && (
+                        <button
+                          onClick={() => handleCancelOrder(order)}
+                          disabled={cancellingId === (order.id || order.order_id)}
+                          className="px-4 py-2.5 bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 font-bold text-xs rounded-2xl transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                        >
+                          <FaTimesCircle className="text-sm" />
+                          <span>{cancellingId === (order.id || order.order_id) ? 'Cancelling...' : 'Cancel Order'}</span>
+                        </button>
+                      )}
+
+                      <button
+                        onClick={() => generateInvoicePDF(order)}
+                        className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+                      >
+                        <FaFileDownload className="text-sm" />
+                        <span>Download Invoice PDF</span>
+                      </button>
+                    </div>
                   </div>
 
                   {/* Price Breakdown Table */}
@@ -427,11 +476,12 @@ const BoughtProductsList = ({ showTitle = true }) => {
                           Order #{order.order_id}
                         </span>
                         <span className={`px-3 py-1 rounded-full text-xs font-bold capitalize ${
+                          order.status === 'cancelled' ? 'bg-red-100 text-red-800 border border-red-200' :
                           order.status === 'delivered' ? 'bg-green-100 text-green-800' :
                           order.status === 'shipped' ? 'bg-blue-100 text-blue-800' :
                           'bg-amber-100 text-amber-800'
                         }`}>
-                          {order.shipping_status || order.status || 'Processing'}
+                          {order.status === 'cancelled' ? '❌ Cancelled' : (order.shipping_status || order.status || 'Processing')}
                         </span>
                       </div>
                       <div className="text-xs text-gray-500 font-medium mt-1 flex items-center gap-2">
@@ -448,11 +498,22 @@ const BoughtProductsList = ({ showTitle = true }) => {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-3">
                       <div className="text-right">
                         <div className="text-xs text-gray-400 font-bold uppercase tracking-wider">Total Amount</div>
                         <div className="text-2xl font-extrabold text-emerald-700">₹{parseFloat(order.total_amount || 0).toFixed(2)}</div>
                       </div>
+
+                      {order.status !== 'cancelled' && order.status !== 'shipped' && order.status !== 'delivered' && (
+                        <button
+                          onClick={() => handleCancelOrder(order)}
+                          disabled={cancellingId === (order.id || order.order_id)}
+                          className="px-3.5 py-2.5 bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 font-bold text-xs rounded-2xl transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                        >
+                          <FaTimesCircle className="text-sm" />
+                          <span>{cancellingId === (order.id || order.order_id) ? '...' : 'Cancel'}</span>
+                        </button>
+                      )}
 
                       <button
                         onClick={() => generateInvoicePDF(order)}

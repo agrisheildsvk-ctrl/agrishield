@@ -6,7 +6,8 @@ const {
   getUserOrders,
   updateOrderStatus,
   getOrderTracking,
-  retryShipment
+  retryShipment,
+  cancelOrder
 } = require('../controllers/orderController');
 
 // Route to get logged-in user orders
@@ -28,6 +29,10 @@ router.get('/:orderId/tracking', getOrderTracking);
 // Route to retry shipment creation for an order (Admin)
 // POST /api/orders/:id/retry-shipment
 router.post('/:id/retry-shipment', retryShipment);
+
+// Route to cancel an order (Customer & Admin)
+// POST /api/orders/:id/cancel
+router.post('/:id/cancel', cancelOrder);
 
 // Route to update order status (Admin)
 // PATCH /api/orders/:id/status
