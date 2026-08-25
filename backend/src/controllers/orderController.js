@@ -3,6 +3,8 @@ const prisma = new PrismaClient();
 const jwt = require('jsonwebtoken');
 const whatsappService = require('../services/whatsappService');
 const delhiveryService = require('../services/delhiveryService');
+const emailService = require('../services/emailService');
+const smsService = require('../services/smsService');
 
 /**
  * Create a new Order (COD or fallback)
@@ -117,6 +119,10 @@ const createOrder = async (req, res) => {
       console.error('WhatsApp notification error on order creation:', waErr.message);
       whatsappResult = { status: 'failed', error: waErr.message };
     }
+
+    // Trigger Email & SMS notifications asynchronously
+    emailService.sendOrderEmail(newOrder).catch(e => console.error('Email error:', e.message));
+    smsService.sendOrderSMS(newOrder).catch(e => console.error('SMS error:', e.message));
 
     // Fetch final order state
     const savedOrder = await prisma.order.findUnique({

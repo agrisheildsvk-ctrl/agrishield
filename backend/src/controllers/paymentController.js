@@ -3,6 +3,8 @@ const prisma = new PrismaClient();
 const razorpayService = require('../services/razorpayService');
 const whatsappService = require('../services/whatsappService');
 const delhiveryService = require('../services/delhiveryService');
+const emailService = require('../services/emailService');
+const smsService = require('../services/smsService');
 
 /**
  * Create a Razorpay order on the backend (/api/payments/create-order)
@@ -215,7 +217,7 @@ const verifyAndSavePayment = async (req, res) => {
       }
     }
 
-    // Step 7: Automatically send WhatsApp notification to Owner
+    // Step 7: Automatically send WhatsApp, Email & SMS notifications
     let whatsappResult = { status: 'pending' };
     try {
       whatsappResult = await whatsappService.notifyOwnerNewOrder(newOrder);
@@ -223,6 +225,9 @@ const verifyAndSavePayment = async (req, res) => {
       console.error('WhatsApp notification error on order creation:', waErr.message);
       whatsappResult = { status: 'failed', error: waErr.message };
     }
+
+    emailService.sendOrderEmail(newOrder).catch(e => console.error('Email error:', e.message));
+    smsService.sendOrderSMS(newOrder).catch(e => console.error('SMS error:', e.message));
 
     const savedOrder = await prisma.order.findUnique({
       where: { id: newOrder.id },
