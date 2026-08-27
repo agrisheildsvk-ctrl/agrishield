@@ -81,7 +81,7 @@ const Checkout = () => {
             <FiLock className="w-10 h-10 text-emerald-700" />
           </div>
           <span className="inline-block px-3 py-1 bg-amber-100 text-amber-800 text-xs font-extrabold rounded-full mb-3 uppercase tracking-wider">
-            Compulsory Login Required
+            Login Required
           </span>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-3">Login to Place Order</h2>
           <p className="text-gray-600 text-sm mb-8 leading-relaxed font-medium">
@@ -289,18 +289,17 @@ const Checkout = () => {
               <div className="bg-white p-5 sm:p-8 rounded-3xl shadow-sm border border-gray-100">
                 <h2 className="text-xl font-bold text-gray-900 mb-6 pb-4 border-b border-gray-100 flex items-center justify-between">
                   <span>Contact Information</span>
-                  <span className="text-xs font-semibold text-red-500">(* All fields compulsory)</span>
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-2">
-                      Email Address <span className="text-red-500">*</span>
+                      Email Address <span className="text-xs text-gray-400 font-normal">(Optional)</span>
                     </label>
-                    <input required type="email" name="email" value={formData.email} onChange={handleInputChange} placeholder="you@example.com" className="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition font-medium" />
+                    <input type="email" name="email" value={formData.email} onChange={handleInputChange} placeholder="you@example.com" className="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition font-medium" />
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-2">
-                      Phone Number <span className="text-red-500">*</span> <span className="text-xs text-gray-400 font-normal">(10 digits only)</span>
+                      Phone Number <span className="text-red-500">*</span> <span className="text-xs text-gray-400 font-normal">(10 digits)</span>
                     </label>
                     <input required type="tel" name="phone" value={formData.phone} onChange={handleInputChange} pattern="[0-9]{10}" maxLength="10" minLength="10" title="Please enter a valid 10-digit phone number" placeholder="10-digit Phone Number (e.g. 9876543210)" className="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition font-medium" />
                   </div>
@@ -311,7 +310,6 @@ const Checkout = () => {
               <div className="bg-white p-5 sm:p-8 rounded-3xl shadow-sm border border-gray-100">
                 <h2 className="text-xl font-bold text-gray-900 mb-6 pb-4 border-b border-gray-100 flex items-center justify-between">
                   <span>Shipping Address</span>
-                  <span className="text-xs font-semibold text-red-500">(* All fields compulsory)</span>
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                   <div>
@@ -322,9 +320,9 @@ const Checkout = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-2">
-                      Last Name <span className="text-red-500">*</span>
+                      Last Name <span className="text-xs text-gray-400 font-normal">(Optional)</span>
                     </label>
-                    <input required type="text" name="lastName" value={formData.lastName} onChange={handleInputChange} placeholder="Last Name" className="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition font-medium" />
+                    <input type="text" name="lastName" value={formData.lastName} onChange={handleInputChange} placeholder="Last Name" className="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition font-medium" />
                   </div>
                 </div>
                 <div className="mb-6">

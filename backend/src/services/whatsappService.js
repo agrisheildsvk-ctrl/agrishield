@@ -360,13 +360,77 @@ const getOrderWhatsAppUrl = (order, ownerPhone = DEFAULT_OWNER_WHATSAPP) => {
   return `https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`;
 };
 
+/**
+ * Format Customer Order Confirmation Message with Delhivery Tracking
+ */
+const formatCustomerOrderMessage = (order) => {
+  const addr = order.shipping_address || {};
+  const customerName = [addr.firstName, addr.lastName].filter(Boolean).join(' ').trim() || 'Valued Customer';
+
+  const itemsList = (order.items || []).map(item => {
+    const priceNum = parseFloat(item.price) || 0;
+    const itemTotal = priceNum * item.quantity;
+    const priceFormatted = itemTotal % 1 === 0 ? itemTotal.toFixed(0) : itemTotal.toFixed(2);
+    return `• ${item.product_name} ×${item.quantity} (₹${priceFormatted})`;
+  }).join('\n');
+
+  const totalAmount = parseFloat(order.total_amount) || 0;
+  const totalFormatted = totalAmount % 1 === 0 ? totalAmount.toFixed(0) : totalAmount.toFixed(2);
+  const paymentStr = order.payment_method === 'cod' ? 'Cash on Delivery' : 'Paid Online';
+
+  const awb = order.delhivery_awb;
+  const trackingLink = order.tracking_url || (awb ? `https://www.delhivery.com/track/package/${awb}` : `https://agrishield.in/order-success`);
+
+  return `🌾 AGRISHIELD - ORDER CONFIRMED!
+
+Hi ${customerName}, thank you for your purchase!
+
+━━━━━━━━━━━━━━━━━━
+
+📋 Order ID: #${order.order_id}
+💳 Payment: ${paymentStr}
+💰 Total Amount: ₹${totalFormatted}
+
+🛒 Products Ordered:
+${itemsList}
+
+━━━━━━━━━━━━━━━━━━
+
+🚚 DELHIVERY TRACKING DETAILS:
+• AWB / Tracking No: ${awb || 'Shipment Manifested'}
+• Live Track Package: ${trackingLink}
+
+Thank you for trusting Agrishield! 🌱`;
+};
+
+/**
+ * Send WhatsApp Confirmation & Tracking Details to Customer
+ */
+const notifyCustomerNewOrder = async (order) => {
+  try {
+    const addr = order.shipping_address || {};
+    const customerPhone = addr.phone || addr.phoneNumber;
+    if (!customerPhone) {
+      return { success: false, message: 'No customer phone provided in order' };
+    }
+    const message = formatCustomerOrderMessage(order);
+    const result = await sendWhatsAppMessage(customerPhone, message);
+    return result;
+  } catch (err) {
+    console.error('[WhatsAppService] notifyCustomerNewOrder failed:', err.message);
+    return { success: false, error: err.message };
+  }
+};
+
 module.exports = {
   getOwnerWhatsAppNumber,
   formatPhoneNumber,
   formatOrderMessage,
+  formatCustomerOrderMessage,
   formatCustomerStatusMessage,
   sendWhatsAppMessage,
   notifyOwnerNewOrder,
+  notifyCustomerNewOrder,
   notifyCustomerStatusChange,
   retryOrderNotification,
   getOrderWhatsAppUrl

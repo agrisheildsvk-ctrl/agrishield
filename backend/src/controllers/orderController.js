@@ -112,24 +112,27 @@ const createOrder = async (req, res) => {
       });
     }
 
-    // Automatically send WhatsApp notification to Owner
+    // Fetch final order state (with Delhivery AWB and tracking URL)
+    const savedOrder = await prisma.order.findUnique({
+      where: { id: newOrder.id },
+      include: { items: true }
+    });
+
+    const orderToNotify = savedOrder || newOrder;
+
+    // Automatically send WhatsApp notification to Owner and Customer
     let whatsappResult = { status: 'pending' };
     try {
-      whatsappResult = await whatsappService.notifyOwnerNewOrder(newOrder);
+      whatsappResult = await whatsappService.notifyOwnerNewOrder(orderToNotify);
+      await whatsappService.notifyCustomerNewOrder(orderToNotify);
     } catch (waErr) {
       console.error('WhatsApp notification error on order creation:', waErr.message);
       whatsappResult = { status: 'failed', error: waErr.message };
     }
 
     // Trigger Email & SMS notifications asynchronously
-    emailService.sendOrderEmail(newOrder).catch(e => console.error('Email error:', e.message));
-    smsService.sendOrderSMS(newOrder).catch(e => console.error('SMS error:', e.message));
-
-    // Fetch final order state
-    const savedOrder = await prisma.order.findUnique({
-      where: { id: newOrder.id },
-      include: { items: true }
-    });
+    emailService.sendOrderEmail(orderToNotify).catch(e => console.error('Email error:', e.message));
+    smsService.sendOrderSMS(orderToNotify).catch(e => console.error('SMS error:', e.message));
 
     res.status(201).json({
       success: true,
