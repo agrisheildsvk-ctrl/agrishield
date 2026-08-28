@@ -11,6 +11,23 @@ const FEATURED_PRODUCTS = [
 ];
 
 /**
+ * Format Purchased Items with product name, quantity, and price
+ */
+const formatPurchasedItems = (items = []) => {
+  if (!items || items.length === 0) {
+    return '• Agricultural Crop Protection Product';
+  }
+  return items.map(item => {
+    const qty = item.quantity || 1;
+    const priceNum = parseFloat(item.price || 0);
+    const itemTotal = priceNum * qty;
+    const priceStr = itemTotal > 0 ? `Rs.${itemTotal.toFixed(0)}` : 'Rs.0';
+    const name = item.product_name || item.name || 'Agri Product';
+    return `• ${name} (x${qty}) - ${priceStr}`;
+  }).join('\n');
+};
+
+/**
  * Get 3 related/recommended products
  */
 const get3RecommendedProducts = (orderItems = []) => {
@@ -71,6 +88,7 @@ const sendOrderSMS = async (order) => {
       trackingLink = `https://agrishield.in/order-success?orderId=${order.order_id}`;
     }
 
+    const purchasedItemsList = formatPurchasedItems(order.items);
     const recommendationsList = get3RecommendedProducts(order.items);
 
     const smsMessage = `Hi ${customerName}, your Agrishield order #${order.order_id} is confirmed!
@@ -80,6 +98,9 @@ Details:
 • Price: Rs.${amountStr}
 • Order Time: ${orderTime}
 • Tracking Link: ${trackingLink}
+
+📦 Purchased Products:
+${purchasedItemsList}
 
 Thank you for purchasing from Agrishield!
 
