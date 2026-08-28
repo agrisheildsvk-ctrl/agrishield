@@ -89,24 +89,18 @@ const sendOrderSMS = async (order) => {
     }
 
     const purchasedItemsList = formatPurchasedItems(order.items);
-    const recommendationsList = get3RecommendedProducts(order.items);
 
     const smsMessage = `Hi ${customerName}, your Agrishield order #${order.order_id} is confirmed!
 
 Details:
 • Order Number: #${order.order_id}
 • Price: Rs.${amountStr}
-• Order Time: ${orderTime}
 • Tracking Link: ${trackingLink}
 
 📦 Purchased Products:
 ${purchasedItemsList}
 
 Thank you for purchasing from Agrishield!
-
-🌾 Top 3 Recommended Products for Your Farm:
-${recommendationsList}
-
 🛒 Explore Shop: https://agrishield.in/shop`;
 
     // Option 1: Fast2SMS Gateway ('q' route)
