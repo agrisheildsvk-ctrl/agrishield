@@ -4,7 +4,7 @@ const FAST2SMS_API_KEY = process.env.FAST2SMS_API_KEY || 'PM63HFpC20XKDJqohgEKTZ
 
 // Bestseller catalog for related product recommendations
 const FEATURED_PRODUCTS = [
-  { name: 'Wild Boar Repellent', price: 'Rs.400' },
+  { name: 'Wild Boar Repellent', price: 'Rs.529' },
   { name: 'Snake Repellent', price: 'Rs.425' },
   { name: 'Rat, Squirrel & Rabbit Repellent', price: 'Rs.380' },
   { name: 'Monkey Deterrent Granules', price: 'Rs.450' }

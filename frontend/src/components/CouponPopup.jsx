@@ -62,7 +62,7 @@ const CouponPopup = () => {
               Get ₹25 DISCOUNT!
             </h4>
             <p className="text-xs sm:text-sm text-green-100 mt-1 mb-4 leading-relaxed">
-              Apply coupon code <strong className="text-white font-bold">SVK10</strong> during checkout to claim your instant ₹25 farmer discount.
+              Apply coupon code <strong className="text-white font-bold">SVK10</strong> on purchases <strong className="text-yellow-300 font-bold">above ₹1000</strong> during checkout to claim your instant ₹25 farmer discount.
             </p>
 
             {/* Coupon Code Ticket Box */}
@@ -106,7 +106,7 @@ const CouponPopup = () => {
           >
             <FiGift className="w-4 h-4 sm:w-5 sm:h-5 text-gray-950 animate-bounce shrink-0" />
             <span className="text-[11px] sm:text-xs tracking-wider uppercase font-extrabold whitespace-nowrap">
-              🎁 ₹25 OFF COUPON
+              🎁 ₹25 OFF (ABOVE ₹1000)
             </span>
           </motion.button>
         )}

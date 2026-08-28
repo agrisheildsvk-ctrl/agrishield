@@ -1303,7 +1303,7 @@ export const blogsData = [
           productHighlight: {
             id: 1,
             name: 'Agrishield Organic Wild Boar Repellent Granules (1 kg)',
-            price: '₹400',
+            price: '₹529',
             originalPrice: '₹680',
             description: '100% Organic, non-lethal, plant-based and biodegradable granule formulation to protect agricultural crops from wild boars.',
             image: '/agrishield-wild-boar-repellent.webp',

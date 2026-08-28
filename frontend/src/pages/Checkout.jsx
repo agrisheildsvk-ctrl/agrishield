@@ -58,6 +58,14 @@ const Checkout = () => {
     }
   }, [user]);
 
+  useEffect(() => {
+    if (discount > 0 && baseTotal < 1000) {
+      setDiscount(0);
+      setCouponSuccess('');
+      setCouponError('Coupon removed: Minimum purchase of ₹1000 required.');
+    }
+  }, [baseTotal, discount]);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     if (name === 'phone') {
@@ -118,7 +126,7 @@ const Checkout = () => {
     );
   }
 
-  const finalTotal = Math.max(0, paymentMethod === 'cod' ? baseTotal + 80 - discount : baseTotal - discount);
+  const finalTotal = Math.max(0, paymentMethod === 'cod' ? baseTotal + 40 - discount : baseTotal - discount);
 
   const handlePlaceOrder = async (e) => {
     e.preventDefault();
@@ -141,7 +149,7 @@ const Checkout = () => {
         totals: {
           subtotal: baseTotal,
           discount,
-          codFee: paymentMethod === 'cod' ? 80 : 0,
+          codFee: paymentMethod === 'cod' ? 40 : 0,
           total: finalTotal
         },
         shippingAddress: formData,
@@ -246,11 +254,18 @@ const Checkout = () => {
 
   const handleApplyCoupon = (e) => {
     e.preventDefault();
-    if (couponCode.trim().toUpperCase() === 'SVK10') {
-      setDiscount(25);
-      setCouponSuccess('Coupon applied! You saved ₹25.');
-      setCouponError('');
-    } else if (couponCode.trim() === '') {
+    const code = couponCode.trim().toUpperCase();
+    if (code === 'SVK10') {
+      if (baseTotal < 1000) {
+        setDiscount(0);
+        setCouponError('Coupon SVK10 is available only on purchases of ₹1000 or above.');
+        setCouponSuccess('');
+      } else {
+        setDiscount(25);
+        setCouponSuccess('Coupon applied! You saved ₹25.');
+        setCouponError('');
+      }
+    } else if (code === '') {
       setCouponError('Please enter a coupon code.');
       setCouponSuccess('');
     } else {
@@ -437,7 +452,7 @@ const Checkout = () => {
                 <form onSubmit={handleApplyCoupon} className="flex flex-col sm:flex-row gap-2.5 sm:gap-2">
                   <input 
                     type="text" 
-                    placeholder="Enter Coupon Code" 
+                    placeholder="Enter Coupon Code (Min ₹1000)" 
                     value={couponCode}
                     onChange={(e) => setCouponCode(e.target.value)}
                     className="w-full sm:flex-1 min-w-0 bg-gray-50 px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-sm uppercase font-bold text-gray-800"
@@ -469,7 +484,7 @@ const Checkout = () => {
                 {paymentMethod === 'cod' && (
                   <div className="flex justify-between text-orange-600">
                     <span>Cash on Delivery Fee</span>
-                    <span className="font-bold">₹80.00</span>
+                    <span className="font-bold">₹40.00</span>
                   </div>
                 )}
               </div>

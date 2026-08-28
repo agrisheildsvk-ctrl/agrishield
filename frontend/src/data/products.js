@@ -4,11 +4,11 @@ export const products = [
     slug: 'organic-wild-boar-repellent',
     name: 'WILD BOAR',
     category: 'Repellents',
-    price: '₹400',
+    price: '₹529',
     originalPrice: '₹680',
     rating: 4.8,
     reviews: 124,
-    discount: 41,
+    discount: 22,
     isBestSeller: true,
     image: '/agrishield-wild-boar-repellent.webp',
     images: [
@@ -20,10 +20,10 @@ export const products = [
     seoAlt: 'Agrishield Organic Wild Boar Repellent Granules for Indian Farmland Protection',
     packageSize: '1 kg',
     variants: [
-      { size: '1 kg', price: '₹400', originalPrice: '₹680', discount: 41, isDefault: true },
-      { size: '2 kg', price: '₹800', originalPrice: '₹1,350', discount: 41, isDefault: false },
-      { size: '5 kg', price: '₹2,000', originalPrice: '₹3,400', discount: 41, isDefault: false },
-      { size: '10 kg', price: '₹4,000', originalPrice: '₹6,800', discount: 41, isDefault: false },
+      { size: '1 kg', price: '₹529', originalPrice: '₹680', discount: 22, isDefault: true },
+      { size: '2 kg', price: '₹1,058', originalPrice: '₹1,360', discount: 22, isDefault: false },
+      { size: '5 kg', price: '₹2,645', originalPrice: '₹3,400', discount: 22, isDefault: false },
+      { size: '10 kg', price: '₹5,290', originalPrice: '₹6,800', discount: 22, isDefault: false },
     ],
   },
   {
