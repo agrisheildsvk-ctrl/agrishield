@@ -100,8 +100,7 @@ Details:
 📦 Purchased Products:
 ${purchasedItemsList}
 
-Thank you for purchasing from Agrishield!
-🛒 Explore Shop: https://agrishield.in/shop`;
+Thank you for purchasing from Agrishield!`;
 
     // Option 1: Fast2SMS Gateway ('q' route)
     if (FAST2SMS_API_KEY) {
