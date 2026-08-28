@@ -2,8 +2,48 @@ const axios = require('axios');
 
 const FAST2SMS_API_KEY = process.env.FAST2SMS_API_KEY || 'PM63HFpC20XKDJqohgEKTZGPAjura35rtwKaHCpxEsaxyQkm6aUxPZNtZV5Q';
 
+// Bestseller catalog for related product recommendations
+const FEATURED_PRODUCTS = [
+  { name: 'Wild Boar Repellent', price: 'Rs.400' },
+  { name: 'Snake Repellent', price: 'Rs.425' },
+  { name: 'Rat, Squirrel & Rabbit Repellent', price: 'Rs.380' },
+  { name: 'Monkey Deterrent Granules', price: 'Rs.450' }
+];
+
 /**
- * Send SMS Order Confirmation to Customer's Mobile Number via Fast2SMS
+ * Get 3 related/recommended products
+ */
+const get3RecommendedProducts = (orderItems = []) => {
+  const boughtNames = (orderItems || []).map(i => (i.product_name || i.name || '').toLowerCase());
+  const filtered = FEATURED_PRODUCTS.filter(p => 
+    !boughtNames.some(b => b.includes(p.name.toLowerCase().split(' ')[0]))
+  );
+  const selected = (filtered.length >= 3 ? filtered : FEATURED_PRODUCTS).slice(0, 3);
+  return selected.map((item, idx) => `${idx + 1}. ${item.name} (${item.price})`).join('\n');
+};
+
+/**
+ * Format Order Time as "28 Aug 2026, 04:17 PM"
+ */
+const formatOrderTime = (dateInput) => {
+  const d = dateInput ? new Date(dateInput) : new Date();
+  const dateStr = d.toLocaleDateString('en-IN', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    timeZone: 'Asia/Kolkata'
+  });
+  const timeStr = d.toLocaleTimeString('en-IN', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+    timeZone: 'Asia/Kolkata'
+  });
+  return `${dateStr}, ${timeStr}`;
+};
+
+/**
+ * Send Professional SMS Order Confirmation to Customer's Mobile Number via Fast2SMS / Twilio
  */
 const sendOrderSMS = async (order) => {
   try {
@@ -18,11 +58,35 @@ const sendOrderSMS = async (order) => {
       return { success: false, message: 'Invalid 10-digit phone number' };
     }
 
-    const customerName = `${addr.firstName || ''}`.trim() || 'Farmer';
+    const customerName = `${addr.firstName || ''} ${addr.lastName || ''}`.trim() || 'Farmer';
     const amountStr = parseFloat(order.total_amount || 0).toFixed(0);
-    const awbStr = order.delhivery_awb ? ` AWB:${order.delhivery_awb}` : '';
+    const orderTime = formatOrderTime(order.created_at || order.createdAt);
     
-    const smsMessage = `Hi ${customerName}, your Agrishield order #${order.order_id} of Rs.${amountStr} is confirmed.${awbStr} Thank you for choosing Agrishield!`;
+    // Determine tracking link (Delhivery direct or Agrishield portal)
+    let trackingLink = order.tracking_url;
+    if (!trackingLink && order.delhivery_awb) {
+      trackingLink = `https://www.delhivery.com/track/package/${order.delhivery_awb}`;
+    }
+    if (!trackingLink) {
+      trackingLink = `https://agrishield.in/order-success?orderId=${order.order_id}`;
+    }
+
+    const recommendationsList = get3RecommendedProducts(order.items);
+
+    const smsMessage = `Hi ${customerName}, your Agrishield order #${order.order_id} is confirmed!
+
+Details:
+• Order Number: #${order.order_id}
+• Price: Rs.${amountStr}
+• Order Time: ${orderTime}
+• Tracking Link: ${trackingLink}
+
+Thank you for purchasing from Agrishield!
+
+🌾 Top 3 Recommended Products for Your Farm:
+${recommendationsList}
+
+🛒 Explore Shop: https://agrishield.in/shop`;
 
     // Option 1: Fast2SMS Gateway ('q' route)
     if (FAST2SMS_API_KEY) {
@@ -38,7 +102,7 @@ const sendOrderSMS = async (order) => {
 
         console.log(`[SMSService] Fast2SMS Quick SMS response for +91 ${phone}:`, data);
         if (data && (data.return === true || data.status_code === 200)) {
-          return { success: true, provider: 'Fast2SMS', data };
+          return { success: true, provider: 'Fast2SMS', data, formattedMessage: smsMessage };
         }
       } catch (fErr) {
         console.error('[SMSService] Fast2SMS fetch error:', fErr.message);
@@ -64,7 +128,7 @@ const sendOrderSMS = async (order) => {
         });
 
         console.log('[SMSService] Twilio SMS dispatched successfully to +91', phone);
-        return { success: true, provider: 'Twilio', data: response.data };
+        return { success: true, provider: 'Twilio', data: response.data, formattedMessage: smsMessage };
       } catch (tErr) {
         console.error('[SMSService] Twilio error:', tErr.message);
       }
@@ -78,7 +142,8 @@ const sendOrderSMS = async (order) => {
 
     return {
       success: true,
-      message: 'SMS notification logged'
+      message: 'SMS notification logged',
+      formattedMessage: smsMessage
     };
   } catch (error) {
     console.error('[SMSService] Error in sendOrderSMS:', error.message);
@@ -87,5 +152,6 @@ const sendOrderSMS = async (order) => {
 };
 
 module.exports = {
-  sendOrderSMS
+  sendOrderSMS,
+  formatOrderTime
 };
