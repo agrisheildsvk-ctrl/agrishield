@@ -453,16 +453,20 @@ const AdminDashboard = () => {
 
                         const trackingUrl = order.tracking_url || (awb ? `https://www.delhivery.com/track/package/${awb}` : null);
 
+                        const isCancelled = String(order.status || '').toLowerCase() === 'cancelled' || String(order.shipping_status || '').toLowerCase() === 'cancelled';
+
                         return (
-                          <tr key={order.id} className="hover:bg-blue-50/20 transition border-b border-gray-100">
+                          <tr key={order.id} className={`transition border-b border-gray-100 ${isCancelled ? 'bg-red-50/30' : 'hover:bg-blue-50/20'}`}>
                             {/* ORDER DETAILS */}
                             <td className="px-5 py-4 align-top">
                               <div className="flex items-center gap-1.5 font-extrabold text-blue-600 text-sm">
-                                <span>{order.order_id}</span>
+                                <span className={isCancelled ? 'line-through text-gray-400' : ''}>{order.order_id}</span>
                                 <span className="bg-purple-100 text-purple-800 text-[10px] px-1.5 py-0.2 rounded font-mono font-bold">AGRI</span>
-                                {!isSpecsComplete && !awb && (
+                                {isCancelled ? (
+                                  <span className="bg-red-100 text-red-700 text-[10px] px-1.5 py-0.5 rounded font-extrabold uppercase">Cancelled</span>
+                                ) : (!isSpecsComplete && !awb && (
                                   <span className="w-4 h-4 bg-red-500 text-white rounded-full flex items-center justify-center text-[10px] font-bold" title="Action required: Enter weight or address specs">!</span>
-                                )}
+                                ))}
                               </div>
                               <div className="text-[11px] text-gray-400 font-medium mt-1">
                                 {new Date(order.created_at).toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
@@ -472,11 +476,13 @@ const AdminDashboard = () => {
                             {/* CUSTOMER DETAILS */}
                             <td className="px-5 py-4 align-top">
                               <div className="flex items-center gap-1.5 font-bold text-gray-900 text-sm">
-                                <span>{custName}</span>
-                                <span onClick={() => { setSelectedOrder(order); setIsAddressModalOpen(true); }} className="text-gray-400 hover:text-blue-600 cursor-pointer text-xs" title="Edit Address">✎</span>
+                                <span className={isCancelled ? 'text-gray-500' : ''}>{custName}</span>
+                                {!isCancelled && (
+                                  <span onClick={() => { setSelectedOrder(order); setIsAddressModalOpen(true); }} className="text-gray-400 hover:text-blue-600 cursor-pointer text-xs" title="Edit Address">✎</span>
+                                )}
                               </div>
                               <div className="text-xs text-gray-500 mt-0.5">{cityPin}</div>
-                              {!hasAddress && (
+                              {!hasAddress && !isCancelled && (
                                 <div 
                                   onClick={() => { setSelectedOrder(order); setIsAddressModalOpen(true); }}
                                   className="text-red-500 font-bold text-xs mt-1 cursor-pointer flex items-center gap-1 hover:underline"
@@ -494,7 +500,9 @@ const AdminDashboard = () => {
                               <div className="text-xs text-gray-500 font-semibold mt-1 flex items-center gap-1">
                                 <span>₹{parseFloat(order.total_amount).toFixed(2)} |</span>
                                 <span className={isCod ? 'text-amber-700 font-bold' : 'text-emerald-700 font-bold'}>{isCod ? 'COD' : 'Prepaid'}</span>
-                                <span onClick={() => { setSelectedOrder(order); setIsPaymentModalOpen(true); }} className="text-gray-400 hover:text-blue-600 cursor-pointer text-xs ml-0.5" title="Update Payment Mode">✎</span>
+                                {!isCancelled && (
+                                  <span onClick={() => { setSelectedOrder(order); setIsPaymentModalOpen(true); }} className="text-gray-400 hover:text-blue-600 cursor-pointer text-xs ml-0.5" title="Update Payment Mode">✎</span>
+                                )}
                               </div>
                             </td>
 
@@ -504,8 +512,12 @@ const AdminDashboard = () => {
                                 <div className="text-xs font-bold text-gray-800 flex items-center gap-1">
                                   <span>{addr.weightGrams ? `${addr.weightGrams} gm` : `${addr.weight} kg`}</span>
                                   <span className="text-gray-400 font-normal">({addr.length || 10}x{addr.width || addr.breadth || 10}x{addr.height || 5} cm)</span>
-                                  <span onClick={() => { setSelectedOrder(order); setIsPackageModalOpen(true); }} className="text-gray-400 hover:text-blue-600 cursor-pointer ml-1" title="Edit Package Specs">✎</span>
+                                  {!isCancelled && (
+                                    <span onClick={() => { setSelectedOrder(order); setIsPackageModalOpen(true); }} className="text-gray-400 hover:text-blue-600 cursor-pointer ml-1" title="Edit Package Specs">✎</span>
+                                  )}
                                 </div>
+                              ) : isCancelled ? (
+                                <span className="text-gray-400 text-xs">--</span>
                               ) : (
                                 <button
                                   onClick={() => { setSelectedOrder(order); setIsPackageModalOpen(true); }}
@@ -522,20 +534,20 @@ const AdminDashboard = () => {
                                 ₹{parseFloat(order.total_amount).toFixed(2)}
                               </div>
                               <div 
-                                onClick={() => { setSelectedOrder(order); setIsTransportModalOpen(true); }}
-                                className="text-[11px] font-bold flex items-center gap-1 mt-0.5 cursor-pointer hover:underline"
-                                title="Change Transport Mode"
+                                onClick={() => { if (!isCancelled) { setSelectedOrder(order); setIsTransportModalOpen(true); } }}
+                                className={`text-[11px] font-bold flex items-center gap-1 mt-0.5 ${isCancelled ? 'cursor-default text-gray-400' : 'cursor-pointer hover:underline'}`}
+                                title={isCancelled ? '' : "Change Transport Mode"}
                               >
                                 {String(addr.transport_mode || addr.shipping_mode || '').toLowerCase().includes('express') || String(addr.shipping_mode || '').toUpperCase() === 'E' ? (
                                   <>
-                                    <FiSend className="w-3.5 h-3.5 text-blue-600" /> <span className="text-blue-600">Express / Delhivery</span>
+                                    <FiSend className={`w-3.5 h-3.5 ${isCancelled ? 'text-gray-400' : 'text-blue-600'}`} /> <span className={isCancelled ? 'text-gray-400' : 'text-blue-600'}>Express / Delhivery</span>
                                   </>
                                 ) : (
                                   <>
-                                    <FiTruck className="w-3.5 h-3.5 text-emerald-600" /> <span className="text-emerald-600">Surface / Delhivery</span>
+                                    <FiTruck className={`w-3.5 h-3.5 ${isCancelled ? 'text-gray-400' : 'text-emerald-600'}`} /> <span className={isCancelled ? 'text-gray-400' : 'text-emerald-600'}>Surface / Delhivery</span>
                                   </>
                                 )}
-                                <span className="text-gray-400 hover:text-blue-600 ml-0.5 text-xs">✎</span>
+                                {!isCancelled && <span className="text-gray-400 hover:text-blue-600 ml-0.5 text-xs">✎</span>}
                               </div>
                             </td>
 
@@ -559,44 +571,52 @@ const AdminDashboard = () => {
                                       >
                                         <FiEye className="text-blue-500" /> View Details
                                       </button>
-                                      <button
-                                        onClick={() => { setSelectedOrder(order); setIsAddressModalOpen(true); setOpenMenuOrderId(null); }}
-                                        className="w-full px-4 py-2 hover:bg-gray-50 text-gray-700 font-semibold flex items-center gap-2 cursor-pointer"
-                                      >
-                                        <span>📍</span> Edit Address
-                                      </button>
-                                      <button
-                                        onClick={() => { setSelectedOrder(order); setIsPackageModalOpen(true); setOpenMenuOrderId(null); }}
-                                        className="w-full px-4 py-2 hover:bg-gray-50 text-gray-700 font-semibold flex items-center gap-2 cursor-pointer"
-                                      >
-                                        <span>📦</span> Package Specs
-                                      </button>
-                                      <button
-                                        onClick={() => { setSelectedOrder(order); setIsPaymentModalOpen(true); setOpenMenuOrderId(null); }}
-                                        className="w-full px-4 py-2 hover:bg-gray-50 text-gray-700 font-semibold flex items-center gap-2 cursor-pointer"
-                                      >
-                                        <span>💳</span> Payment Mode
-                                      </button>
-                                      <button
-                                        onClick={() => { setSelectedOrder(order); setIsTransportModalOpen(true); setOpenMenuOrderId(null); }}
-                                        className="w-full px-4 py-2 hover:bg-gray-50 text-gray-700 font-semibold flex items-center gap-2 cursor-pointer"
-                                      >
-                                        <span>🚚</span> Transport Mode
-                                      </button>
+                                      {!isCancelled && (
+                                        <>
+                                          <button
+                                            onClick={() => { setSelectedOrder(order); setIsAddressModalOpen(true); setOpenMenuOrderId(null); }}
+                                            className="w-full px-4 py-2 hover:bg-gray-50 text-gray-700 font-semibold flex items-center gap-2 cursor-pointer"
+                                          >
+                                            <span>📍</span> Edit Address
+                                          </button>
+                                          <button
+                                            onClick={() => { setSelectedOrder(order); setIsPackageModalOpen(true); setOpenMenuOrderId(null); }}
+                                            className="w-full px-4 py-2 hover:bg-gray-50 text-gray-700 font-semibold flex items-center gap-2 cursor-pointer"
+                                          >
+                                            <span>📦</span> Package Specs
+                                          </button>
+                                          <button
+                                            onClick={() => { setSelectedOrder(order); setIsPaymentModalOpen(true); setOpenMenuOrderId(null); }}
+                                            className="w-full px-4 py-2 hover:bg-gray-50 text-gray-700 font-semibold flex items-center gap-2 cursor-pointer"
+                                          >
+                                            <span>💳</span> Payment Mode
+                                          </button>
+                                          <button
+                                            onClick={() => { setSelectedOrder(order); setIsTransportModalOpen(true); setOpenMenuOrderId(null); }}
+                                            className="w-full px-4 py-2 hover:bg-gray-50 text-gray-700 font-semibold flex items-center gap-2 cursor-pointer"
+                                          >
+                                            <span>🚚</span> Transport Mode
+                                          </button>
 
-                                      <div className="my-1 border-t border-gray-100" />
+                                          <div className="my-1 border-t border-gray-100" />
 
-                                      <button
-                                        onClick={() => { setOpenMenuOrderId(null); handleCancelOrder(order); }}
-                                        className="w-full px-4 py-2 hover:bg-red-50 text-red-600 font-extrabold flex items-center gap-2 cursor-pointer"
-                                      >
-                                        <span>🚫</span> Cancel Order
-                                      </button>
+                                          <button
+                                            onClick={() => { setOpenMenuOrderId(null); handleCancelOrder(order); }}
+                                            className="w-full px-4 py-2 hover:bg-red-50 text-red-600 font-extrabold flex items-center gap-2 cursor-pointer"
+                                          >
+                                            <span>🚫</span> Cancel Order
+                                          </button>
+                                        </>
+                                      )}
                                     </div>
                                   )}
                                 </div>
 
-                                {awb ? (
+                                {isCancelled ? (
+                                  <span className="bg-red-100 text-red-700 font-extrabold px-3 py-1.5 rounded-lg text-xs border border-red-200">
+                                    Cancelled
+                                  </span>
+                                ) : awb ? (
                                   <div className="flex flex-col items-end gap-1">
                                     <span className="bg-emerald-100 text-emerald-800 font-mono font-extrabold px-2 py-0.5 rounded text-xs">
                                       {awb}
