@@ -223,6 +223,108 @@ class DelhiveryService {
   }
 
   /**
+   * Push order to Delhivery ONE as a soft order without weight
+   * so it lands directly in Delhivery ONE's "Pending AWB" dashboard
+   * for the client to review and click "Get AWB" inside one.delhivery.com.
+   */
+  async pushPendingOrder(order) {
+    try {
+      const token = process.env.DELHIVERY_API_TOKEN || this.apiToken;
+      const pickupLocation = process.env.DELHIVERY_PICKUP_LOCATION || this.pickupLocation;
+
+      if (!token) {
+        logDelhiveryEvent('Push Pending Order Error', { reason: 'DELHIVERY_API_TOKEN not configured' });
+        return { success: false, error: 'DELHIVERY_API_TOKEN missing' };
+      }
+
+      const addr = this.formatAddress(order.shipping_address);
+      const customerName = `${addr.firstName || ''} ${addr.lastName || addr.name || ''}`.trim() || 'Customer';
+      const phone = String(addr.phone || '').replace(/[^0-9]/g, '');
+      const pin = String(addr.pin || addr.pincode || addr.pinCode || '').replace(/[^0-9]/g, '');
+      const addressLine = [addr.address, addr.apartment, addr.village].filter(Boolean).join(', ') || 'Address Not Provided';
+      const city = addr.city || 'City';
+      const state = addr.state || 'State';
+      const email = addr.email || '';
+
+      const items = order.items || [];
+      const productsDesc = items.length > 0
+        ? items.map(i => `${i.product_name || 'Product'} (Qty: ${i.quantity})`).join(', ')
+        : 'Agricultural Products';
+
+      const totalQty = items.reduce((sum, item) => sum + (item.quantity || 1), 0);
+      const isCod = String(order.payment_method || '').toLowerCase() === 'cod';
+      const paymentMode = isCod ? 'COD' : 'Prepaid';
+      const totalAmount = parseFloat(order.total_amount) || 0;
+      const codAmount = isCod ? totalAmount : 0;
+
+      // Payload sent without weight parameter so Delhivery ONE places order in Pending AWB list
+      const shipmentPayload = {
+        name: customerName,
+        add: addressLine,
+        pin: pin,
+        city: city,
+        state: state,
+        country: 'India',
+        phone: phone,
+        email: email,
+        order: order.order_id,
+        payment_mode: paymentMode,
+        cod_amount: codAmount,
+        products_desc: productsDesc.substring(0, 250),
+        order_date: order.created_at ? new Date(order.created_at).toISOString() : new Date().toISOString(),
+        total_amount: totalAmount,
+        quantity: String(totalQty),
+        pickup_location: pickupLocation
+      };
+
+      const payload = {
+        shipments: [shipmentPayload],
+        pickup_location: {
+          name: pickupLocation
+        }
+      };
+
+      logDelhiveryEvent('Pushing Order to Delhivery Pending AWB', {
+        orderId: order.order_id,
+        paymentMode,
+        consignee: customerName
+      });
+
+      const params = new URLSearchParams();
+      params.append('format', 'json');
+      params.append('data', JSON.stringify(payload));
+
+      const endpoint = `${this.baseUrl}/api/cmu/create.json`;
+
+      const response = await axios.post(endpoint, params.toString(), {
+        headers: this.getHeaders(),
+        timeout: 15000
+      });
+
+      logDelhiveryEvent('Push Pending Order Response', {
+        orderId: order.order_id,
+        status: response.status,
+        data: response.data
+      });
+
+      return {
+        success: true,
+        data: response.data
+      };
+    } catch (error) {
+      logDelhiveryEvent('Push Pending Order Error', {
+        orderId: order.order_id,
+        error: error.response?.data || error.message
+      });
+
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+
+  /**
    * Fetch real-time tracking information from Delhivery (/api/v1/packages/json/)
    * @param {string} awb - Delhivery Waybill / AWB Number or Order ID
    */

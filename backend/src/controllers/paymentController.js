@@ -153,39 +153,20 @@ const verifyAndSavePayment = async (req, res) => {
       }
     });
 
-    // Step 6: Push order to Delhivery ONE (lands in Pending AWB in one.delhivery.com)
+    // Step 6: Push order details to Delhivery ONE (lands in Pending AWB in one.delhivery.com)
     try {
-      const dRes = await delhiveryService.createShipment(newOrder);
-      if (dRes && dRes.success && dRes.awb) {
-        await prisma.order.update({
-          where: { id: newOrder.id },
-          data: {
-            shipping_status: 'shipment_created',
-            delhivery_awb: dRes.awb,
-            delhivery_status: dRes.delhivery_status || 'Manifested',
-            tracking_url: dRes.tracking_url,
-            shipment_created_at: new Date()
-          }
-        });
-      } else {
-        await prisma.order.update({
-          where: { id: newOrder.id },
-          data: {
-            shipping_status: 'shipping_pending',
-            delhivery_status: 'Pending AWB'
-          }
-        });
-      }
+      await delhiveryService.pushPendingOrder(newOrder);
     } catch (dErr) {
-      console.error('Delhivery push error on online order creation:', dErr.message);
-      await prisma.order.update({
-        where: { id: newOrder.id },
-        data: {
-          shipping_status: 'shipping_pending',
-          delhivery_status: 'Pending AWB'
-        }
-      });
+      console.error('Delhivery push pending order notice:', dErr.message);
     }
+
+    await prisma.order.update({
+      where: { id: newOrder.id },
+      data: {
+        shipping_status: 'shipping_pending',
+        delhivery_status: 'Pending AWB'
+      }
+    });
 
     // Step 7: Automatically send WhatsApp, Email & SMS notifications
     let whatsappResult = { status: 'pending' };

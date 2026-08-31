@@ -77,40 +77,20 @@ const createOrder = async (req, res) => {
       }
     });
 
-    // Push website order to Delhivery ONE (lands in Pending AWB in one.delhivery.com)
-    let delhiveryPushResult = null;
+    // Push order details to Delhivery ONE (lands in Pending AWB in one.delhivery.com)
     try {
-      delhiveryPushResult = await delhiveryService.createShipment(newOrder);
-      if (delhiveryPushResult && delhiveryPushResult.success && delhiveryPushResult.awb) {
-        await prisma.order.update({
-          where: { id: newOrder.id },
-          data: {
-            shipping_status: 'shipment_created',
-            delhivery_awb: delhiveryPushResult.awb,
-            delhivery_status: delhiveryPushResult.delhivery_status || 'Manifested',
-            tracking_url: delhiveryPushResult.tracking_url,
-            shipment_created_at: new Date()
-          }
-        });
-      } else {
-        await prisma.order.update({
-          where: { id: newOrder.id },
-          data: {
-            shipping_status: 'shipping_pending',
-            delhivery_status: 'Pending AWB'
-          }
-        });
-      }
+      await delhiveryService.pushPendingOrder(newOrder);
     } catch (dErr) {
-      console.error('Delhivery push error on order creation:', dErr.message);
-      await prisma.order.update({
-        where: { id: newOrder.id },
-        data: {
-          shipping_status: 'shipping_pending',
-          delhivery_status: 'Pending AWB'
-        }
-      });
+      console.error('Delhivery push pending order notice:', dErr.message);
     }
+
+    await prisma.order.update({
+      where: { id: newOrder.id },
+      data: {
+        shipping_status: 'shipping_pending',
+        delhivery_status: 'Pending AWB'
+      }
+    });
 
     // Fetch final order state (with Delhivery AWB and tracking URL)
     const savedOrder = await prisma.order.findUnique({
@@ -165,34 +145,8 @@ const getAllOrders = async (req, res) => {
       }
     });
 
-    // Auto-sync AWB for any orders missing delhivery_awb by checking Delhivery by order_id
-    const ordersWithAwbSync = await Promise.all(orders.map(async (order) => {
-      if (!order.delhivery_awb && order.order_id) {
-        try {
-          const tracking = await delhiveryService.getTracking(order.order_id);
-          if (tracking && tracking.success && tracking.awb && tracking.awb !== order.order_id) {
-            const updated = await prisma.order.update({
-              where: { id: order.id },
-              data: {
-                delhivery_awb: tracking.awb,
-                delhivery_status: tracking.current_status || 'Manifested',
-                shipping_status: tracking.shipping_status || 'shipment_created',
-                tracking_url: `https://www.delhivery.com/track/package/${tracking.awb}`,
-                shipment_created_at: new Date()
-              },
-              include: { items: true }
-            });
-            return updated;
-          }
-        } catch (e) {
-          // ignore tracking error during list fetch
-        }
-      }
-      return order;
-    }));
-
     const ownerPhone = await whatsappService.getOwnerWhatsAppNumber();
-    const ordersWithUrl = ordersWithAwbSync.map(order => ({
+    const ordersWithUrl = orders.map(order => ({
       ...order,
       whatsapp_url: whatsappService.getOrderWhatsAppUrl(order, ownerPhone)
     }));
