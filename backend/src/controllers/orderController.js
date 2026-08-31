@@ -139,8 +139,34 @@ const getAllOrders = async (req, res) => {
       }
     });
 
+    // Auto-sync AWB for any orders missing delhivery_awb by checking Delhivery by order_id
+    const ordersWithAwbSync = await Promise.all(orders.map(async (order) => {
+      if (!order.delhivery_awb && order.order_id) {
+        try {
+          const tracking = await delhiveryService.getTracking(order.order_id);
+          if (tracking && tracking.success && tracking.awb && tracking.awb !== order.order_id) {
+            const updated = await prisma.order.update({
+              where: { id: order.id },
+              data: {
+                delhivery_awb: tracking.awb,
+                delhivery_status: tracking.current_status || 'Manifested',
+                shipping_status: tracking.shipping_status || 'shipment_created',
+                tracking_url: `https://www.delhivery.com/track/package/${tracking.awb}`,
+                shipment_created_at: new Date()
+              },
+              include: { items: true }
+            });
+            return updated;
+          }
+        } catch (e) {
+          // ignore tracking error during list fetch
+        }
+      }
+      return order;
+    }));
+
     const ownerPhone = await whatsappService.getOwnerWhatsAppNumber();
-    const ordersWithUrl = orders.map(order => ({
+    const ordersWithUrl = ordersWithAwbSync.map(order => ({
       ...order,
       whatsapp_url: whatsappService.getOrderWhatsAppUrl(order, ownerPhone)
     }));
@@ -446,13 +472,32 @@ const retryShipment = async (req, res) => {
       });
     }
 
-    if (order.delhivery_awb) {
-      return res.status(200).json({
-        success: true,
-        message: 'Shipment already created for this order',
-        awb: order.delhivery_awb,
-        tracking_url: order.tracking_url
-      });
+    // Check if client has generated AWB inside Delhivery ONE (one.delhivery.com)
+    try {
+      const tracking = await delhiveryService.getTracking(order.order_id);
+      if (tracking && tracking.success && tracking.awb && tracking.awb !== order.order_id) {
+        const updatedOrder = await prisma.order.update({
+          where: { id: order.id },
+          data: {
+            shipping_status: tracking.shipping_status || 'shipment_created',
+            delhivery_awb: tracking.awb,
+            delhivery_status: tracking.current_status || 'Manifested',
+            tracking_url: `https://www.delhivery.com/track/package/${tracking.awb}`,
+            shipment_created_at: new Date()
+          },
+          include: { items: true }
+        });
+
+        return res.status(200).json({
+          success: true,
+          message: 'AWB synced successfully from Delhivery ONE!',
+          awb: tracking.awb,
+          tracking_url: updatedOrder.tracking_url,
+          order: updatedOrder
+        });
+      }
+    } catch (e) {
+      // Proceed to shipment creation if not generated on Delhivery ONE yet
     }
 
     const delhiveryResult = await delhiveryService.createShipment(order);

@@ -192,7 +192,7 @@ const OrderDetailsModal = ({ isOpen, onClose, order, onStatusChange, onResendWha
                         className="w-full bg-amber-500 hover:bg-amber-600 text-gray-950 font-extrabold py-2.5 px-4 rounded-xl transition flex items-center justify-center gap-2 text-sm cursor-pointer shadow-md"
                       >
                         <FiRefreshCw className={retryingShipment ? 'animate-spin' : ''} />
-                        <span>{retryingShipment ? 'Generating AWB...' : 'Get AWB (Generate Delhivery AWB)'}</span>
+                        <span>{retryingShipment ? 'Checking Delhivery ONE...' : 'Sync / Fetch AWB from Delhivery ONE'}</span>
                       </button>
                     )}
 
