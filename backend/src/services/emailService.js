@@ -26,7 +26,7 @@ const sendOrderEmail = async (order) => {
     const addr = order.shipping_address || {};
     const customerName = [addr.firstName, addr.lastName].filter(Boolean).join(' ').trim() || 'Valued Farmer';
     const customerEmail = addr.email;
-    const ownerEmail = process.env.OWNER_EMAIL || 'agrisheild@gmail.com';
+    const ownerEmail = process.env.OWNER_EMAIL || 'agrishield@gmail.com';
 
     const itemsHtml = (order.items || []).map(item => {
       const priceVal = parseFloat(item.price) || 0;
@@ -89,7 +89,7 @@ const sendOrderEmail = async (order) => {
         <div style="background-color: #f9fafb; padding: 16px; text-align: center; font-size: 12px; color: #6b7280; border-top: 1px solid #f3f4f6;">
           <strong>Sri Veerabhadreshwara Krushi Kendra</strong><br>
           Opp. Forest Dept, Alkola Circle, Sagara Road, Shivamogga - 577204<br>
-          Support: +91 7892815965 / 9739230638 | agrisheild@gmail.com
+          Support: +91 7892815965 / 9739230638 | agrishield@gmail.com
         </div>
       </div>
     `;

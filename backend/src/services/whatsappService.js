@@ -131,7 +131,7 @@ ${orderTimeStr}
 ━━━━━━━━━━━━━━━━━━
 
 Open Dashboard
-https://agrisheild.com/admin/orders
+https://agrishield.com/admin/orders
 
 Thank You 🌱`;
 };

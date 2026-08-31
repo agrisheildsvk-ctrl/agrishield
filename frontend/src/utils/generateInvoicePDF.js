@@ -51,7 +51,7 @@ export const generateInvoicePDF = (order) => {
   doc.setFont(undefined, 'normal');
   doc.text('1, Opp. Forest Dept, Alkola Circle, Sagara Road', 196, 26, { align: 'right' });
   doc.text('Shivamogga, Karnataka - 577204', 196, 31, { align: 'right' });
-  doc.text('Ph: 7892815965 / 9739230638 | agrisheild@gmail.com', 196, 36, { align: 'right' });
+  doc.text('Ph: 7892815965 / 9739230638 | agrishield@gmail.com', 196, 36, { align: 'right' });
 
   doc.setDrawColor(220);
   doc.line(14, 40, 196, 40);
@@ -163,7 +163,7 @@ export const generateInvoicePDF = (order) => {
   doc.setFontSize(9);
   doc.setTextColor(120);
   doc.text('Thank you for purchasing certified Agrishield crop protection products!', 14, 280);
-  doc.text('Sri Veerabhadreshwara Krushi Kendra | Support: +91 7892815965 / 9739230638 | agrisheild@gmail.com', 14, 285);
+  doc.text('Sri Veerabhadreshwara Krushi Kendra | Support: +91 7892815965 / 9739230638 | agrishield@gmail.com', 14, 285);
 
   doc.save(`Agrishield_Invoice_${orderId}.pdf`);
 };

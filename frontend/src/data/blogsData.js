@@ -1106,8 +1106,8 @@ export const blogsData = [
           afterListBody: 'Choosing an organic solution allows you to protect your property while respecting wildlife.'
         },
         {
-          heading: 'Why Farmers and Homeowners Trust AgriSheild',
-          body: 'Protecting your property starts with choosing reliable solutions. [AgriSheild](/shop) offers innovative pest management products designed to help discourage snakes from entering farms, gardens, warehouses, and residential spaces.\n\nWith a focus on environmentally responsible solutions, AgriSheild helps farmers and homeowners improve safety while supporting sustainable pest management practices.'
+          heading: 'Why Farmers and Homeowners Trust Agrishield',
+          body: 'Protecting your property starts with choosing reliable solutions. [Agrishield](/shop) offers innovative pest management products designed to help discourage snakes from entering farms, gardens, warehouses, and residential spaces.\n\nWith a focus on environmentally responsible solutions, Agrishield helps farmers and homeowners improve safety while supporting sustainable pest management practices.'
         },
         {
           heading: 'Seasonal Snake Prevention Tips',
@@ -1373,8 +1373,8 @@ export const blogsData = [
           afterListBody: 'Using organic solutions helps balance crop protection with wildlife conservation.'
         },
         {
-          heading: 'Why Farmers Trust AgriSheild',
-          body: 'Protecting crops requires practical, reliable solutions that work in real farming conditions.\n\nAgriSheild develops innovative pest and wildlife management solutions designed to help farmers reduce crop losses while supporting environmentally responsible agriculture. Their products are developed with a focus on effectiveness, ease of application, and sustainable farming practices, helping farmers better manage wildlife challenges without harming the surrounding ecosystem.'
+          heading: 'Why Farmers Trust Agrishield',
+          body: 'Protecting crops requires practical, reliable solutions that work in real farming conditions.\n\nAgrishield develops innovative pest and wildlife management solutions designed to help farmers reduce crop losses while supporting environmentally responsible agriculture. Their products are developed with a focus on effectiveness, ease of application, and sustainable farming practices, helping farmers better manage wildlife challenges without harming the surrounding ecosystem.'
         },
         {
           heading: 'Additional Tips on How to Stop Wild Boars',
@@ -2127,7 +2127,7 @@ export const blogsData = [
         },
         {
           heading: 'Choose Reliable Crop Protection Solutions',
-          body: 'Selecting high-quality crop protection products is just as important as following good farming practices. Farmers should choose reliable, scientifically developed solutions that help control pests, diseases, and environmental challenges without compromising crop quality.\n\n**AgriSheild** provides innovative agricultural solutions designed to support farmers throughout every season. Whether you\'re looking for effective crop care products, sustainable farming practices, or reliable protection strategies, **AgriSheild** offers solutions that help improve productivity while promoting responsible agriculture. Visit [https://agrisheild.com](https://agrisheild.com) to explore products and learn more about protecting your farm throughout the year.'
+          body: 'Selecting high-quality crop protection products is just as important as following good farming practices. Farmers should choose reliable, scientifically developed solutions that help control pests, diseases, and environmental challenges without compromising crop quality.\n\n**Agrishield** provides innovative agricultural solutions designed to support farmers throughout every season. Whether you\'re looking for effective crop care products, sustainable farming practices, or reliable protection strategies, **Agrishield** offers solutions that help improve productivity while promoting responsible agriculture. Visit [https://agrishield.com](https://agrishield.com) to explore products and learn more about protecting your farm throughout the year.'
         }
       ],
       conclusion: 'The rainy season offers excellent opportunities for crop growth, but it also demands careful planning and timely action. Effective **[Monsoon Crop Protection](/blog/best-crop-protection-solutions-for-farmers-during-monsoon-season)** involves proper drainage, regular crop monitoring, integrated pest management, responsible **Wildlife Damage Prevention**, practical **Farm Safety Tips**, and sustainable **Organic Farming Solutions**.\n\nBy adopting these practices, farmers can reduce crop losses, improve productivity, and build a more resilient farming system. Investing in preventive crop protection today ensures healthier crops and better harvests tomorrow.',
@@ -2150,7 +2150,7 @@ export const blogsData = [
         },
         {
           question: '5. Where can farmers find reliable crop protection solutions?',
-          answer: 'Farmers can explore trusted agricultural products and expert guidance by visiting **AgriSheild** at [https://agrisheild.com](https://agrisheild.com), where they can find solutions designed to protect crops throughout every farming season.'
+          answer: 'Farmers can explore trusted agricultural products and expert guidance by visiting **Agrishield** at [https://agrishield.com](https://agrishield.com), where they can find solutions designed to protect crops throughout every farming season.'
         }
       ]
     }
