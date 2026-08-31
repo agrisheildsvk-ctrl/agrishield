@@ -77,14 +77,40 @@ const createOrder = async (req, res) => {
       }
     });
 
-    // Set order status to Pending AWB (manual Get AWB action required by client)
-    await prisma.order.update({
-      where: { id: newOrder.id },
-      data: {
-        shipping_status: 'shipping_pending',
-        delhivery_status: 'Pending AWB'
+    // Push website order to Delhivery ONE (lands in Pending AWB in one.delhivery.com)
+    let delhiveryPushResult = null;
+    try {
+      delhiveryPushResult = await delhiveryService.createShipment(newOrder);
+      if (delhiveryPushResult && delhiveryPushResult.success && delhiveryPushResult.awb) {
+        await prisma.order.update({
+          where: { id: newOrder.id },
+          data: {
+            shipping_status: 'shipment_created',
+            delhivery_awb: delhiveryPushResult.awb,
+            delhivery_status: delhiveryPushResult.delhivery_status || 'Manifested',
+            tracking_url: delhiveryPushResult.tracking_url,
+            shipment_created_at: new Date()
+          }
+        });
+      } else {
+        await prisma.order.update({
+          where: { id: newOrder.id },
+          data: {
+            shipping_status: 'shipping_pending',
+            delhivery_status: 'Pending AWB'
+          }
+        });
       }
-    });
+    } catch (dErr) {
+      console.error('Delhivery push error on order creation:', dErr.message);
+      await prisma.order.update({
+        where: { id: newOrder.id },
+        data: {
+          shipping_status: 'shipping_pending',
+          delhivery_status: 'Pending AWB'
+        }
+      });
+    }
 
     // Fetch final order state (with Delhivery AWB and tracking URL)
     const savedOrder = await prisma.order.findUnique({
