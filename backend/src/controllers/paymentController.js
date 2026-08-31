@@ -153,18 +153,24 @@ const verifyAndSavePayment = async (req, res) => {
       }
     });
 
-    // Step 6: Push order details to Delhivery ONE (lands in Pending AWB in one.delhivery.com)
-    try {
-      await delhiveryService.pushPendingOrder(newOrder);
-    } catch (dErr) {
-      console.error('Delhivery push pending order notice:', dErr.message);
-    }
+    // ============================================================
+    // DELHIVERY - KEEP ORDER PENDING
+    // ============================================================
+    // IMPORTANT:
+    // Do NOT call Delhivery shipment creation/manifestation here.
+    // Calling /api/cmu/create.json can generate an AWB immediately.
+    //
+    // The order will remain pending in Agrishield until it is
+    // intentionally manifested/generated with an AWB.
 
     await prisma.order.update({
       where: { id: newOrder.id },
       data: {
         shipping_status: 'shipping_pending',
-        delhivery_status: 'Pending AWB'
+        delhivery_status: 'Pending AWB',
+        delhivery_awb: null,
+        tracking_url: null,
+        shipment_created_at: null
       }
     });
 
