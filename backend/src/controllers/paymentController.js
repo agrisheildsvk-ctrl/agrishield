@@ -184,7 +184,7 @@ const verifyAndSavePayment = async (req, res) => {
       message: 'Payment verified and order placed successfully',
       order: savedOrder || newOrder,
       whatsapp: whatsappResult,
-      delhivery: delhiveryResult
+      delhivery: { status: 'Pending AWB' }
     });
   } catch (error) {
     razorpayService.logPaymentEvent('Payment Verification & Save Failed', {

@@ -113,7 +113,7 @@ const createOrder = async (req, res) => {
       message: 'Order placed successfully',
       order: savedOrder || newOrder,
       whatsapp: whatsappResult,
-      delhivery: delhiveryResult
+      delhivery: { status: 'Pending AWB' }
     });
   } catch (error) {
     console.error('Error creating order:', error);
