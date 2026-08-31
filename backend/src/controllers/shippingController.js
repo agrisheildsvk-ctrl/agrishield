@@ -8,7 +8,23 @@ const delhiveryService = require('../services/delhiveryService');
  */
 const createDelhiveryShipment = async (req, res) => {
   try {
-    const { orderId, id } = req.body;
+    const {
+      orderId,
+      id,
+      weight,
+      length,
+      width,
+      height,
+      pickup_location,
+      address,
+      pin,
+      pincode,
+      phone,
+      firstName,
+      lastName,
+      name
+    } = req.body;
+
     const targetQuery = id ? parseInt(id) : orderId;
 
     if (!targetQuery) {
@@ -32,7 +48,7 @@ const createDelhiveryShipment = async (req, res) => {
       });
     }
 
-    // Idempotency check: if AWB exists already, return existing details
+    // IDEMPOTENCY GUARD: If AWB exists already, return existing shipment
     if (order.delhivery_awb) {
       return res.status(200).json({
         success: true,
@@ -44,13 +60,63 @@ const createDelhiveryShipment = async (req, res) => {
       });
     }
 
-    const result = await delhiveryService.createShipment(order);
+    // Format current shipping address
+    let currentAddr = {};
+    if (typeof order.shipping_address === 'string') {
+      try { currentAddr = JSON.parse(order.shipping_address); } catch (e) { currentAddr = { address: order.shipping_address }; }
+    } else if (order.shipping_address && typeof order.shipping_address === 'object') {
+      currentAddr = { ...order.shipping_address };
+    }
+
+    // Merge updated shipping fields if provided in request body
+    if (weight !== undefined) currentAddr.weight = parseFloat(weight) || currentAddr.weight || 0.5;
+    if (length !== undefined) currentAddr.length = parseFloat(length) || currentAddr.length || 10;
+    if (width !== undefined) currentAddr.width = parseFloat(width) || currentAddr.width || 10;
+    if (height !== undefined) currentAddr.height = parseFloat(height) || currentAddr.height || 5;
+    if (pickup_location !== undefined) currentAddr.pickup_location = pickup_location || currentAddr.pickup_location;
+    if (address !== undefined) currentAddr.address = address || currentAddr.address;
+    if (pin || pincode) currentAddr.pin = String(pin || pincode).replace(/\D/g, '');
+    if (phone) currentAddr.phone = String(phone).replace(/\D/g, '');
+    if (firstName) currentAddr.firstName = firstName;
+    if (lastName) currentAddr.lastName = lastName;
+    if (name) currentAddr.name = name;
+
+    // STRICT SERVER-SIDE VALIDATION
+    const missingFields = [];
+    const custName = `${currentAddr.firstName || ''} ${currentAddr.lastName || currentAddr.name || ''}`.trim();
+    if (!custName) missingFields.push('Customer Name');
+    if (!currentAddr.phone || String(currentAddr.phone).replace(/\D/g, '').length < 10) missingFields.push('Valid 10-digit Phone Number');
+    if (!currentAddr.address || String(currentAddr.address).trim().length < 3) missingFields.push('Delivery Address');
+    if (!currentAddr.pin || String(currentAddr.pin).replace(/\D/g, '').length !== 6) missingFields.push('Valid 6-digit Pincode');
+    if (!order.items || order.items.length === 0) missingFields.push('Product Items');
+    if (!currentAddr.weight || parseFloat(currentAddr.weight) <= 0) missingFields.push('Package Weight (kg)');
+    if (!currentAddr.length || parseFloat(currentAddr.length) <= 0) missingFields.push('Package Length (cm)');
+    if (!currentAddr.width || parseFloat(currentAddr.width) <= 0) missingFields.push('Package Width (cm)');
+    if (!currentAddr.height || parseFloat(currentAddr.height) <= 0) missingFields.push('Package Height (cm)');
+
+    if (missingFields.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: `Cannot generate AWB. Missing or invalid required fields: ${missingFields.join(', ')}`,
+        missingFields
+      });
+    }
+
+    // Save updated shipping address in DB before calling Delhivery
+    const updatedOrderAddress = await prisma.order.update({
+      where: { id: order.id },
+      data: { shipping_address: currentAddr },
+      include: { items: true }
+    });
+
+    // Call Delhivery Shipment Manifestation API
+    const result = await delhiveryService.createShipment(updatedOrderAddress);
 
     if (result && result.success && result.awb) {
-      const updatedOrder = await prisma.order.update({
+      const finalOrder = await prisma.order.update({
         where: { id: order.id },
         data: {
-          shipping_status: 'shipment_created',
+          shipping_status: 'shipment_created', // READY_TO_SHIP
           delhivery_awb: result.awb,
           delhivery_tracking_id: result.tracking_id || result.awb,
           delhivery_shipment_id: result.shipment_id || order.order_id,
@@ -65,33 +131,33 @@ const createDelhiveryShipment = async (req, res) => {
 
       return res.status(200).json({
         success: true,
-        message: 'Delhivery shipment created successfully',
+        message: 'Delhivery shipment manifested successfully!',
         awb: result.awb,
         tracking_url: result.tracking_url,
         label_url: result.label_url,
-        order: updatedOrder
+        order: finalOrder
       });
     } else {
       await prisma.order.update({
         where: { id: order.id },
         data: {
-          shipping_status: 'shipping_pending',
+          shipping_status: 'shipping_pending', // Keep PENDING_AWB
           delhivery_status: result?.error || 'Manifestation failed'
         }
       });
 
       return res.status(400).json({
         success: false,
-        message: 'Delhivery shipment creation failed: ' + (result?.error || 'Unknown error'),
+        message: 'Delhivery shipment creation failed: ' + (result?.error || 'Unknown Delhivery error'),
         error: result?.error,
-        order
+        order: updatedOrderAddress
       });
     }
   } catch (error) {
     console.error('Error creating Delhivery shipment:', error);
     return res.status(500).json({
       success: false,
-      message: 'Failed to create shipment',
+      message: 'Failed to create shipment: ' + error.message,
       error: error.message
     });
   }

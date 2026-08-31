@@ -5,6 +5,7 @@ const {
   getAllOrders,
   getUserOrders,
   updateOrderStatus,
+  updateOrderAddress,
   getOrderTracking,
   retryShipment,
   cancelOrder,
@@ -38,6 +39,12 @@ router.post('/:id/cancel', cancelOrder);
 // Route to issue Razorpay refund for an order (Admin)
 // POST /api/orders/:id/refund
 router.post('/:id/refund', refundOrder);
+
+// Route to update order shipping address & specs (Admin)
+// PATCH, POST, PUT /api/orders/:id/address
+router.patch('/:id/address', updateOrderAddress);
+router.post('/:id/address', updateOrderAddress);
+router.put('/:id/address', updateOrderAddress);
 
 // Route to update order status (Admin)
 // PATCH /api/orders/:id/status

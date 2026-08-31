@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiX, FiMapPin, FiPackage, FiCreditCard, FiActivity, FiTruck, FiMessageSquare, FiSend, FiExternalLink, FiRefreshCw, FiDollarSign } from 'react-icons/fi';
 import axios from 'axios';
@@ -7,12 +7,111 @@ const OrderDetailsModal = ({ isOpen, onClose, order, onStatusChange, onResendWha
   const [retryingShipment, setRetryingShipment] = useState(false);
   const [cancellingShipment, setCancellingShipment] = useState(false);
   const [refunding, setRefunding] = useState(false);
+  const [generatingAwb, setGeneratingAwb] = useState(false);
   const [retryMessage, setRetryMessage] = useState('');
+  const [validationError, setValidationError] = useState('');
+
+  const addr = order?.shipping_address || {};
+
+  // Package Details State
+  const [packageWeight, setPackageWeight] = useState(addr.weight || '0.5');
+  const [packageLength, setPackageLength] = useState(addr.length || '10');
+  const [packageWidth, setPackageWidth] = useState(addr.width || '10');
+  const [packageHeight, setPackageHeight] = useState(addr.height || '5');
+  const [pickupLocation, setPickupLocation] = useState(addr.pickup_location || 'Shri Veerabhadreshwara Krishi Kendra');
+
+  useEffect(() => {
+    if (order && order.shipping_address) {
+      const a = order.shipping_address;
+      setPackageWeight(String(a.weight || '0.5'));
+      setPackageLength(String(a.length || '10'));
+      setPackageWidth(String(a.width || a.breadth || '10'));
+      setPackageHeight(String(a.height || '5'));
+      setPickupLocation(a.pickup_location || 'Shri Veerabhadreshwara Krishi Kendra');
+    }
+  }, [order, isOpen]);
 
   if (!isOpen || !order) return null;
 
-  const addr = order.shipping_address || {};
   const items = order.items || [];
+  const awb = order.delhivery_awb;
+  const shippingStatus = order.shipping_status || (awb ? 'shipment_created' : 'shipping_pending');
+  const trackingUrl = order.tracking_url || (awb ? `https://www.delhivery.com/track/package/${awb}` : null);
+
+  const handleGenerateAwb = async () => {
+    setValidationError('');
+    setRetryMessage('');
+
+    // Validate inputs
+    const custName = `${addr.firstName || ''} ${addr.lastName || addr.name || ''}`.trim();
+    const phone = String(addr.phone || '').replace(/\D/g, '');
+    const pin = String(addr.pin || addr.pincode || '').replace(/\D/g, '');
+    const addressStr = addr.address || '';
+    const weightVal = parseFloat(packageWeight);
+    const lenVal = parseFloat(packageLength);
+    const widVal = parseFloat(packageWidth);
+    const hgtVal = parseFloat(packageHeight);
+
+    const errors = [];
+    if (!custName) errors.push('Customer Name is missing');
+    if (!phone || phone.length < 10) errors.push('Valid 10-digit Phone Number is missing');
+    if (!addressStr || addressStr.trim().length < 3) errors.push('Delivery Address is missing');
+    if (!pin || pin.length !== 6) errors.push('Valid 6-digit Pincode is missing');
+    if (isNaN(weightVal) || weightVal <= 0) errors.push('Package Weight must be > 0 kg');
+    if (isNaN(lenVal) || lenVal <= 0) errors.push('Package Length must be > 0 cm');
+    if (isNaN(widVal) || widVal <= 0) errors.push('Package Width must be > 0 cm');
+    if (isNaN(hgtVal) || hgtVal <= 0) errors.push('Package Height must be > 0 cm');
+    if (!pickupLocation || pickupLocation.trim() === '') errors.push('Pickup Location is required');
+
+    if (errors.length > 0) {
+      setValidationError(errors.join('. '));
+      return;
+    }
+
+    setGeneratingAwb(true);
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || 'https://agrishield-production-573f.up.railway.app/api';
+      const res = await axios.post(`${apiUrl}/shipping/delhivery/create`, {
+        orderId: order.order_id,
+        id: order.id,
+        weight: weightVal,
+        length: lenVal,
+        width: widVal,
+        height: hgtVal,
+        pickup_location: pickupLocation,
+        address: addr.address || '',
+        address2: addr.address2 || '',
+        city: addr.city || '',
+        state: addr.state || '',
+        pin: addr.pin || addr.pincode || '',
+        pincode: addr.pin || addr.pincode || '',
+        phone: addr.phone || '',
+        firstName: addr.firstName || addr.name || '',
+        lastName: addr.lastName || '',
+        name: `${addr.firstName || ''} ${addr.lastName || addr.name || ''}`.trim()
+      });
+
+      if (res.data.success && res.data.awb) {
+        setRetryMessage(`✅ Delhivery Shipment Manifested! AWB: ${res.data.awb}`);
+        if (onOrderUpdate) {
+          onOrderUpdate(res.data.order || {
+            ...order,
+            delhivery_awb: res.data.awb,
+            shipping_status: 'shipment_created',
+            delhivery_status: 'Manifested'
+          });
+        }
+      } else {
+        setValidationError('❌ Delhivery Error: ' + (res.data.message || 'Manifestation failed'));
+      }
+    } catch (err) {
+      console.error('Generate AWB error:', err);
+      const errMsg = err.response?.data?.message || err.message || 'Server error generating AWB';
+      setValidationError('❌ ' + errMsg);
+    } finally {
+      setGeneratingAwb(false);
+    }
+  };
 
   const handleIssueRazorpayRefund = async () => {
     const isConfirmed = window.confirm(`Issue ₹${parseFloat(order.total_amount || 0).toFixed(2)} refund via Razorpay for Order #${order.order_id}?`);
@@ -77,10 +176,6 @@ const OrderDetailsModal = ({ isOpen, onClose, order, onStatusChange, onResendWha
     }
   };
 
-  const awb = order.delhivery_awb;
-  const shippingStatus = order.shipping_status || (awb ? 'shipment_created' : 'shipping_pending');
-  const trackingUrl = order.tracking_url || (awb ? `https://www.delhivery.com/track/package/${awb}` : null);
-
   return (
     <AnimatePresence>
       <motion.div
@@ -144,7 +239,7 @@ const OrderDetailsModal = ({ isOpen, onClose, order, onStatusChange, onResendWha
                     <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${
                       awb ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
                     }`}>
-                      {awb ? 'Manifested' : 'Pending AWB'}
+                      {awb ? 'Ready to Ship' : 'Pending AWB'}
                     </span>
                   </h3>
 
@@ -156,7 +251,7 @@ const OrderDetailsModal = ({ isOpen, onClose, order, onStatusChange, onResendWha
 
                     <div className="flex justify-between items-center pb-2 border-b border-gray-700/60">
                       <span className="text-gray-400">Shipping Status</span>
-                      <span className="font-bold text-gray-200 capitalize">{awb ? shippingStatus.replace(/_/g, ' ') : 'Pending AWB'}</span>
+                      <span className="font-bold text-gray-200 capitalize">{awb ? 'READY_TO_SHIP' : 'PENDING_AWB'}</span>
                     </div>
 
                     {order.delhivery_status && (
@@ -167,13 +262,94 @@ const OrderDetailsModal = ({ isOpen, onClose, order, onStatusChange, onResendWha
                     )}
                   </div>
 
+                  {/* PACKAGE DETAILS FORM (When AWB is NOT generated yet) */}
+                  {!awb && (
+                    <div className="mt-4 pt-4 border-t border-gray-700/60 space-y-3">
+                      <h4 className="text-xs font-bold text-gray-300 uppercase tracking-wider">Package Shipping Specs</h4>
+                      
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="text-[11px] font-semibold text-gray-400 block mb-1">Weight (kg)</label>
+                          <input
+                            type="number"
+                            step="0.1"
+                            value={packageWeight}
+                            onChange={(e) => setPackageWeight(e.target.value)}
+                            className="w-full bg-gray-800 border border-gray-700 text-white rounded-lg px-2.5 py-1.5 text-xs font-semibold focus:outline-none focus:border-emerald-500"
+                            placeholder="0.5"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[11px] font-semibold text-gray-400 block mb-1">Pickup Warehouse</label>
+                          <input
+                            type="text"
+                            value={pickupLocation}
+                            onChange={(e) => setPickupLocation(e.target.value)}
+                            className="w-full bg-gray-800 border border-gray-700 text-white rounded-lg px-2.5 py-1.5 text-xs font-semibold focus:outline-none focus:border-emerald-500"
+                            placeholder="Pickup Location Name"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-3 gap-2">
+                        <div>
+                          <label className="text-[11px] font-semibold text-gray-400 block mb-1">Length (cm)</label>
+                          <input
+                            type="number"
+                            value={packageLength}
+                            onChange={(e) => setPackageLength(e.target.value)}
+                            className="w-full bg-gray-800 border border-gray-700 text-white rounded-lg px-2 py-1 text-xs text-center font-semibold focus:outline-none focus:border-emerald-500"
+                            placeholder="10"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[11px] font-semibold text-gray-400 block mb-1">Width (cm)</label>
+                          <input
+                            type="number"
+                            value={packageWidth}
+                            onChange={(e) => setPackageWidth(e.target.value)}
+                            className="w-full bg-gray-800 border border-gray-700 text-white rounded-lg px-2 py-1 text-xs text-center font-semibold focus:outline-none focus:border-emerald-500"
+                            placeholder="10"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[11px] font-semibold text-gray-400 block mb-1">Height (cm)</label>
+                          <input
+                            type="number"
+                            value={packageHeight}
+                            onChange={(e) => setPackageHeight(e.target.value)}
+                            className="w-full bg-gray-800 border border-gray-700 text-white rounded-lg px-2 py-1 text-xs text-center font-semibold focus:outline-none focus:border-emerald-500"
+                            placeholder="5"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {validationError && (
+                    <div className="mt-3 p-3 rounded-xl bg-red-950/80 border border-red-800 text-xs font-bold text-red-300">
+                      {validationError}
+                    </div>
+                  )}
+
                   {retryMessage && (
-                    <div className="mt-4 p-3 rounded-xl bg-gray-800 border border-gray-700 text-xs font-bold text-emerald-300">
+                    <div className="mt-3 p-3 rounded-xl bg-emerald-950/80 border border-emerald-800 text-xs font-bold text-emerald-300">
                       {retryMessage}
                     </div>
                   )}
 
                   <div className="mt-5 flex flex-col gap-2.5">
+                    {!awb && (
+                      <button
+                        onClick={handleGenerateAwb}
+                        disabled={generatingAwb}
+                        className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold py-3 px-4 rounded-xl transition flex items-center justify-center gap-2 text-sm shadow-md disabled:opacity-50 cursor-pointer"
+                      >
+                        <FiRefreshCw className={generatingAwb ? 'animate-spin' : ''} />
+                        <span>{generatingAwb ? 'Connecting Delhivery API...' : 'Get AWB'}</span>
+                      </button>
+                    )}
+
                     {trackingUrl && (
                       <a
                         href={trackingUrl}

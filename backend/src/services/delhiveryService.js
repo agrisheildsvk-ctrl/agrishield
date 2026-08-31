@@ -85,22 +85,11 @@ class DelhiveryService {
       const customerName = `${addr.firstName || ''} ${addr.lastName || addr.name || ''}`.trim() || 'Customer';
       const phone = String(addr.phone || '').replace(/[^0-9]/g, '');
       const pin = String(addr.pin || addr.pincode || addr.pinCode || '').replace(/[^0-9]/g, '');
-      const addressLine = [addr.address, addr.apartment, addr.village].filter(Boolean).join(', ') || 'Address Not Provided';
-      const city = addr.city || 'City';
-      const state = addr.state || 'State';
-      const email = addr.email || '';
-
-      // Order Items summary
-      const items = order.items || [];
-      const productsDesc = items.length > 0
-        ? items.map(i => `${i.product_name || 'Product'} (Qty: ${i.quantity})`).join(', ')
-        : 'Agricultural Products';
-
-      const totalQty = items.reduce((sum, item) => sum + (item.quantity || 1), 0);
-      const isCod = String(order.payment_method || '').toLowerCase() === 'cod';
-      const paymentMode = isCod ? 'COD' : 'Prepaid';
-      const totalAmount = parseFloat(order.total_amount) || 0;
-      const codAmount = isCod ? totalAmount : 0;
+      // Format address line cleanly for Delhivery validation
+      const addressParts = [addr.address, addr.address2, addr.apartment, addr.village].filter(Boolean);
+      const addressLine = addressParts.length > 0 ? addressParts.join(', ') : 'Main Road, Shivamogga';
+      
+      const transportModeStr = String(addr.transport_mode || addr.shipping_mode || '').toLowerCase().includes('express') ? 'Express' : 'Surface';
 
       // Construct Delhivery Payload
       const shipmentPayload = {
@@ -114,19 +103,23 @@ class DelhiveryService {
         email: email,
         order: order.order_id,
         payment_mode: paymentMode,
+        mode: transportModeStr,
         cod_amount: codAmount,
         products_desc: productsDesc.substring(0, 250),
         order_date: order.created_at ? new Date(order.created_at).toISOString() : new Date().toISOString(),
         total_amount: totalAmount,
         quantity: String(totalQty),
-        weight: '0.5', // standard default weight in kg
-        pickup_location: pickupLocation
+        weight: String(weightInKg),
+        shipment_length: lengthCm ? String(lengthCm) : undefined,
+        shipment_width: widthCm ? String(widthCm) : undefined,
+        shipment_height: heightCm ? String(heightCm) : undefined,
+        pickup_location: orderPickupLoc
       };
 
       const payload = {
         shipments: [shipmentPayload],
         pickup_location: {
-          name: pickupLocation
+          name: orderPickupLoc
         }
       };
 

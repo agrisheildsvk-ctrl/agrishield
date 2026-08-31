@@ -178,11 +178,25 @@ const getAllOrders = async (req, res) => {
 const updateOrderStatus = async (req, res) => {
   try {
     const { id } = req.params;
-    const { status, shipping_status } = req.body;
+    const { status, shipping_status, shipping_address, payment_method } = req.body;
 
     const dataToUpdate = {};
     if (status) dataToUpdate.status = status;
     if (shipping_status) dataToUpdate.shipping_status = shipping_status;
+    if (payment_method) dataToUpdate.payment_method = String(payment_method).toLowerCase() === 'cod' ? 'cod' : 'online';
+
+    if (shipping_address) {
+      const existingOrder = await prisma.order.findUnique({ where: { id: parseInt(id) } });
+      let currentAddr = {};
+      if (existingOrder && existingOrder.shipping_address) {
+        if (typeof existingOrder.shipping_address === 'string') {
+          try { currentAddr = JSON.parse(existingOrder.shipping_address); } catch (e) { currentAddr = {}; }
+        } else {
+          currentAddr = existingOrder.shipping_address;
+        }
+      }
+      dataToUpdate.shipping_address = { ...currentAddr, ...shipping_address };
+    }
 
     const updatedOrder = await prisma.order.update({
       where: { id: parseInt(id) },
@@ -609,11 +623,108 @@ const getUserOrders = async (req, res) => {
   }
 };
 
+/**
+ * Update shipping address & package specs for an order (Admin)
+ * PATCH /api/orders/:id/address
+ */
+const updateOrderAddress = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      firstName,
+      lastName,
+      name,
+      phone,
+      email,
+      address,
+      address2,
+      apartment,
+      village,
+      city,
+      state,
+      pin,
+      pincode,
+      country,
+      weight,
+      length,
+      width,
+      height,
+      pickup_location
+    } = req.body;
+
+    const order = await prisma.order.findUnique({
+      where: { id: parseInt(id) }
+    });
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: 'Order not found'
+      });
+    }
+
+    let currentAddr = {};
+    if (typeof order.shipping_address === 'string') {
+      try { currentAddr = JSON.parse(order.shipping_address); } catch (e) { currentAddr = { address: order.shipping_address }; }
+    } else if (order.shipping_address && typeof order.shipping_address === 'object') {
+      currentAddr = { ...order.shipping_address };
+    }
+
+    const updatedAddr = {
+      ...currentAddr,
+      firstName: firstName !== undefined ? firstName : (currentAddr.firstName || ''),
+      lastName: lastName !== undefined ? lastName : (currentAddr.lastName || ''),
+      name: name || `${firstName || currentAddr.firstName || ''} ${lastName || currentAddr.lastName || ''}`.trim(),
+      phone: phone !== undefined ? String(phone).replace(/\D/g, '') : (currentAddr.phone || ''),
+      email: email !== undefined ? email : (currentAddr.email || ''),
+      address: address !== undefined ? address : (currentAddr.address || ''),
+      address2: address2 !== undefined ? address2 : (currentAddr.address2 || ''),
+      apartment: apartment !== undefined ? apartment : (currentAddr.apartment || ''),
+      village: village !== undefined ? village : (currentAddr.village || ''),
+      city: city !== undefined ? city : (currentAddr.city || ''),
+      state: state !== undefined ? state : (currentAddr.state || ''),
+      pin: (pin || pincode) !== undefined ? String(pin || pincode).replace(/\D/g, '') : (currentAddr.pin || currentAddr.pincode || ''),
+      pincode: (pin || pincode) !== undefined ? String(pin || pincode).replace(/\D/g, '') : (currentAddr.pincode || currentAddr.pin || ''),
+      country: country || currentAddr.country || 'India',
+      weight: weight !== undefined ? parseFloat(weight) || 0.5 : (currentAddr.weight || 0.5),
+      length: length !== undefined ? parseFloat(length) || 10 : (currentAddr.length || 10),
+      width: width !== undefined ? parseFloat(width) || 10 : (currentAddr.width || 10),
+      height: height !== undefined ? parseFloat(height) || 5 : (currentAddr.height || 5),
+      pickup_location: pickup_location || currentAddr.pickup_location || 'Shri Veerabhadreshwara Krishi Kendra'
+    };
+
+    const updateData = { shipping_address: updatedAddr };
+    if (req.body.payment_method) {
+      updateData.payment_method = String(req.body.payment_method).toLowerCase() === 'cod' ? 'cod' : 'online';
+    }
+
+    const updatedOrder = await prisma.order.update({
+      where: { id: parseInt(id) },
+      data: updateData,
+      include: { items: true }
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: 'Address and shipping specifications updated successfully!',
+      order: updatedOrder
+    });
+  } catch (error) {
+    console.error('Error updating order address:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to update order address',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   createOrder,
   getAllOrders,
   getUserOrders,
   updateOrderStatus,
+  updateOrderAddress,
   getOrderTracking,
   retryShipment,
   cancelOrder,
