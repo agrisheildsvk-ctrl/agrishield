@@ -85,10 +85,31 @@ class DelhiveryService {
       const customerName = `${addr.firstName || ''} ${addr.lastName || addr.name || ''}`.trim() || 'Customer';
       const phone = String(addr.phone || '').replace(/[^0-9]/g, '');
       const pin = String(addr.pin || addr.pincode || addr.pinCode || '').replace(/[^0-9]/g, '');
+      const city = addr.city || 'Shimoga';
+      const state = addr.state || 'Karnataka';
+      const email = addr.email || '';
+
       // Format address line cleanly for Delhivery validation
       const addressParts = [addr.address, addr.address2, addr.apartment, addr.village].filter(Boolean);
-      const addressLine = addressParts.length > 0 ? addressParts.join(', ') : 'Main Road, Shivamogga';
-      
+      const addressLine = addressParts.length > 0 ? addressParts.join(', ') : 'Main Road';
+
+      // Order Items summary
+      const items = order.items || [];
+      const productsDesc = items.length > 0
+        ? items.map(i => `${i.product_name || 'Product'} (Qty: ${i.quantity})`).join(', ')
+        : 'Agricultural Products';
+
+      const totalQty = items.reduce((sum, item) => sum + (item.quantity || 1), 0);
+      const isCod = String(order.payment_method || '').toLowerCase() === 'cod';
+      const paymentMode = isCod ? 'COD' : 'Prepaid';
+      const totalAmount = parseFloat(order.total_amount) || 0;
+      const codAmount = isCod ? totalAmount : 0;
+
+      const weightInKg = addr.weight ? String(addr.weight) : '0.5';
+      const lengthCm = addr.length || addr.shipment_length || '';
+      const widthCm = addr.width || addr.shipment_width || '';
+      const heightCm = addr.height || addr.shipment_height || '';
+      const orderPickupLoc = addr.pickup_location || pickupLocation;
       const transportModeStr = String(addr.transport_mode || addr.shipping_mode || '').toLowerCase().includes('express') ? 'Express' : 'Surface';
 
       // Construct Delhivery Payload
