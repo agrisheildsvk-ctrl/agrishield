@@ -144,19 +144,19 @@ const OrderDetailsModal = ({ isOpen, onClose, order, onStatusChange, onResendWha
                     <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${
                       awb ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
                     }`}>
-                      {awb ? 'Manifested' : 'Shipping Pending'}
+                      {awb ? 'Manifested' : 'Pending AWB'}
                     </span>
                   </h3>
 
                   <div className="space-y-3 text-sm">
                     <div className="flex justify-between items-center pb-2 border-b border-gray-700/60">
                       <span className="text-gray-400">AWB Number</span>
-                      <span className="font-mono font-extrabold text-emerald-300 text-base">{awb || 'Not Generated'}</span>
+                      <span className="font-mono font-extrabold text-emerald-300 text-base">{awb || 'Pending AWB Generation'}</span>
                     </div>
 
                     <div className="flex justify-between items-center pb-2 border-b border-gray-700/60">
                       <span className="text-gray-400">Shipping Status</span>
-                      <span className="font-bold text-gray-200 capitalize">{shippingStatus.replace(/_/g, ' ')}</span>
+                      <span className="font-bold text-gray-200 capitalize">{awb ? shippingStatus.replace(/_/g, ' ') : 'Pending AWB'}</span>
                     </div>
 
                     {order.delhivery_status && (
@@ -189,10 +189,10 @@ const OrderDetailsModal = ({ isOpen, onClose, order, onStatusChange, onResendWha
                       <button
                         onClick={handleRetryShipment}
                         disabled={retryingShipment}
-                        className="w-full bg-amber-500 hover:bg-amber-600 text-gray-950 font-extrabold py-2.5 px-4 rounded-xl transition flex items-center justify-center gap-2 text-sm cursor-pointer"
+                        className="w-full bg-amber-500 hover:bg-amber-600 text-gray-950 font-extrabold py-2.5 px-4 rounded-xl transition flex items-center justify-center gap-2 text-sm cursor-pointer shadow-md"
                       >
                         <FiRefreshCw className={retryingShipment ? 'animate-spin' : ''} />
-                        <span>{retryingShipment ? 'Creating Shipment...' : 'Create / Retry Delhivery Shipment'}</span>
+                        <span>{retryingShipment ? 'Generating AWB...' : 'Get AWB (Generate Delhivery AWB)'}</span>
                       </button>
                     )}
 

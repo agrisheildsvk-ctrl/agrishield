@@ -108,33 +108,6 @@ const verifyAndSavePayment = async (req, res) => {
         paymentId: razorpay_payment_id
       });
 
-      // If existing order missing shipment and payment captured, attempt Delhivery creation
-      if (!existingOrder.delhivery_awb && existingOrder.payment_status === 'Captured') {
-        try {
-          const delhiveryResult = await delhiveryService.createShipment(existingOrder);
-          if (delhiveryResult && delhiveryResult.success && delhiveryResult.awb) {
-            const updated = await prisma.order.update({
-              where: { id: existingOrder.id },
-              data: {
-                shipping_status: 'shipment_created',
-                delhivery_awb: delhiveryResult.awb,
-                delhivery_status: delhiveryResult.delhivery_status || 'Manifested',
-                tracking_url: delhiveryResult.tracking_url,
-                shipment_created_at: new Date()
-              },
-              include: { items: true }
-            });
-            return res.status(200).json({
-              success: true,
-              message: 'Order already saved, shipment created',
-              order: updated
-            });
-          }
-        } catch (err) {
-          console.error('Error creating Delhivery shipment for existing order:', err.message);
-        }
-      }
-
       return res.status(200).json({
         success: true,
         message: 'Order already saved and verified',
@@ -180,42 +153,14 @@ const verifyAndSavePayment = async (req, res) => {
       }
     });
 
-    // Step 6: Trigger Delhivery Shipment Creation for Captured Payment
-    let delhiveryResult = null;
-    if (paymentStatus === 'Captured') {
-      try {
-        delhiveryResult = await delhiveryService.createShipment(newOrder);
-        if (delhiveryResult && delhiveryResult.success && delhiveryResult.awb) {
-          await prisma.order.update({
-            where: { id: newOrder.id },
-            data: {
-              shipping_status: 'shipment_created',
-              delhivery_awb: delhiveryResult.awb,
-              delhivery_status: delhiveryResult.delhivery_status || 'Manifested',
-              tracking_url: delhiveryResult.tracking_url,
-              shipment_created_at: new Date()
-            }
-          });
-        } else {
-          await prisma.order.update({
-            where: { id: newOrder.id },
-            data: {
-              shipping_status: 'shipping_pending',
-              delhivery_status: delhiveryResult?.error || 'Pending'
-            }
-          });
-        }
-      } catch (dErr) {
-        console.error('Delhivery shipment creation error for online order:', dErr.message);
-        await prisma.order.update({
-          where: { id: newOrder.id },
-          data: {
-            shipping_status: 'shipping_pending',
-            delhivery_status: dErr.message
-          }
-        });
+    // Step 6: Initialize shipping status to Pending AWB (manual Get AWB action required by client)
+    await prisma.order.update({
+      where: { id: newOrder.id },
+      data: {
+        shipping_status: 'shipping_pending',
+        delhivery_status: 'Pending AWB'
       }
-    }
+    });
 
     // Step 7: Automatically send WhatsApp, Email & SMS notifications
     let whatsappResult = { status: 'pending' };
@@ -338,26 +283,7 @@ const handleWebhook = async (req, res) => {
           include: { items: true }
         });
 
-        // Trigger Delhivery Shipment creation if not created yet
-        if (!updatedOrder.delhivery_awb) {
-          try {
-            const delhiveryResult = await delhiveryService.createShipment(updatedOrder);
-            if (delhiveryResult && delhiveryResult.success && delhiveryResult.awb) {
-              await prisma.order.update({
-                where: { id: updatedOrder.id },
-                data: {
-                  shipping_status: 'shipment_created',
-                  delhivery_awb: delhiveryResult.awb,
-                  delhivery_status: delhiveryResult.delhivery_status || 'Manifested',
-                  tracking_url: delhiveryResult.tracking_url,
-                  shipment_created_at: new Date()
-                }
-              });
-            }
-          } catch (dErr) {
-            console.error('Webhook shipment creation error:', dErr.message);
-          }
-        }
+        // Keep shipping status as Pending AWB for client manual processing
         break;
 
       case 'payment.failed':

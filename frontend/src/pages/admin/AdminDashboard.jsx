@@ -360,9 +360,20 @@ const AdminDashboard = () => {
                                   )}
                                 </div>
                               ) : (
-                                <span className="inline-flex items-center gap-1 bg-amber-50 text-amber-800 px-2.5 py-1 rounded-full text-xs font-bold border border-amber-200">
-                                  <FiTruck /> Shipping Pending
-                                </span>
+                                <div className="flex flex-col items-start gap-1">
+                                  <span className="inline-flex items-center gap-1 bg-amber-50 text-amber-800 px-2.5 py-0.5 rounded-full text-xs font-extrabold border border-amber-200">
+                                    <FiTruck /> Pending AWB
+                                  </span>
+                                  <button
+                                    onClick={() => {
+                                      setSelectedOrder(order);
+                                      setIsModalOpen(true);
+                                    }}
+                                    className="text-xs font-bold text-amber-700 hover:text-amber-900 hover:underline flex items-center gap-1 cursor-pointer mt-0.5"
+                                  >
+                                    Get AWB →
+                                  </button>
+                                </div>
                               )}
                             </td>
                             <td className="px-6 py-5">

@@ -77,40 +77,14 @@ const createOrder = async (req, res) => {
       }
     });
 
-    // Create Delhivery Shipment
-    let delhiveryResult = null;
-    try {
-      delhiveryResult = await delhiveryService.createShipment(newOrder);
-      if (delhiveryResult && delhiveryResult.success && delhiveryResult.awb) {
-        await prisma.order.update({
-          where: { id: newOrder.id },
-          data: {
-            shipping_status: 'shipment_created',
-            delhivery_awb: delhiveryResult.awb,
-            delhivery_status: delhiveryResult.delhivery_status || 'Manifested',
-            tracking_url: delhiveryResult.tracking_url,
-            shipment_created_at: new Date()
-          }
-        });
-      } else {
-        await prisma.order.update({
-          where: { id: newOrder.id },
-          data: {
-            shipping_status: 'shipping_pending',
-            delhivery_status: delhiveryResult?.error || 'Pending'
-          }
-        });
+    // Set order status to Pending AWB (manual Get AWB action required by client)
+    await prisma.order.update({
+      where: { id: newOrder.id },
+      data: {
+        shipping_status: 'shipping_pending',
+        delhivery_status: 'Pending AWB'
       }
-    } catch (dErr) {
-      console.error('Delhivery shipment creation error on order creation:', dErr.message);
-      await prisma.order.update({
-        where: { id: newOrder.id },
-        data: {
-          shipping_status: 'shipping_pending',
-          delhivery_status: dErr.message
-        }
-      });
-    }
+    });
 
     // Fetch final order state (with Delhivery AWB and tracking URL)
     const savedOrder = await prisma.order.findUnique({
