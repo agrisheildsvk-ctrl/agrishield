@@ -49,4 +49,21 @@
       opacity: 0.5;
     }
   }
+
+  .animate-buy-now {
+    animation: buyNowPulse 1.6s ease-in-out infinite;
+  }
+
+  @keyframes buyNowPulse {
+    0%, 100% {
+      transform: scale(1);
+      box-shadow: 0 4px 14px rgba(22, 163, 74, 0.4);
+      filter: brightness(1);
+    }
+    50% {
+      transform: scale(1.04);
+      box-shadow: 0 0 20px rgba(34, 197, 94, 0.8), 0 0 28px rgba(34, 197, 94, 0.6);
+      filter: brightness(1.18);
+    }
+  }
 }

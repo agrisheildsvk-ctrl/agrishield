@@ -4,32 +4,47 @@ const translations = {
   en: {
     home: "Home",
     shop: "Shop",
+    categories: "Categories",
+    my_orders: "My Orders",
+    vedika: "Vedika",
     about: "About",
     contact: "Contact",
-    blog: "Blog",
+    blog: "Blogs",
     search_placeholder: "Search for seeds, fertilizers...",
     login: "Login",
-    cart: "Cart"
+    cart: "Cart",
+    add_to_cart: "Add to Cart",
+    buy_now: "Buy Now"
   },
   hi: {
     home: "होम",
     shop: "दुकान",
+    categories: "श्रेणियां",
+    my_orders: "मेरे ऑर्डर",
+    vedika: "वेदिका",
     about: "हमारे बारे में",
     contact: "संपर्क करें",
     blog: "ब्लॉग",
     search_placeholder: "बीज, उर्वरक खोजें...",
     login: "लॉग इन करें",
-    cart: "कार्ट"
+    cart: "कार्ट",
+    add_to_cart: "कार्ट में जोड़ें",
+    buy_now: "अभी खरीदें"
   },
   kn: {
     home: "ಮುಖಪುಟ",
     shop: "ಅಂಗಡಿ",
+    categories: "ವರ್ಗಗಳು",
+    my_orders: "ನನ್ನ ಆರ್ಡರ್‌ಗಳು",
+    vedika: "ವೇದಿಕಾ",
     about: "ನಮ್ಮ ಬಗ್ಗೆ",
     contact: "ಸಂಪರ್ಕಿಸಿ",
-    blog: "ಬ್ಲಾಗ್",
+    blog: "ಬ್ಲಾಗ್‌ಗಳು",
     search_placeholder: "ಬೀಜಗಳು, ರಸಗೊಬ್ಬರಗಳನ್ನು ಹುಡುಕಿ...",
     login: "ಲಾಗಿನ್",
-    cart: "ಕಾರ್ಟ್"
+    cart: "ಕಾರ್ಟ್",
+    add_to_cart: "ಕಾರ್ಟ್‌ಗೆ ಸೇರಿಸಿ",
+    buy_now: "ಈಗಲೇ ಖರೀದಿಸಿ"
   }
 };
 

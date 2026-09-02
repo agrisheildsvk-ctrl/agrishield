@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { FiStar, FiChevronRight, FiShield, FiTruck, FiCheckCircle, FiGlobe } from 'react-icons/fi';
 import { FaWhatsapp } from 'react-icons/fa';
 import { useCart } from '../context/CartContext';
+import { useLanguage } from '../context/LanguageContext';
 import ProductCard from '../components/shop/ProductCard';
 import SEO from '../components/SEO';
 import { products } from '../data/products';
@@ -14,6 +15,7 @@ const ProductDetails = () => {
   const param = slug || id;
   const navigate = useNavigate();
   const { addToCart } = useCart();
+  const { t } = useLanguage();
   
   const product = products.find(p => p.slug === param || p.id === parseInt(param) || String(p.id) === String(param));
   const relatedProducts = products
@@ -105,7 +107,7 @@ const ProductDetails = () => {
 
   return (
     <motion.div 
-      className="bg-bg-shop min-h-screen font-sans pb-16"
+      className="bg-bg-shop min-h-screen font-sans pb-36 md:pb-16"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -354,7 +356,7 @@ const ProductDetails = () => {
               </button>
               <button 
                 onClick={handleBuyNow}
-                className="flex-1 bg-primary hover:bg-primary-dark text-white font-bold py-4 rounded-xl shadow-md transition-all transform hover:scale-[1.02]"
+                className="flex-1 bg-primary hover:bg-primary-dark text-white font-bold py-4 rounded-xl shadow-md transition-all transform hover:scale-[1.02] animate-buy-now"
               >
                 Buy Now
               </button>
@@ -551,6 +553,24 @@ const ProductDetails = () => {
           </div>
         </div>
       )}
+
+      {/* Sticky Mobile Action Bar (Add to Cart & Buy Now - Pinned while scrolling) */}
+      <div className="md:hidden fixed bottom-[60px] left-0 right-0 z-40 bg-white border-t border-gray-200 px-4 py-2.5 shadow-[0_-4px_16px_rgba(0,0,0,0.12)] flex items-center gap-3">
+        <button 
+          onClick={handleAddToCart}
+          type="button"
+          className="flex-1 bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-white font-extrabold py-3 px-3 rounded-xl text-center shadow-md active:scale-95 transition-all text-sm sm:text-base flex items-center justify-center gap-1.5 min-h-[44px]"
+        >
+          {t('add_to_cart') || 'Add to Cart'}
+        </button>
+        <button 
+          onClick={handleBuyNow}
+          type="button"
+          className="flex-1 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-extrabold py-3 px-3 rounded-xl text-center shadow-md active:scale-95 transition-all text-sm sm:text-base flex items-center justify-center gap-1.5 min-h-[44px] animate-buy-now"
+        >
+          {t('buy_now') || 'Buy Now'}
+        </button>
+      </div>
     </motion.div>
   );
 };

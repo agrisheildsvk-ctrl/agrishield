@@ -82,7 +82,7 @@ const Shop = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Search Bar */}
-        <div className="relative max-w-2xl mx-auto mb-12 -mt-8 z-20 px-4 sm:px-0">
+        <div className="relative max-w-2xl mx-auto mb-6 sm:mb-12 -mt-5 sm:-mt-8 z-20 px-2 sm:px-0">
           <form 
             onSubmit={(e) => {
               e.preventDefault();

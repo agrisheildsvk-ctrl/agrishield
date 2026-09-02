@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { FaWhatsapp, FaPhoneAlt } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const FloatingContact = () => {
+  const location = useLocation();
+  const isProductPage = location.pathname.startsWith('/product');
   const [hoveredBtn, setHoveredBtn] = useState(null);
   const phone = '919739230638';
   const whatsappUrl = `https://wa.me/${phone}?text=${encodeURIComponent('Hello Agrishield / Srii Veerabhadreshwara Krushi Kendra, I need information regarding organic crop protection repellents.')}`;
   const callUrl = `tel:+${phone}`;
 
   return (
-    <div className="fixed left-3 sm:left-6 bottom-6 sm:bottom-8 z-40 flex flex-col gap-3 items-start pointer-events-auto">
+    <div className={`fixed left-3 sm:left-6 ${isProductPage ? 'bottom-32' : 'bottom-20'} md:bottom-8 z-40 flex flex-col gap-3 items-start pointer-events-auto`}>
       {/* Call Phone Button */}
       <div 
         className="relative flex items-center group"

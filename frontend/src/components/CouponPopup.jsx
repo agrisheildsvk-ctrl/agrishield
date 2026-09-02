@@ -29,7 +29,7 @@ const CouponPopup = () => {
   if (!shouldShow) return null;
 
   return (
-    <div className="fixed right-0 bottom-6 sm:bottom-10 z-50 flex items-end max-w-full">
+    <div className="fixed right-0 bottom-20 sm:bottom-10 z-40 flex items-end max-w-full">
       <AnimatePresence mode="wait">
         {isOpen ? (
           <motion.div

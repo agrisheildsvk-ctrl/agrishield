@@ -210,7 +210,7 @@ const ProductCard = ({ product }) => {
             </button>
             <button 
               onClick={handleBuyNow}
-              className="flex-1 bg-accent hover:bg-green-500 text-white font-bold py-2.5 px-2 rounded-xl shadow-md transition text-xs sm:text-sm" 
+              className="flex-1 bg-accent hover:bg-green-500 text-white font-bold py-2.5 px-2 rounded-xl shadow-md transition text-xs sm:text-sm animate-buy-now" 
               aria-label="Buy Now"
             >
               Buy Now
