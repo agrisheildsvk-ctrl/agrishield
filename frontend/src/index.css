@@ -51,19 +51,19 @@
   }
 
   .animate-buy-now {
-    animation: buyNowPulse 1.6s ease-in-out infinite;
+    animation: buyNowProf 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
   }
 
-  @keyframes buyNowPulse {
+  @keyframes buyNowProf {
     0%, 100% {
       transform: scale(1);
-      box-shadow: 0 4px 14px rgba(22, 163, 74, 0.4);
+      box-shadow: 0 4px 10px rgba(16, 185, 129, 0.25);
       filter: brightness(1);
     }
     50% {
-      transform: scale(1.04);
-      box-shadow: 0 0 20px rgba(34, 197, 94, 0.8), 0 0 28px rgba(34, 197, 94, 0.6);
-      filter: brightness(1.18);
+      transform: scale(1.025);
+      box-shadow: 0 6px 14px rgba(16, 185, 129, 0.35);
+      filter: brightness(1.12);
     }
   }
 }
