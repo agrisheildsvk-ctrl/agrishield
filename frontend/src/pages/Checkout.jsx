@@ -1,12 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
-import { FiArrowLeft, FiCheckCircle, FiCreditCard, FiDollarSign, FiSmartphone, FiTrash2, FiLock } from 'react-icons/fi';
+import { FiArrowLeft, FiCheckCircle, FiCreditCard, FiDollarSign, FiSmartphone, FiTrash2, FiLock, FiMapPin } from 'react-icons/fi';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 import SEO from '../components/SEO';
 import { trackBeginCheckout } from '../utils/analytics';
+
+const INDIAN_STATES = [
+  'Karnataka', 'Tamil Nadu', 'Andhra Pradesh', 'Telangana', 'Maharashtra',
+  'Kerala', 'Gujarat', 'Rajasthan', 'Madhya Pradesh', 'Uttar Pradesh',
+  'Bihar', 'West Bengal', 'Punjab', 'Haryana', 'Odisha',
+  'Assam', 'Chhattisgarh', 'Jharkhand', 'Himachal Pradesh', 'Uttarakhand',
+  'Goa', 'Arunachal Pradesh', 'Manipur', 'Meghalaya', 'Mizoram',
+  'Nagaland', 'Sikkim', 'Tripura', 'Andaman and Nicobar Islands', 'Chandigarh',
+  'Dadra and Nagar Haveli and Daman and Diu', 'Delhi', 'Jammu and Kashmir',
+  'Ladakh', 'Lakshadweep', 'Puducherry'
+];
 
 const Checkout = () => {
   const { user, token, isAuthenticated } = useAuth();
@@ -24,17 +35,123 @@ const Checkout = () => {
   const [discount, setDiscount] = useState(0);
   const [couponError, setCouponError] = useState('');
   const [couponSuccess, setCouponSuccess] = useState('');
+  const [isDetectingLocation, setIsDetectingLocation] = useState(false);
+  const [locationStatus, setLocationStatus] = useState('');
 
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    address: '',
-    city: '',
-    state: '',
-    pin: '',
+    fullName: '',
     phone: '',
+    houseNo: '',
+    address: '',
+    pin: '',
+    city: '',
+    district: '',
+    state: 'Karnataka',
+    landmark: '',
     email: ''
   });
+
+  const handleDetectLocation = () => {
+    if (!navigator.geolocation) {
+      alert('Geolocation is not supported by your browser.');
+      return;
+    }
+
+    setIsDetectingLocation(true);
+    setLocationStatus('Detecting live location...');
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        try {
+          const response = await axios.get(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1`,
+            { headers: { 'Accept-Language': 'en' } }
+          );
+
+          if (response.data && response.data.address) {
+            const addr = response.data.address;
+            const street = [
+              addr.house_number,
+              addr.road,
+              addr.suburb,
+              addr.neighbourhood,
+              addr.village,
+              addr.hamlet
+            ].filter(Boolean).join(', ') || response.data.display_name.split(',')[0] || '';
+
+            const city = addr.city || addr.town || addr.village || addr.county || '';
+            const district = addr.state_district || addr.county || addr.district || city || '';
+            const state = addr.state || '';
+            const pin = (addr.postcode || '').replace(/[^0-9]/g, '').slice(0, 6);
+
+            setFormData(prev => ({
+              ...prev,
+              address: street || prev.address,
+              city: city || prev.city,
+              district: district || prev.district,
+              state: state || prev.state,
+              pin: pin || prev.pin
+            }));
+
+            setLocationStatus('✅ Live location filled successfully!');
+            setTimeout(() => setLocationStatus(''), 5000);
+          } else {
+            throw new Error('Address details not found');
+          }
+        } catch (err) {
+          console.warn('Primary geocode failed, trying fallback:', err);
+          try {
+            const fallbackRes = await axios.get(
+              `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
+            );
+            if (fallbackRes.data) {
+              const d = fallbackRes.data;
+              const street = [d.locality, d.principalSubdivision].filter(Boolean).join(', ');
+              const city = d.city || d.locality || '';
+              const district = d.locality || d.city || '';
+              const state = d.principalSubdivision || '';
+              const pin = (d.postcode || '').replace(/[^0-9]/g, '').slice(0, 6);
+
+              setFormData(prev => ({
+                ...prev,
+                address: street || prev.address,
+                city: city || prev.city,
+                district: district || prev.district,
+                state: state || prev.state,
+                pin: pin || prev.pin
+              }));
+              setLocationStatus('✅ Live location filled successfully!');
+              setTimeout(() => setLocationStatus(''), 5000);
+            }
+          } catch (fallbackErr) {
+            alert('Could not auto-detect full address. Please type your village/city address manually.');
+          }
+        } finally {
+          setIsDetectingLocation(false);
+        }
+      },
+      (error) => {
+        setIsDetectingLocation(false);
+        setLocationStatus('');
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            alert('Location permission denied. Please allow location access in your phone/browser pop-up to auto-fill address.');
+            break;
+          case error.POSITION_UNAVAILABLE:
+            alert('Location information is unavailable on your device.');
+            break;
+          case error.TIMEOUT:
+            alert('Location request timed out. Please try again or type address manually.');
+            break;
+          default:
+            alert('An error occurred while detecting location.');
+            break;
+        }
+      },
+      { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 }
+    );
+  };
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -45,15 +162,16 @@ const Checkout = () => {
 
   useEffect(() => {
     if (user) {
-      const names = (user.name || user.fullName || '').split(' ');
       setFormData(prev => ({
         ...prev,
-        firstName: prev.firstName || user.firstName || names[0] || '',
-        lastName: prev.lastName || user.lastName || names.slice(1).join(' ') || '',
+        fullName: prev.fullName || user.name || user.fullName || '',
         phone: prev.phone || user.phone || '',
         email: prev.email || user.email || '',
-        address: prev.address || user.village || '',
-        pin: prev.pin || user.pincode || ''
+        address: prev.address || user.village || user.address || '',
+        pin: prev.pin || user.pincode || '',
+        city: prev.city || user.city || '',
+        district: prev.district || user.district || '',
+        state: prev.state || user.state || 'Karnataka'
       }));
     }
   }, [user]);
@@ -300,71 +418,215 @@ const Checkout = () => {
           <div className="lg:w-2/3">
             <form id="checkout-form" onSubmit={handlePlaceOrder} className="flex flex-col gap-8">
               
-              {/* Contact Info */}
+              {/* Shipping Address & Contact Form */}
               <div className="bg-white p-5 sm:p-8 rounded-3xl shadow-sm border border-gray-100">
-                <h2 className="text-xl font-bold text-gray-900 mb-6 pb-4 border-b border-gray-100 flex items-center justify-between">
-                  <span>Contact Information</span>
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-2">
-                      Email Address <span className="text-xs text-gray-400 font-normal">(Optional)</span>
-                    </label>
-                    <input type="email" name="email" value={formData.email} onChange={handleInputChange} placeholder="you@example.com" className="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition font-medium" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-2">
-                      Phone Number <span className="text-red-500">*</span> <span className="text-xs text-gray-400 font-normal">(10 digits)</span>
-                    </label>
-                    <input required type="tel" name="phone" value={formData.phone} onChange={handleInputChange} pattern="[0-9]{10}" maxLength="10" minLength="10" title="Please enter a valid 10-digit phone number" placeholder="10-digit Phone Number (e.g. 9876543210)" className="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition font-medium" />
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 pb-4 border-b border-gray-100">
+                  <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                    <span>Shipping Address</span>
+                  </h2>
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                    {locationStatus && (
+                      <span className="text-xs font-extrabold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-lg border border-emerald-200 animate-pulse">
+                        {locationStatus}
+                      </span>
+                    )}
+                    <button
+                      type="button"
+                      onClick={handleDetectLocation}
+                      disabled={isDetectingLocation}
+                      className="inline-flex items-center justify-center gap-2 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 text-emerald-800 font-extrabold text-xs sm:text-sm px-4 py-2 rounded-xl shadow-xs transition-all active:scale-95 cursor-pointer disabled:opacity-50 min-h-[40px]"
+                      title="Click to automatically fill address using device live GPS location"
+                    >
+                      {isDetectingLocation ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-emerald-700 border-t-transparent rounded-full animate-spin"></div>
+                          <span>Fetching Location...</span>
+                        </>
+                      ) : (
+                        <>
+                          <FiMapPin className="w-4 h-4 text-emerald-700 animate-bounce" />
+                          <span>📍 Fill Live Location</span>
+                        </>
+                      )}
+                    </button>
                   </div>
                 </div>
-              </div>
 
-              {/* Shipping Address */}
-              <div className="bg-white p-5 sm:p-8 rounded-3xl shadow-sm border border-gray-100">
-                <h2 className="text-xl font-bold text-gray-900 mb-6 pb-4 border-b border-gray-100 flex items-center justify-between">
-                  <span>Shipping Address</span>
-                </h2>
+                {/* 1. Full Name */}
+                <div className="mb-6">
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
+                    Full Name <span className="text-red-500">*</span>
+                  </label>
+                  <input 
+                    required 
+                    type="text" 
+                    name="fullName" 
+                    value={formData.fullName} 
+                    onChange={handleInputChange} 
+                    placeholder="Enter your full name" 
+                    className="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-2xl px-4 py-3 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition font-medium" 
+                  />
+                </div>
+
+                {/* 2. Mobile Number (+91 Badge) */}
+                <div className="mb-6">
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
+                    Mobile Number <span className="text-red-500">*</span>
+                  </label>
+                  <div className="flex rounded-2xl border border-gray-200 bg-gray-50 overflow-hidden focus-within:ring-2 focus-within:ring-primary focus-within:border-transparent transition">
+                    <span className="bg-gray-100 border-r border-gray-200 text-gray-700 font-bold px-4 flex items-center text-sm shrink-0">
+                      +91
+                    </span>
+                    <input 
+                      required 
+                      type="tel" 
+                      name="phone" 
+                      value={formData.phone} 
+                      onChange={handleInputChange} 
+                      pattern="[0-9]{10}" 
+                      maxLength="10" 
+                      minLength="10" 
+                      placeholder="10-digit Mobile Number" 
+                      className="w-full bg-transparent text-gray-900 px-4 py-3 outline-none font-medium" 
+                    />
+                  </div>
+                </div>
+
+                {/* 3. Flat / House No (If Any) */}
+                <div className="mb-6">
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
+                    Flat / House No <span className="text-xs text-gray-400 font-normal">(If Any)</span>
+                  </label>
+                  <input 
+                    type="text" 
+                    name="houseNo" 
+                    value={formData.houseNo} 
+                    onChange={handleInputChange} 
+                    placeholder="Flat, House No, Building" 
+                    className="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-2xl px-4 py-3 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition font-medium" 
+                  />
+                </div>
+
+                {/* 4. Street / Area / Colony / Village / Mandal / Taluk */}
+                <div className="mb-6">
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
+                    Street / Area / Colony / Village / Mandal / Taluk <span className="text-red-500">*</span>
+                  </label>
+                  <input 
+                    required 
+                    type="text" 
+                    name="address" 
+                    value={formData.address} 
+                    onChange={handleInputChange} 
+                    placeholder="Street, Village, Mandal, or Taluk name" 
+                    className="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-2xl px-4 py-3 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition font-medium" 
+                  />
+                </div>
+
+                {/* 5. Pincode & City */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-2">
-                      First Name <span className="text-red-500">*</span>
+                      Pincode <span className="text-red-500">*</span>
                     </label>
-                    <input required type="text" name="firstName" value={formData.firstName} onChange={handleInputChange} placeholder="First Name" className="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition font-medium" />
+                    <input 
+                      required 
+                      type="text" 
+                      name="pin" 
+                      value={formData.pin} 
+                      onChange={handleInputChange} 
+                      pattern="[0-9]{6}" 
+                      maxLength="6" 
+                      minLength="6" 
+                      title="Please enter a valid 6-digit Pincode" 
+                      placeholder="6-digit Pincode" 
+                      className="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-2xl px-4 py-3 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition font-medium" 
+                    />
                   </div>
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-2">
-                      Last Name <span className="text-xs text-gray-400 font-normal">(Optional)</span>
-                    </label>
-                    <input type="text" name="lastName" value={formData.lastName} onChange={handleInputChange} placeholder="Last Name" className="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition font-medium" />
-                  </div>
-                </div>
-                <div className="mb-6">
-                  <label className="block text-sm font-bold text-gray-700 mb-2">
-                    Street Address <span className="text-red-500">*</span>
-                  </label>
-                  <input required type="text" name="address" value={formData.address} onChange={handleInputChange} placeholder="123 Farm Road, Suite 4B" className="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition font-medium" />
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-2">
                       City <span className="text-red-500">*</span>
                     </label>
-                    <input required type="text" name="city" value={formData.city} onChange={handleInputChange} placeholder="City" className="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition font-medium" />
+                    <input 
+                      required 
+                      type="text" 
+                      name="city" 
+                      value={formData.city} 
+                      onChange={handleInputChange} 
+                      placeholder="City" 
+                      className="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-2xl px-4 py-3 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition font-medium" 
+                    />
+                  </div>
+                </div>
+
+                {/* 6. District & State */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">
+                      District <span className="text-red-500">*</span>
+                    </label>
+                    <input 
+                      required 
+                      type="text" 
+                      name="district" 
+                      value={formData.district} 
+                      onChange={handleInputChange} 
+                      placeholder="District" 
+                      className="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-2xl px-4 py-3 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition font-medium" 
+                    />
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-2">
                       State <span className="text-red-500">*</span>
                     </label>
-                    <input required type="text" name="state" value={formData.state} onChange={handleInputChange} placeholder="State" className="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition font-medium" />
+                    <div className="relative">
+                      <select 
+                        required 
+                        name="state" 
+                        value={formData.state} 
+                        onChange={handleInputChange} 
+                        className="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-2xl px-4 py-3 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition font-medium appearance-none cursor-pointer pr-10 min-h-[50px]"
+                      >
+                        <option value="">Select State</option>
+                        {INDIAN_STATES.map((st, i) => (
+                          <option key={i} value={st}>{st}</option>
+                        ))}
+                      </select>
+                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-emerald-600">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-2">
-                      PIN Code <span className="text-red-500">*</span> <span className="text-xs text-gray-400 font-normal">(6 digits)</span>
-                    </label>
-                    <input required type="text" name="pin" value={formData.pin} onChange={handleInputChange} pattern="[0-9]{6}" maxLength="6" minLength="6" title="Please enter a valid 6-digit PIN code" placeholder="6-digit PIN Code" className="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition font-medium" />
-                  </div>
+                </div>
+
+                {/* 7. Landmark (Optional) */}
+                <div className="mb-6">
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
+                    Landmark <span className="text-xs text-gray-400 font-normal">(Optional)</span>
+                  </label>
+                  <input 
+                    type="text" 
+                    name="landmark" 
+                    value={formData.landmark} 
+                    onChange={handleInputChange} 
+                    placeholder="E.g. Near Temple, Next to Gram Panchayat" 
+                    className="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-2xl px-4 py-3 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition font-medium" 
+                  />
+                </div>
+
+                {/* 8. Email (Optional) */}
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
+                    Email Address <span className="text-xs text-gray-400 font-normal">(Optional)</span>
+                  </label>
+                  <input 
+                    type="email" 
+                    name="email" 
+                    value={formData.email} 
+                    onChange={handleInputChange} 
+                    placeholder="you@example.com" 
+                    className="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-2xl px-4 py-3 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition font-medium" 
+                  />
                 </div>
               </div>
 
