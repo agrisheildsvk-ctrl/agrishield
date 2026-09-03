@@ -58,6 +58,7 @@ const formatOrderTime = (dateInput) => {
  * Format Order Message exactly as requested
  */
 const formatOrderMessage = (order) => {
+  const addr = order.shipping_address || {};
   const rawName = addr.fullName || addr.name || [addr.firstName, addr.lastName].filter(Boolean).join(' ').trim();
   const customerName = (rawName && rawName.trim() !== '') ? rawName.trim() : 'Customer';
   let phoneStr = addr.phone || addr.phoneNumber || 'N/A';
@@ -140,6 +141,7 @@ Thank You 🌱`;
  * Format Status Update message for Customer
  */
 const formatCustomerStatusMessage = (order, newStatus) => {
+  const addr = order.shipping_address || {};
   const rawName = addr.fullName || addr.name || [addr.firstName, addr.lastName].filter(Boolean).join(' ').trim();
   const customerName = (rawName && rawName.trim() !== '') ? rawName.trim() : 'Customer';
 
@@ -364,6 +366,7 @@ const getOrderWhatsAppUrl = (order, ownerPhone = DEFAULT_OWNER_WHATSAPP) => {
  * Format Customer Order Confirmation Message with Delhivery Tracking
  */
 const formatCustomerOrderMessage = (order) => {
+  const addr = order.shipping_address || {};
   const rawName = addr.fullName || addr.name || [addr.firstName, addr.lastName].filter(Boolean).join(' ').trim();
   const customerName = (rawName && rawName.trim() !== '') ? rawName.trim() : 'Valued Customer';
 
