@@ -23,8 +23,8 @@ const sendOrderEmail = async (order) => {
       }
     });
 
-    const addr = order.shipping_address || {};
-    const customerName = [addr.firstName, addr.lastName].filter(Boolean).join(' ').trim() || 'Valued Farmer';
+    const rawEmailName = addr.fullName || addr.name || [addr.firstName, addr.lastName].filter(Boolean).join(' ').trim();
+    const customerName = (rawEmailName && rawEmailName.trim() !== '') ? rawEmailName.trim() : 'Valued Farmer';
     const customerEmail = addr.email;
     const ownerEmail = process.env.OWNER_EMAIL || 'agrishield@gmail.com';
 

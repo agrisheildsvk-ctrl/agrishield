@@ -25,9 +25,10 @@ const EditShippingAddressModal = ({ isOpen, onClose, order, onOrderUpdate }) => 
 
   useEffect(() => {
     if (order && order.shipping_address) {
-      const a = order.shipping_address;
-      setFirstName(a.firstName || a.name || '');
-      setLastName(a.lastName || '');
+      const combinedName = (a.fullName || a.name || `${a.firstName || ''} ${a.lastName || ''}`).trim();
+      const parts = combinedName.split(' ');
+      setFirstName(a.firstName || parts[0] || '');
+      setLastName(a.lastName || parts.slice(1).join(' ') || '');
       setEmail(a.email || '');
       setPhone(String(a.phone || '').replace(/\D/g, ''));
       setAddressLine1(a.address || '');
@@ -174,19 +175,15 @@ const EditShippingAddressModal = ({ isOpen, onClose, order, onOrderUpdate }) => 
               <div className="space-y-6">
                 {/* Pickup Address */}
                 <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-2">Pickup Address</label>
-                  <select
+                  <label className="text-xs font-bold text-slate-700 block mb-2">Pickup Warehouse Name (as in Delhivery One)</label>
+                  <input
+                    type="text"
                     value={pickupLocation}
                     onChange={(e) => setPickupLocation(e.target.value)}
+                    placeholder="e.g. Shri Veerabhadreshwara Krishi Kendra"
                     className="w-full bg-white border border-gray-200 text-slate-800 text-sm font-semibold rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition shadow-sm"
-                  >
-                    <option value="Shri Veerabhadreshwara Krishi Kendra (Shimoga - 577204)">
-                      Shri Veerabhadreshwara Krishi Kendra (Shimoga - 577204)
-                    </option>
-                    <option value="Agrishield Main Hub - Shivamogga">
-                      Agrishield Main Hub - Shivamogga
-                    </option>
-                  </select>
+                  />
+                  <p className="text-[11px] text-gray-500 font-medium mt-1">Must match exact Pickup Location registered in your Delhivery One account Settings.</p>
                 </div>
 
                 {/* Delivery or Customer Address */}

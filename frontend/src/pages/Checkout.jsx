@@ -258,6 +258,19 @@ const Checkout = () => {
       return;
     }
 
+    const nameTrimmed = (formData.fullName || '').trim() || 'Customer';
+    const nameParts = nameTrimmed.split(' ');
+    const derivedFirstName = nameParts[0] || 'Customer';
+    const derivedLastName = nameParts.slice(1).join(' ') || '';
+
+    const shippingAddressPayload = {
+      ...formData,
+      fullName: nameTrimmed,
+      name: nameTrimmed,
+      firstName: derivedFirstName,
+      lastName: derivedLastName
+    };
+
     const generateOrderData = (paymentId = null) => {
       const orderId = 'ORD-' + Math.random().toString(36).substr(2, 9).toUpperCase();
       return {
@@ -270,7 +283,7 @@ const Checkout = () => {
           codFee: paymentMethod === 'cod' ? 40 : 0,
           total: finalTotal
         },
-        shippingAddress: formData,
+        shippingAddress: shippingAddressPayload,
         paymentMethod,
         paymentId
       };
@@ -298,7 +311,7 @@ const Checkout = () => {
           notes: {
             phone: formData.phone,
             email: formData.email,
-            customerName: `${formData.firstName} ${formData.lastName}`.trim()
+            customerName: nameTrimmed
           }
         }, { headers: authHeader });
 
@@ -338,7 +351,7 @@ const Checkout = () => {
             }
           },
           prefill: {
-            name: `${formData.firstName} ${formData.lastName}`.trim(),
+            name: nameTrimmed,
             email: formData.email || '',
             contact: formData.phone || ''
           },

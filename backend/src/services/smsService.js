@@ -75,7 +75,8 @@ const sendOrderSMS = async (order) => {
       return { success: false, message: 'Invalid 10-digit phone number' };
     }
 
-    const customerName = `${addr.firstName || ''} ${addr.lastName || ''}`.trim() || 'Farmer';
+    const rawSmsName = addr.fullName || addr.name || `${addr.firstName || ''} ${addr.lastName || ''}`.trim();
+    const customerName = (rawSmsName && rawSmsName.trim() !== '') ? rawSmsName.trim() : 'Farmer';
     const amountStr = parseFloat(order.total_amount || 0).toFixed(0);
     const orderTime = formatOrderTime(order.created_at || order.createdAt);
     

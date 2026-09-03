@@ -43,7 +43,7 @@ const OrderDetailsModal = ({ isOpen, onClose, order, onStatusChange, onResendWha
     setRetryMessage('');
 
     // Validate inputs
-    const custName = `${addr.firstName || ''} ${addr.lastName || addr.name || ''}`.trim();
+    const custName = (addr.fullName || addr.name || `${addr.firstName || ''} ${addr.lastName || ''}`.trim()).trim();
     const phone = String(addr.phone || '').replace(/\D/g, '');
     const pin = String(addr.pin || addr.pincode || '').replace(/\D/g, '');
     const addressStr = addr.address || '';
@@ -86,9 +86,10 @@ const OrderDetailsModal = ({ isOpen, onClose, order, onStatusChange, onResendWha
         pin: addr.pin || addr.pincode || '',
         pincode: addr.pin || addr.pincode || '',
         phone: addr.phone || '',
-        firstName: addr.firstName || addr.name || '',
-        lastName: addr.lastName || '',
-        name: `${addr.firstName || ''} ${addr.lastName || addr.name || ''}`.trim()
+        firstName: addr.firstName || custName.split(' ')[0] || '',
+        lastName: addr.lastName || custName.split(' ').slice(1).join(' ') || '',
+        name: custName,
+        fullName: custName
       });
 
       if (res.data.success && res.data.awb) {
@@ -280,13 +281,13 @@ const OrderDetailsModal = ({ isOpen, onClose, order, onStatusChange, onResendWha
                           />
                         </div>
                         <div>
-                          <label className="text-[11px] font-semibold text-gray-400 block mb-1">Pickup Warehouse</label>
+                          <label className="text-[11px] font-semibold text-gray-400 block mb-1">Pickup Warehouse (Delhivery Name)</label>
                           <input
                             type="text"
                             value={pickupLocation}
                             onChange={(e) => setPickupLocation(e.target.value)}
                             className="w-full bg-gray-800 border border-gray-700 text-white rounded-lg px-2.5 py-1.5 text-xs font-semibold focus:outline-none focus:border-emerald-500"
-                            placeholder="Pickup Location Name"
+                            placeholder="Exact Delhivery Warehouse Name"
                           />
                         </div>
                       </div>

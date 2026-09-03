@@ -82,7 +82,8 @@ class DelhiveryService {
       const addr = this.formatAddress(order.shipping_address);
 
       // Customer Info
-      const customerName = `${addr.firstName || ''} ${addr.lastName || addr.name || ''}`.trim() || 'Customer';
+      const rawName = addr.fullName || addr.name || `${addr.firstName || ''} ${addr.lastName || ''}`.trim();
+      const customerName = (rawName && rawName.trim() !== '') ? rawName.trim() : 'Customer';
       const phone = String(addr.phone || '').replace(/[^0-9]/g, '');
       const pin = String(addr.pin || addr.pincode || addr.pinCode || '').replace(/[^0-9]/g, '');
       const city = addr.city || 'Shimoga';
@@ -201,6 +202,10 @@ class DelhiveryService {
           errorMsg = String(resData.rmk);
         }
 
+        if (errorMsg.includes('ClientWarehouse matching query does not exist')) {
+          errorMsg = `Pickup Warehouse "${orderPickupLoc}" is not registered in your Delhivery One account. Please enter the exact Warehouse Name from your Delhivery One Portal (Settings -> Warehouse Locations).`;
+        }
+
         logDelhiveryEvent('Shipment Creation Rejected', {
           orderId: order.order_id,
           errorMsg,
@@ -221,6 +226,10 @@ class DelhiveryService {
         if (errData.rmk) errDetail = errData.rmk;
         else if (errData.remarks) errDetail = Array.isArray(errData.remarks) ? errData.remarks.join(', ') : String(errData.remarks);
         else if (typeof errData === 'string') errDetail = errData;
+      }
+
+      if (typeof errDetail === 'string' && errDetail.includes('ClientWarehouse matching query does not exist')) {
+        errDetail = `Pickup Warehouse does not match your registered Warehouse in Delhivery One. Please verify the exact warehouse name in Delhivery One Settings -> Pickup Locations.`;
       }
 
       logDelhiveryEvent('Shipment Creation Request Error', {
@@ -252,7 +261,8 @@ class DelhiveryService {
       }
 
       const addr = this.formatAddress(order.shipping_address);
-      const customerName = `${addr.firstName || ''} ${addr.lastName || addr.name || ''}`.trim() || 'Customer';
+      const rawName = addr.fullName || addr.name || `${addr.firstName || ''} ${addr.lastName || ''}`.trim();
+      const customerName = (rawName && rawName.trim() !== '') ? rawName.trim() : 'Customer';
       const phone = String(addr.phone || '').replace(/[^0-9]/g, '');
       const pin = String(addr.pin || addr.pincode || addr.pinCode || '').replace(/[^0-9]/g, '');
       const addressLine = [addr.address, addr.apartment, addr.village].filter(Boolean).join(', ') || 'Address Not Provided';

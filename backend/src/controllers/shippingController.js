@@ -83,7 +83,7 @@ const createDelhiveryShipment = async (req, res) => {
 
     // STRICT SERVER-SIDE VALIDATION
     const missingFields = [];
-    const custName = `${currentAddr.firstName || ''} ${currentAddr.lastName || currentAddr.name || ''}`.trim();
+    const custName = (currentAddr.fullName || currentAddr.name || `${currentAddr.firstName || ''} ${currentAddr.lastName || ''}`.trim()).trim();
     if (!custName) missingFields.push('Customer Name');
     if (!currentAddr.phone || String(currentAddr.phone).replace(/\D/g, '').length < 10) missingFields.push('Valid 10-digit Phone Number');
     if (!currentAddr.address || String(currentAddr.address).trim().length < 3) missingFields.push('Delivery Address');

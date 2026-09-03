@@ -58,8 +58,8 @@ const formatOrderTime = (dateInput) => {
  * Format Order Message exactly as requested
  */
 const formatOrderMessage = (order) => {
-  const addr = order.shipping_address || {};
-  const customerName = [addr.firstName, addr.lastName].filter(Boolean).join(' ').trim() || 'Customer';
+  const rawName = addr.fullName || addr.name || [addr.firstName, addr.lastName].filter(Boolean).join(' ').trim();
+  const customerName = (rawName && rawName.trim() !== '') ? rawName.trim() : 'Customer';
   let phoneStr = addr.phone || addr.phoneNumber || 'N/A';
   if (phoneStr && phoneStr.length === 10 && !phoneStr.startsWith('+91')) {
     phoneStr = `+91 ${phoneStr}`;
@@ -140,8 +140,8 @@ Thank You 🌱`;
  * Format Status Update message for Customer
  */
 const formatCustomerStatusMessage = (order, newStatus) => {
-  const addr = order.shipping_address || {};
-  const customerName = [addr.firstName, addr.lastName].filter(Boolean).join(' ').trim() || 'Customer';
+  const rawName = addr.fullName || addr.name || [addr.firstName, addr.lastName].filter(Boolean).join(' ').trim();
+  const customerName = (rawName && rawName.trim() !== '') ? rawName.trim() : 'Customer';
 
   return `🌾 AGRISHIELD
 
@@ -364,8 +364,8 @@ const getOrderWhatsAppUrl = (order, ownerPhone = DEFAULT_OWNER_WHATSAPP) => {
  * Format Customer Order Confirmation Message with Delhivery Tracking
  */
 const formatCustomerOrderMessage = (order) => {
-  const addr = order.shipping_address || {};
-  const customerName = [addr.firstName, addr.lastName].filter(Boolean).join(' ').trim() || 'Valued Customer';
+  const rawName = addr.fullName || addr.name || [addr.firstName, addr.lastName].filter(Boolean).join(' ').trim();
+  const customerName = (rawName && rawName.trim() !== '') ? rawName.trim() : 'Valued Customer';
 
   const itemsList = (order.items || []).map(item => {
     const priceNum = parseFloat(item.price) || 0;

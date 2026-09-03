@@ -444,7 +444,8 @@ const AdminDashboard = () => {
                         const firstProduct = items[0]?.product_name || 'Agricultural Product';
                         const totalQty = items.reduce((sum, i) => sum + (i.quantity || 1), 0);
                         const isCod = String(order.payment_method || '').toLowerCase() === 'cod';
-                        const custName = `${addr.firstName || ''} ${addr.lastName || addr.name || ''}`.trim() || 'Valued Customer';
+                        const rawCustName = addr.fullName || addr.name || `${addr.firstName || ''} ${addr.lastName || ''}`.trim();
+                        const custName = (rawCustName && rawCustName.trim() !== '') ? rawCustName.trim() : 'Valued Customer';
                         const cityPin = [addr.city, addr.pin || addr.pincode].filter(Boolean).join(', ') || 'Address Incomplete';
                         
                         const hasWeight = addr.weight && parseFloat(addr.weight) > 0;
