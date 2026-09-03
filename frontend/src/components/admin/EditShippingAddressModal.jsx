@@ -25,6 +25,7 @@ const EditShippingAddressModal = ({ isOpen, onClose, order, onOrderUpdate }) => 
 
   useEffect(() => {
     if (order && order.shipping_address) {
+      const a = order.shipping_address;
       const combinedName = (a.fullName || a.name || `${a.firstName || ''} ${a.lastName || ''}`).trim();
       const parts = combinedName.split(' ');
       setFirstName(a.firstName || parts[0] || '');
