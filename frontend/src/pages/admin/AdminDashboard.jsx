@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
-import { FiLogOut, FiShoppingBag, FiDollarSign, FiClock, FiActivity, FiRefreshCw, FiSearch, FiFilter, FiEye, FiUsers, FiSettings, FiSend, FiMessageSquare, FiTruck, FiExternalLink } from 'react-icons/fi';
+import { FiLogOut, FiShoppingBag, FiDollarSign, FiClock, FiActivity, FiRefreshCw, FiSearch, FiFilter, FiEye, FiUsers, FiSettings, FiSend, FiMessageSquare, FiTruck, FiExternalLink, FiDownload } from 'react-icons/fi';
 import { motion } from 'framer-motion';
 import OrderDetailsModal from '../../components/admin/OrderDetailsModal';
 import EditShippingAddressModal from '../../components/admin/EditShippingAddressModal';
@@ -10,6 +10,8 @@ import UpdatePaymentModeModal from '../../components/admin/UpdatePaymentModeModa
 import ChangeTransportModeModal from '../../components/admin/ChangeTransportModeModal';
 import AdminUsers from './AdminUsers';
 import AdminSettings from '../../components/admin/AdminSettings';
+import { exportOrdersToExcel } from '../../utils/excelExport';
+import ExcelDataViewerModal from '../../components/admin/ExcelDataViewerModal';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -31,6 +33,7 @@ const AdminDashboard = () => {
   const [isPackageModalOpen, setIsPackageModalOpen] = useState(false);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [isTransportModalOpen, setIsTransportModalOpen] = useState(false);
+  const [isExcelViewerOpen, setIsExcelViewerOpen] = useState(false);
   const [openMenuOrderId, setOpenMenuOrderId] = useState(null);
 
   useEffect(() => {
@@ -286,14 +289,30 @@ const AdminDashboard = () => {
           <AdminSettings />
         ) : (
           <>
-            <div className="flex justify-between items-center mb-8">
+            <div className="flex justify-between items-center mb-8 flex-wrap gap-4">
               <h1 className="text-3xl font-bold text-gray-900">Orders Overview</h1>
-              <button 
-                onClick={() => fetchOrders(true)}
-                className="flex items-center gap-2 bg-white border border-gray-200 text-gray-600 hover:text-primary hover:border-primary px-4 py-2 rounded-lg shadow-sm transition"
-              >
-                <FiRefreshCw className={loading ? 'animate-spin' : ''} /> Refresh
-              </button>
+              <div className="flex items-center gap-3">
+                <button 
+                  onClick={() => setIsExcelViewerOpen(true)}
+                  className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-extrabold px-4 py-2 rounded-xl shadow-sm transition cursor-pointer text-sm"
+                  title="View Excel Spreadsheet Data"
+                >
+                  <FiEye className="text-lg" /> View Excel Data
+                </button>
+                <button 
+                  onClick={() => exportOrdersToExcel(filteredOrders)}
+                  className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold px-4 py-2 rounded-xl shadow-sm transition cursor-pointer text-sm"
+                  title="Download Excel spreadsheet of orders"
+                >
+                  <FiDownload className="text-lg" /> Download Excel
+                </button>
+                <button 
+                  onClick={() => fetchOrders(true)}
+                  className="flex items-center gap-2 bg-white border border-gray-200 text-gray-600 hover:text-primary hover:border-primary px-4 py-2 rounded-xl shadow-sm transition text-sm cursor-pointer"
+                >
+                  <FiRefreshCw className={loading ? 'animate-spin' : ''} /> Refresh
+                </button>
+              </div>
             </div>
 
             {/* Stats Grid */}
@@ -412,9 +431,27 @@ const AdminDashboard = () => {
 
             {/* Orders Table */}
             <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
-              <div className="p-6 border-b border-gray-100 flex items-center justify-between">
-                <h3 className="text-xl font-bold text-gray-900">Recent Orders</h3>
-                <span className="text-xs font-bold text-gray-400">Showing {filteredOrders.length} orders</span>
+              <div className="p-6 border-b border-gray-100 flex items-center justify-between flex-wrap gap-3">
+                <div className="flex items-center gap-3">
+                  <h3 className="text-xl font-bold text-gray-900">Recent Orders</h3>
+                  <span className="text-xs font-bold text-gray-400">Showing {filteredOrders.length} orders</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button 
+                    onClick={() => setIsExcelViewerOpen(true)}
+                    className="flex items-center gap-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 font-bold px-3 py-1.5 rounded-lg text-xs transition cursor-pointer"
+                    title="View Excel Spreadsheet Data Modal"
+                  >
+                    <FiEye /> View Sheet
+                  </button>
+                  <button 
+                    onClick={() => exportOrdersToExcel(filteredOrders)}
+                    className="flex items-center gap-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 font-bold px-3 py-1.5 rounded-lg text-xs transition cursor-pointer"
+                    title="Export currently visible orders to Excel (.xlsx)"
+                  >
+                    <FiDownload /> Export to Excel
+                  </button>
+                </div>
               </div>
               
               {loading ? (
@@ -482,6 +519,12 @@ const AdminDashboard = () => {
                                   <span onClick={() => { setSelectedOrder(order); setIsAddressModalOpen(true); }} className="text-gray-400 hover:text-blue-600 cursor-pointer text-xs" title="Edit Address">✎</span>
                                 )}
                               </div>
+                              {addr.phone && (
+                                <div className="text-xs text-emerald-700 font-bold flex items-center gap-1 mt-0.5">
+                                  <span>📞</span>
+                                  <span>{addr.phone}</span>
+                                </div>
+                              )}
                               <div className="text-xs text-gray-500 mt-0.5">{cityPin}</div>
                               {!hasAddress && !isCancelled && (
                                 <div 
@@ -555,6 +598,13 @@ const AdminDashboard = () => {
                             {/* ACTIONS */}
                             <td className="px-5 py-4 align-top text-right relative">
                               <div className="flex items-center justify-end gap-2">
+                                <button
+                                  onClick={() => { setSelectedOrder(order); setIsModalOpen(true); }}
+                                  className="p-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg text-xs font-bold transition cursor-pointer flex items-center gap-1 border border-blue-200"
+                                  title="View Details"
+                                >
+                                  <FiEye className="text-blue-600" />
+                                </button>
                                 <div className="relative">
                                   <button 
                                     onClick={() => setOpenMenuOrderId(openMenuOrderId === order.id ? null : order.id)}
@@ -689,6 +739,12 @@ const AdminDashboard = () => {
         onClose={() => setIsTransportModalOpen(false)}
         order={selectedOrder}
         onOrderUpdate={handleOrderUpdate}
+      />
+
+      <ExcelDataViewerModal
+        isOpen={isExcelViewerOpen}
+        onClose={() => setIsExcelViewerOpen(false)}
+        orders={filteredOrders}
       />
     </div>
   );

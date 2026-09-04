@@ -419,12 +419,19 @@ const OrderDetailsModal = ({ isOpen, onClose, order, onStatusChange, onResendWha
                     <FiMapPin className="text-orange-500" /> Customer Shipping Address
                   </h3>
                   <div className="space-y-2 text-gray-600 text-sm">
-                    <p className="font-bold text-gray-900 text-base">{addr.firstName} {addr.lastName}</p>
+                    <p className="font-bold text-gray-900 text-base">
+                      {(addr.fullName || addr.name || `${addr.firstName || ''} ${addr.lastName || ''}`.trim()) || 'Valued Customer'}
+                    </p>
                     <p>{addr.address}</p>
                     {addr.apartment && <p>{addr.apartment}</p>}
                     <p>{addr.city}, {addr.state} - {addr.pinCode || addr.pin || addr.pincode}</p>
-                    <div className="mt-4 pt-4 border-t border-gray-100 flex flex-col gap-1">
-                      <p><span className="font-semibold text-gray-900">Phone:</span> {addr.phone}</p>
+                    <div className="mt-4 pt-4 border-t border-gray-100 flex flex-col gap-1.5">
+                      <p className="flex items-center gap-2">
+                        <span className="font-bold text-gray-900">Phone:</span>
+                        <a href={`tel:${addr.phone}`} className="text-emerald-700 font-extrabold hover:underline flex items-center gap-1">
+                          📞 {addr.phone || 'N/A'}
+                        </a>
+                      </p>
                       <p><span className="font-semibold text-gray-900">Email:</span> {addr.email || 'N/A'}</p>
                     </div>
                   </div>
