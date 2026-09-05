@@ -103,7 +103,7 @@ model Order {
   delhivery_awb         String?
   delhivery_tracking_id String?
   delhivery_shipment_id String?
-  delhivery_status      String?     @db.Text
+  delhivery_status      String?
   delhivery_label_url   String?
   tracking_url          String?
   shipment_created_at   DateTime?

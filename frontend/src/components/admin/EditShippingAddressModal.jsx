@@ -10,7 +10,7 @@ const EditShippingAddressModal = ({ isOpen, onClose, order, onOrderUpdate }) => 
 
   // Form State
   const addr = order?.shipping_address || {};
-  const [pickupLocation, setPickupLocation] = useState('Shri Veerabhadreshwara Krishi Kendra (Shimoga - 577201)');
+  const [pickupLocation, setPickupLocation] = useState('Shri Veerabhadreshwara Krishi Kendra');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -39,7 +39,7 @@ const EditShippingAddressModal = ({ isOpen, onClose, order, onOrderUpdate }) => 
       setPincode(a.pin || a.pincode || '');
       setCountry(a.country || 'India');
       setWeight(a.weight || '0.5');
-      setPickupLocation(a.pickup_location || 'Shri Veerabhadreshwara Krishi Kendra (Shimoga - 577201)');
+      setPickupLocation(a.pickup_location || 'Shri Veerabhadreshwara Krishi Kendra');
     }
     setView('main');
     setMessage('');
