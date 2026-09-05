@@ -142,7 +142,7 @@ const createDelhiveryShipment = async (req, res) => {
         where: { id: order.id },
         data: {
           shipping_status: 'shipping_pending', // Keep PENDING_AWB
-          delhivery_status: result?.error || 'Manifestation failed'
+          delhivery_status: (result?.error || 'Manifestation failed').substring(0, 190)
         }
       });
 

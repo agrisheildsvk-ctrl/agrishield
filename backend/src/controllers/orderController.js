@@ -527,7 +527,7 @@ const retryShipment = async (req, res) => {
         where: { id: order.id },
         data: {
           shipping_status: 'shipping_pending',
-          delhivery_status: delhiveryResult?.error || 'Retry failed'
+          delhivery_status: (delhiveryResult?.error || 'Retry failed').substring(0, 190)
         }
       });
 
