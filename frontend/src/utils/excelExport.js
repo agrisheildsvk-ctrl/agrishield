@@ -45,18 +45,18 @@ export const exportOrdersToExcel = (orders, filenamePrefix = 'Agrishield_Orders'
       'Date & Time': createdDate,
       'Customer Name': custName,
       'Phone Number': addr.phone || addr.mobile || 'N/A',
-      'Email': addr.email || 'N/A',
-      'Delivery Address': fullAddress || 'Address Incomplete',
-      'City': addr.city || '',
-      'State': addr.state || '',
-      'Pincode': addr.pin || addr.pincode || addr.pinCode || '',
-      'Order Status': (order.status || 'pending').toUpperCase(),
+      'Ordered Products': productSummary || 'N/A',
+      'Total Amount (₹)': parseFloat(order.total_amount || 0).toFixed(2),
       'Payment Method': (order.payment_method || 'COD').toUpperCase(),
       'Payment Status': (order.payment_status || 'Pending').toUpperCase(),
-      'Total Amount (₹)': parseFloat(order.total_amount || 0).toFixed(2),
-      'Items Count': items.length,
-      'Ordered Products': productSummary || 'N/A',
+      'Order Status': (order.status || 'pending').toUpperCase(),
+      'Delivery Address': fullAddress || 'Address Incomplete',
+      'Pincode': addr.pin || addr.pincode || addr.pinCode || '',
       'Delhivery AWB': order.delhivery_awb || 'Pending',
+      'Email': addr.email || 'N/A',
+      'City': addr.city || '',
+      'State': addr.state || '',
+      'Items Count': items.length,
       'Shipping Status': order.shipping_status || 'Pending',
       'Transport Mode': addr.transport_mode || addr.shipping_mode || 'Surface',
       'Package Weight (kg)': addr.weight || '0.5',
@@ -74,18 +74,18 @@ export const exportOrdersToExcel = (orders, filenamePrefix = 'Agrishield_Orders'
     { wch: 20 }, // Date & Time
     { wch: 22 }, // Customer Name
     { wch: 16 }, // Phone Number
-    { wch: 25 }, // Email
-    { wch: 45 }, // Delivery Address
-    { wch: 15 }, // City
-    { wch: 15 }, // State
-    { wch: 10 }, // Pincode
-    { wch: 14 }, // Order Status
+    { wch: 45 }, // Ordered Products
+    { wch: 16 }, // Total Amount
     { wch: 16 }, // Payment Method
     { wch: 16 }, // Payment Status
-    { wch: 16 }, // Total Amount
-    { wch: 12 }, // Items Count
-    { wch: 45 }, // Ordered Products
+    { wch: 14 }, // Order Status
+    { wch: 45 }, // Delivery Address
+    { wch: 10 }, // Pincode
     { wch: 18 }, // Delhivery AWB
+    { wch: 25 }, // Email
+    { wch: 15 }, // City
+    { wch: 15 }, // State
+    { wch: 12 }, // Items Count
     { wch: 18 }, // Shipping Status
     { wch: 16 }, // Transport Mode
     { wch: 18 }, // Package Weight

@@ -104,13 +104,13 @@ const ExcelDataViewerModal = ({ isOpen, onClose, orders = [] }) => {
         exit={{ opacity: 0 }}
       >
         <motion.div
-          className="bg-white rounded-3xl shadow-2xl w-full max-w-7xl h-[92vh] flex flex-col overflow-hidden border border-gray-100"
+          className="bg-white rounded-3xl shadow-2xl w-full max-w-[96vw] h-[92vh] flex flex-col overflow-hidden border border-gray-100"
           initial={{ scale: 0.95, y: 20 }}
           animate={{ scale: 1, y: 0 }}
           exit={{ scale: 0.95, y: 20 }}
         >
           {/* Modal Header */}
-          <div className="p-5 sm:p-6 border-b border-gray-200 flex items-center justify-between bg-gradient-to-r from-emerald-900 via-emerald-800 to-gray-900 text-white">
+          <div className="p-5 sm:p-6 border-b border-gray-200 flex items-center justify-between bg-gradient-to-r from-emerald-900 via-emerald-800 to-gray-900 text-white shrink-0">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-emerald-500/20 border border-emerald-400/30 rounded-xl flex items-center justify-center text-emerald-400">
                 <FiTable className="w-6 h-6" />
@@ -143,7 +143,7 @@ const ExcelDataViewerModal = ({ isOpen, onClose, orders = [] }) => {
           </div>
 
           {/* Search Bar & Controls */}
-          <div className="p-4 bg-gray-50 border-b border-gray-200 flex flex-col sm:flex-row gap-4 justify-between items-center">
+          <div className="p-4 bg-gray-50 border-b border-gray-200 flex flex-col sm:flex-row gap-4 justify-between items-center shrink-0">
             <div className="relative w-full sm:w-96">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
                 <FiSearch />
@@ -163,10 +163,10 @@ const ExcelDataViewerModal = ({ isOpen, onClose, orders = [] }) => {
             </div>
           </div>
 
-          {/* Excel Spreadsheet Grid Container */}
+          {/* Excel Spreadsheet Grid Container with Full Horizontal and Vertical Scroll support */}
           <div className="flex-1 overflow-auto bg-gray-100 p-2 sm:p-4">
-            <div className="bg-white rounded-2xl shadow-inner border border-gray-200 overflow-hidden">
-              <table className="w-full text-left border-collapse font-sans text-xs">
+            <div className="bg-white rounded-2xl shadow-inner border border-gray-200 overflow-x-auto overflow-y-auto max-h-full">
+              <table className="w-full min-w-[1600px] text-left border-collapse font-sans text-xs">
                 <thead>
                   <tr className="bg-emerald-800 text-white font-extrabold text-[11px] uppercase tracking-wider sticky top-0 z-20 shadow-sm">
                     <th className="p-3 border-b border-r border-emerald-700 w-12 text-center">#</th>
@@ -174,15 +174,15 @@ const ExcelDataViewerModal = ({ isOpen, onClose, orders = [] }) => {
                     <th className="p-3 border-b border-r border-emerald-700 whitespace-nowrap">Date & Time</th>
                     <th className="p-3 border-b border-r border-emerald-700 whitespace-nowrap">Customer Name</th>
                     <th className="p-3 border-b border-r border-emerald-700 whitespace-nowrap">Phone Number</th>
-                    <th className="p-3 border-b border-r border-emerald-700 whitespace-nowrap">Email</th>
-                    <th className="p-3 border-b border-r border-emerald-700 min-w-[240px]">Delivery Address</th>
-                    <th className="p-3 border-b border-r border-emerald-700 whitespace-nowrap">City</th>
-                    <th className="p-3 border-b border-r border-emerald-700 whitespace-nowrap">Pincode</th>
+                    <th className="p-3 border-b border-r border-emerald-700 min-w-[240px]">Products Ordered</th>
+                    <th className="p-3 border-b border-r border-emerald-700 whitespace-nowrap text-right">Amount (₹)</th>
+                    <th className="p-3 border-b border-r border-emerald-700 whitespace-nowrap">Payment Mode</th>
                     <th className="p-3 border-b border-r border-emerald-700 whitespace-nowrap">Status</th>
-                    <th className="p-3 border-b border-r border-emerald-700 whitespace-nowrap">Payment</th>
-                    <th className="p-3 border-b border-r border-emerald-700 whitespace-nowrap">Total (₹)</th>
-                    <th className="p-3 border-b border-r border-emerald-700 min-w-[220px]">Ordered Products</th>
+                    <th className="p-3 border-b border-r border-emerald-700 min-w-[240px]">Delivery Address</th>
+                    <th className="p-3 border-b border-r border-emerald-700 whitespace-nowrap">Pincode</th>
                     <th className="p-3 border-b border-r border-emerald-700 whitespace-nowrap">Delhivery AWB</th>
+                    <th className="p-3 border-b border-r border-emerald-700 whitespace-nowrap">Email</th>
+                    <th className="p-3 border-b border-r border-emerald-700 whitespace-nowrap">City</th>
                     <th className="p-3 border-b border-emerald-700 whitespace-nowrap">Mode</th>
                   </tr>
                 </thead>
@@ -226,19 +226,27 @@ const ExcelDataViewerModal = ({ isOpen, onClose, orders = [] }) => {
                             )}
                           </div>
                         </td>
-                        <td className="p-2.5 border-r border-gray-200 text-gray-600 whitespace-nowrap">
-                          {row.email}
-                        </td>
-                        <td className="p-2.5 border-r border-gray-200 text-gray-700 max-w-[280px]">
-                          <div className="line-clamp-2" title={row.address}>
-                            {row.address}
+                        <td className="p-2.5 border-r border-gray-200 text-gray-900 font-semibold max-w-[260px]">
+                          <div className="line-clamp-2" title={row.products}>
+                            {row.products}
                           </div>
                         </td>
-                        <td className="p-2.5 border-r border-gray-200 text-gray-700 whitespace-nowrap font-medium">
-                          {row.city}
+                        <td className="p-2.5 border-r border-gray-200 font-black text-gray-900 whitespace-nowrap text-right text-sm">
+                          ₹{row.totalAmount}
                         </td>
-                        <td className="p-2.5 border-r border-gray-200 font-mono font-bold text-gray-800 whitespace-nowrap">
-                          {row.pincode}
+                        <td className="p-2.5 border-r border-gray-200 whitespace-nowrap font-bold">
+                          <div className="flex items-center gap-1.5">
+                            <span className={`px-2 py-0.5 rounded text-[11px] font-black tracking-wide ${
+                              row.paymentMethod.includes('COD') 
+                                ? 'bg-amber-100 text-amber-900 border border-amber-300' 
+                                : 'bg-emerald-100 text-emerald-900 border border-emerald-300'
+                            }`}>
+                              {row.paymentMethod.includes('COD') ? 'COD' : 'ONLINE'}
+                            </span>
+                            <span className="text-[10px] text-gray-400 uppercase font-semibold">
+                              ({row.paymentStatus})
+                            </span>
+                          </div>
                         </td>
                         <td className="p-2.5 border-r border-gray-200 whitespace-nowrap">
                           <span className={`px-2 py-0.5 rounded font-extrabold text-[10px] ${
@@ -250,23 +258,22 @@ const ExcelDataViewerModal = ({ isOpen, onClose, orders = [] }) => {
                             {row.status}
                           </span>
                         </td>
-                        <td className="p-2.5 border-r border-gray-200 whitespace-nowrap font-semibold">
-                          <span className={row.paymentMethod === 'COD' ? 'text-amber-700' : 'text-emerald-700'}>
-                            {row.paymentMethod}
-                          </span>
-                          <span className="text-gray-400 mx-1">|</span>
-                          <span className="text-xs text-gray-500">{row.paymentStatus}</span>
-                        </td>
-                        <td className="p-2.5 border-r border-gray-200 font-black text-gray-900 whitespace-nowrap">
-                          ₹{row.totalAmount}
-                        </td>
-                        <td className="p-2.5 border-r border-gray-200 text-gray-800 max-w-[240px]">
-                          <div className="line-clamp-2 font-medium" title={row.products}>
-                            {row.products}
+                        <td className="p-2.5 border-r border-gray-200 text-gray-700 max-w-[280px]">
+                          <div className="line-clamp-2" title={row.address}>
+                            {row.address}
                           </div>
+                        </td>
+                        <td className="p-2.5 border-r border-gray-200 font-mono font-bold text-gray-800 whitespace-nowrap">
+                          {row.pincode}
                         </td>
                         <td className="p-2.5 border-r border-gray-200 font-mono font-bold text-emerald-800 whitespace-nowrap">
                           {row.awb}
+                        </td>
+                        <td className="p-2.5 border-r border-gray-200 text-gray-600 whitespace-nowrap">
+                          {row.email}
+                        </td>
+                        <td className="p-2.5 border-r border-gray-200 text-gray-700 whitespace-nowrap font-medium">
+                          {row.city}
                         </td>
                         <td className="p-2.5 text-gray-700 whitespace-nowrap font-semibold">
                           {row.transportMode}
@@ -280,7 +287,7 @@ const ExcelDataViewerModal = ({ isOpen, onClose, orders = [] }) => {
           </div>
 
           {/* Footer bar */}
-          <div className="p-4 border-t border-gray-200 bg-white flex justify-between items-center">
+          <div className="p-4 border-t border-gray-200 bg-white flex justify-between items-center shrink-0">
             <span className="text-xs text-gray-500 font-medium">
               Showing <strong className="text-gray-900">{filteredRows.length}</strong> of <strong className="text-gray-900">{orders.length}</strong> total orders
             </span>
