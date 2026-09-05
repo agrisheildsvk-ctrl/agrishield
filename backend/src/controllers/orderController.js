@@ -719,6 +719,75 @@ const updateOrderAddress = async (req, res) => {
   }
 };
 
+/**
+ * Delete a single order by ID (Admin)
+ */
+const deleteOrder = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const numericId = parseInt(id, 10);
+
+    let targetOrder = null;
+    if (!isNaN(numericId)) {
+      targetOrder = await prisma.order.findUnique({ where: { id: numericId } });
+    }
+    if (!targetOrder) {
+      targetOrder = await prisma.order.findUnique({ where: { order_id: String(id) } });
+    }
+
+    if (!targetOrder) {
+      return res.status(404).json({
+        success: false,
+        message: 'Order not found.'
+      });
+    }
+
+    await prisma.order.delete({
+      where: { id: targetOrder.id }
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: `Order #${targetOrder.order_id || targetOrder.id} deleted successfully.`
+    });
+  } catch (error) {
+    console.error('Error deleting order:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to delete order: ' + error.message
+    });
+  }
+};
+
+/**
+ * Delete all cancelled orders (Admin Bulk Cleanup)
+ */
+const deleteCancelledOrders = async (req, res) => {
+  try {
+    const deleted = await prisma.order.deleteMany({
+      where: {
+        OR: [
+          { status: { equals: 'cancelled' } },
+          { status: { equals: 'CANCELLED' } },
+          { shipping_status: { equals: 'cancelled' } }
+        ]
+      }
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: `Successfully removed ${deleted.count} cancelled order(s) from database.`,
+      count: deleted.count
+    });
+  } catch (error) {
+    console.error('Error deleting cancelled orders:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to delete cancelled orders: ' + error.message
+    });
+  }
+};
+
 module.exports = {
   createOrder,
   getAllOrders,
@@ -728,5 +797,7 @@ module.exports = {
   getOrderTracking,
   retryShipment,
   cancelOrder,
-  refundOrder
+  refundOrder,
+  deleteOrder,
+  deleteCancelledOrders
 };

@@ -134,6 +134,57 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleDeleteOrder = async (order) => {
+    if (!order) return;
+    const confirmDelete = window.confirm(`Are you sure you want to permanently delete Order #${order.order_id || order.id}?`);
+    if (!confirmDelete) return;
+
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || 'https://agrishield-production-573f.up.railway.app/api';
+      const res = await axios.delete(`${apiUrl}/orders/${order.id}`);
+      if (res.data && res.data.success) {
+        setOrders(prev => prev.filter(o => o.id !== order.id));
+        try {
+          let savedOverrides = JSON.parse(localStorage.getItem('agrishield_order_overrides') || '{}');
+          delete savedOverrides[order.id];
+          localStorage.setItem('agrishield_order_overrides', JSON.stringify(savedOverrides));
+        } catch (e) {}
+        alert(`🗑️ Order #${order.order_id || order.id} permanently deleted.`);
+      }
+    } catch (err) {
+      console.error('Error deleting order:', err);
+      alert('❌ Failed to delete order.');
+    }
+  };
+
+  const handleDeleteAllCancelledOrders = async () => {
+    const cancelledOrders = orders.filter(o => o.status === 'cancelled' || o.status === 'CANCELLED' || o.shipping_status === 'cancelled');
+    if (cancelledOrders.length === 0) {
+      alert('No cancelled orders found to delete.');
+      return;
+    }
+
+    const confirmDelete = window.confirm(`⚠️ Are you sure you want to permanently remove all ${cancelledOrders.length} cancelled order(s) from the database? This action cannot be undone.`);
+    if (!confirmDelete) return;
+
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || 'https://agrishield-production-573f.up.railway.app/api';
+      const res = await axios.delete(`${apiUrl}/orders/cleanup-cancelled`);
+      if (res.data && res.data.success) {
+        setOrders(prev => prev.filter(o => o.status !== 'cancelled' && o.status !== 'CANCELLED' && o.shipping_status !== 'cancelled'));
+        try {
+          let savedOverrides = JSON.parse(localStorage.getItem('agrishield_order_overrides') || '{}');
+          cancelledOrders.forEach(o => delete savedOverrides[o.id]);
+          localStorage.setItem('agrishield_order_overrides', JSON.stringify(savedOverrides));
+        } catch (e) {}
+        alert(`✅ ${res.data.message || 'All cancelled orders removed successfully!'}`);
+      }
+    } catch (err) {
+      console.error('Error deleting cancelled orders:', err);
+      alert('❌ Failed to delete cancelled orders.');
+    }
+  };
+
   const resendWhatsApp = async (orderId) => {
     try {
       const apiUrl = import.meta.env.VITE_API_URL || 'https://agrishield-production-573f.up.railway.app/api';
@@ -451,6 +502,15 @@ const AdminDashboard = () => {
                   >
                     <FiDownload /> Export to Excel
                   </button>
+                  {orders.some(o => o.status === 'cancelled' || o.status === 'CANCELLED' || o.shipping_status === 'cancelled') && (
+                    <button 
+                      onClick={handleDeleteAllCancelledOrders}
+                      className="flex items-center gap-1.5 bg-red-50 text-red-700 hover:bg-red-100 border border-red-200 font-bold px-3 py-1.5 rounded-lg text-xs transition cursor-pointer"
+                      title="Permanently remove all cancelled orders from database"
+                    >
+                      🗑️ Clean Up Cancelled Orders
+                    </button>
+                  )}
                 </div>
               </div>
               
@@ -659,6 +719,14 @@ const AdminDashboard = () => {
                                           </button>
                                         </>
                                       )}
+
+                                      <div className="my-1 border-t border-gray-100" />
+                                      <button
+                                        onClick={() => { setOpenMenuOrderId(null); handleDeleteOrder(order); }}
+                                        className="w-full px-4 py-2 hover:bg-red-100 text-red-700 font-extrabold flex items-center gap-2 cursor-pointer"
+                                      >
+                                        <span>🗑️</span> Delete Order
+                                      </button>
                                     </div>
                                   )}
                                 </div>

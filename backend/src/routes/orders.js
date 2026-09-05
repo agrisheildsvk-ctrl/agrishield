@@ -9,8 +9,14 @@ const {
   getOrderTracking,
   retryShipment,
   cancelOrder,
-  refundOrder
+  refundOrder,
+  deleteOrder,
+  deleteCancelledOrders
 } = require('../controllers/orderController');
+
+// Route to delete all cancelled orders (Admin)
+// DELETE /api/orders/cleanup-cancelled
+router.delete('/cleanup-cancelled', deleteCancelledOrders);
 
 // Route to get logged-in user orders
 // GET /api/orders/my-orders
@@ -23,6 +29,10 @@ router.get('/', getAllOrders);
 // Route to create a new order
 // POST /api/orders
 router.post('/', createOrder);
+
+// Route to delete a single order by ID (Admin)
+// DELETE /api/orders/:id
+router.delete('/:id', deleteOrder);
 
 // Route to fetch tracking information for an order
 // GET /api/orders/:orderId/tracking
