@@ -11,7 +11,7 @@ const logDelhiveryEvent = (eventType, data = {}) => {
 class DelhiveryService {
   constructor() {
     this.apiToken = process.env.DELHIVERY_API_TOKEN || '';
-    this.pickupLocation = process.env.DELHIVERY_PICKUP_LOCATION || 'Shri Veerabhadreshwara Krishi Kendra';
+    this.pickupLocation = process.env.DELHIVERY_PICKUP_LOCATION || 'Shri Veerabhadreshwara Krishi Kendra (Shimoga - 577201)';
     this.baseUrl = process.env.DELHIVERY_BASE_URL || 'https://track.delhivery.com';
   }
 

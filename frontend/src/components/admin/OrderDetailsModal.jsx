@@ -18,7 +18,7 @@ const OrderDetailsModal = ({ isOpen, onClose, order, onStatusChange, onResendWha
   const [packageLength, setPackageLength] = useState(addr.length || '10');
   const [packageWidth, setPackageWidth] = useState(addr.width || '10');
   const [packageHeight, setPackageHeight] = useState(addr.height || '5');
-  const [pickupLocation, setPickupLocation] = useState(addr.pickup_location || 'Shri Veerabhadreshwara Krishi Kendra');
+  const [pickupLocation, setPickupLocation] = useState(addr.pickup_location || 'Shri Veerabhadreshwara Krishi Kendra (Shimoga - 577201)');
 
   useEffect(() => {
     if (order && order.shipping_address) {
@@ -27,7 +27,7 @@ const OrderDetailsModal = ({ isOpen, onClose, order, onStatusChange, onResendWha
       setPackageLength(String(a.length || '10'));
       setPackageWidth(String(a.width || a.breadth || '10'));
       setPackageHeight(String(a.height || '5'));
-      setPickupLocation(a.pickup_location || 'Shri Veerabhadreshwara Krishi Kendra');
+      setPickupLocation(a.pickup_location || 'Shri Veerabhadreshwara Krishi Kendra (Shimoga - 577201)');
     }
   }, [order, isOpen]);
 
