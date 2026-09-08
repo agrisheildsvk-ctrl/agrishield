@@ -9,7 +9,9 @@ const logDelhiveryEvent = (eventType, data = {}) => {
 };
 
 /**
- * Helper to parse package size into weight in KG, multiplier, and display string
+ * Helper to parse package size into weight in KG, multiplier, and display string.
+ * Supports all liquid sizes (50ml, 100ml, 200ml, 250ml, 500ml, 1L, 2L, 5L)
+ * and all solid sizes (50g, 100g, 200g, 250g, 500g, 1kg, 2kg, 5kg, 10kg).
  */
 function parsePackageSize(packageSize) {
   if (!packageSize) return { weightKg: 1, qtyMultiplier: 1, displaySize: '' };
@@ -18,19 +20,44 @@ function parsePackageSize(packageSize) {
   if (match) {
     const val = parseFloat(match[1]);
     const unit = (match[2] || '').toLowerCase();
-    if (unit === 'kg' || unit === 'l' || unit === 'liter' || unit === 'litres') {
+
+    if (unit === 'kg') {
       return { weightKg: val, qtyMultiplier: val, displaySize: String(packageSize).trim() };
+    }
+    if (unit === 'l' || unit === 'liter' || unit === 'litres') {
+      // 1L -> 2 (for 500ml base), 2L -> 4, 5L -> 10
+      return { weightKg: val, qtyMultiplier: val * 2, displaySize: String(packageSize).trim() };
     }
     if (unit === 'g' || unit === 'gm' || unit === 'grams') {
       const kg = val / 1000;
-      return { weightKg: kg, qtyMultiplier: val >= 1000 ? val / 1000 : 1, displaySize: String(packageSize).trim() };
+      let base = 250;
+      if (val === 50) base = 50;
+      else if (val === 100) base = 100;
+      else if (val === 200) base = 200;
+      else if (val === 250) base = 250;
+      else if (val === 500) base = 500;
+      else if (val < 100) base = 50;
+      else if (val < 250) base = 100;
+
+      const mult = val / base;
+      return { weightKg: kg, qtyMultiplier: mult, displaySize: String(packageSize).trim() };
     }
     if (unit === 'ml') {
       const kg = val / 1000;
-      const mult = val === 50 ? 1 : (val === 250 ? 5 : (val === 500 ? 10 : Math.round(val / 50)));
-      return { weightKg: kg, qtyMultiplier: mult > 0 ? mult : 1, displaySize: String(packageSize).trim() };
+      let base = 500;
+      if (val === 50) base = 50;
+      else if (val === 100) base = 100;
+      else if (val === 200) base = 200;
+      else if (val === 250) base = 250;
+      else if (val === 500) base = 500;
+      else if (val < 100) base = 50;
+      else if (val < 200) base = 100;
+      else if (val < 500) base = 250;
+
+      const mult = val / base;
+      return { weightKg: kg, qtyMultiplier: mult, displaySize: String(packageSize).trim() };
     }
-    return { weightKg: val, qtyMultiplier: val, displaySize: String(packageSize).trim() };
+    return { weightKg: val, qtyMultiplier: val || 1, displaySize: String(packageSize).trim() };
   }
   return { weightKg: 1, qtyMultiplier: 1, displaySize: String(packageSize).trim() };
 }

@@ -32,11 +32,81 @@ const sendOrderEmail = async (order) => {
       const priceVal = parseFloat(item.price) || 0;
       const qty = item.quantity || 1;
       const lineTotal = priceVal * qty;
+      const pkg = item.package_size || '';
+
+      let qtyDisplay = `${qty}`;
+      if (pkg) {
+        const match = String(pkg).trim().match(/^([\d.]+)\s*(kg|g|gm|grams|liter|litres|l|ml)?$/i);
+        if (match) {
+          const val = parseFloat(match[1]);
+          const unit = (match[2] || '').toLowerCase();
+          let mult = 1;
+          let sizeUnit = 'Kg';
+          let totalVal = val * qty;
+
+          if (unit === 'kg') {
+            mult = Math.round(val);
+            sizeUnit = 'Kg';
+            totalVal = val * qty;
+          } else if (unit === 'l' || unit === 'liter' || unit === 'litres') {
+            mult = Math.round(val * 2);
+            sizeUnit = 'L';
+            totalVal = val * qty;
+          } else if (unit === 'g' || unit === 'gm' || unit === 'grams') {
+            let base = 250;
+            if (val === 50) base = 50;
+            else if (val === 100) base = 100;
+            else if (val === 200) base = 200;
+            else if (val === 250) base = 250;
+            else if (val === 500) base = 500;
+            else if (val < 100) base = 50;
+            else if (val < 250) base = 100;
+            mult = Math.max(1, Math.round(val / base));
+
+            const totG = val * qty;
+            if (totG >= 1000) {
+              totalVal = totG / 1000;
+              sizeUnit = 'Kg';
+            } else {
+              totalVal = totG;
+              sizeUnit = 'gm';
+            }
+          } else if (unit === 'ml') {
+            let base = 500;
+            if (val === 50) base = 50;
+            else if (val === 100) base = 100;
+            else if (val === 200) base = 200;
+            else if (val === 250) base = 250;
+            else if (val === 500) base = 500;
+            else if (val < 100) base = 50;
+            else if (val < 200) base = 100;
+            else if (val < 500) base = 250;
+            mult = Math.max(1, Math.round(val / base));
+
+            const totMl = val * qty;
+            if (totMl >= 1000) {
+              totalVal = totMl / 1000;
+              sizeUnit = 'L';
+            } else {
+              totalVal = totMl;
+              sizeUnit = 'ml';
+            }
+          } else {
+            mult = Math.round(val) || 1;
+          }
+
+          const effectiveQty = qty * mult;
+          qtyDisplay = `${totalVal} ${sizeUnit} (Pack of ${effectiveQty})`;
+        } else {
+          qtyDisplay = `${qty} (${pkg})`;
+        }
+      }
+
       return `
         <tr>
           <td style="padding: 10px; border-bottom: 1px solid #eee; font-weight: bold; color: #1f2937;">${item.product_name}</td>
-          <td style="padding: 10px; border-bottom: 1px solid #eee; color: #4b5563;">${item.package_size || '1 kg'}</td>
-          <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center; color: #1f2937;">${qty}</td>
+          <td style="padding: 10px; border-bottom: 1px solid #eee; color: #4b5563;">${pkg || 'Standard'}</td>
+          <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center; color: #1f2937; font-weight: bold;">${qtyDisplay}</td>
           <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right; font-weight: bold; color: #16a34a;">₹${lineTotal.toFixed(2)}</td>
         </tr>
       `;
