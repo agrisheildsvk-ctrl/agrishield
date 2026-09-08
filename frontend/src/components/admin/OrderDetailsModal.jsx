@@ -23,7 +23,9 @@ const OrderDetailsModal = ({ isOpen, onClose, order, onStatusChange, onResendWha
   useEffect(() => {
     if (order && order.shipping_address) {
       const a = order.shipping_address;
-      setPackageWeight(String(a.weight || '0.5'));
+      const wVal = a.weight ? parseFloat(a.weight) : (a.weightGrams ? parseFloat(a.weightGrams) / 1000 : 0.5);
+      const displayWeight = wVal > 50 ? String(wVal / 1000) : String(wVal);
+      setPackageWeight(displayWeight);
       setPackageLength(String(a.length || '10'));
       setPackageWidth(String(a.width || a.breadth || '10'));
       setPackageHeight(String(a.height || '5'));
@@ -511,13 +513,15 @@ const OrderDetailsModal = ({ isOpen, onClose, order, onStatusChange, onResendWha
                     {items.map((item, index) => (
                       <div key={index} className="flex items-center gap-4 p-3 bg-gray-50 rounded-xl">
                         <div className="flex-1">
-                          <h4 className="font-bold text-gray-900 line-clamp-1">{item.product_name}</h4>
+                          <h4 className="font-bold text-gray-900 line-clamp-1">
+                            {item.product_name} {item.package_size ? `(${item.package_size})` : ''}
+                          </h4>
                           <div className="text-sm text-gray-500 flex items-center gap-2 mt-1">
                             <span>Qty: <span className="font-bold text-gray-900">{item.quantity}</span></span>
                             {item.package_size && (
                               <>
                                 <span>•</span>
-                                <span>Size: <span className="font-bold text-gray-900">{item.package_size}</span></span>
+                                <span>Size: <span className="font-extrabold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-md border border-emerald-200">{item.package_size}</span></span>
                               </>
                             )}
                           </div>

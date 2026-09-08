@@ -69,7 +69,18 @@ const createDelhiveryShipment = async (req, res) => {
     }
 
     // Merge updated shipping fields if provided in request body
-    if (weight !== undefined) currentAddr.weight = parseFloat(weight) || currentAddr.weight || 0.5;
+    if (weight !== undefined) {
+      const wVal = parseFloat(weight) || 0.5;
+      if (wVal > 50) {
+        // Provided in grams (e.g. 2000)
+        currentAddr.weightGrams = Math.round(wVal);
+        currentAddr.weight = wVal / 1000;
+      } else {
+        // Provided in kg (e.g. 2 or 0.5)
+        currentAddr.weight = wVal;
+        currentAddr.weightGrams = Math.round(wVal * 1000);
+      }
+    }
     if (length !== undefined) currentAddr.length = parseFloat(length) || currentAddr.length || 10;
     if (width !== undefined) currentAddr.width = parseFloat(width) || currentAddr.width || 10;
     if (height !== undefined) currentAddr.height = parseFloat(height) || currentAddr.height || 5;

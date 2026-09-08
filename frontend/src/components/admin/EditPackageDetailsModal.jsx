@@ -22,12 +22,17 @@ const EditPackageDetailsModal = ({ isOpen, onClose, order, onOrderUpdate }) => {
       setBreadth(a.width || a.breadth || a.shipment_width || '10');
       setHeight(a.height || a.shipment_height || '5');
 
-      // Convert kg to grams for display if weight < 10 (e.g. 0.5 kg -> 500 gm)
-      const w = parseFloat(a.weight || 0.5);
-      if (w > 0 && w <= 20) {
-        setWeightGrams(String(Math.round(w * 1000)));
+      if (a.weightGrams) {
+        setWeightGrams(String(a.weightGrams));
+      } else if (a.weight) {
+        const w = parseFloat(a.weight);
+        if (w > 0 && w <= 50) {
+          setWeightGrams(String(Math.round(w * 1000)));
+        } else {
+          setWeightGrams(String(a.weight));
+        }
       } else {
-        setWeightGrams(String(a.weight || '500'));
+        setWeightGrams('500');
       }
     }
     setMessage('');

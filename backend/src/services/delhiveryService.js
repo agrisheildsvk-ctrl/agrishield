@@ -8,11 +8,40 @@ const logDelhiveryEvent = (eventType, data = {}) => {
   console.log(`[DELHIVERY LOG] [${timestamp}] ${eventType}:`, JSON.stringify(data, null, 2));
 };
 
+/**
+ * Helper to parse package size into weight in KG, multiplier, and display string
+ */
+function parsePackageSize(packageSize) {
+  if (!packageSize) return { weightKg: 1, qtyMultiplier: 1, displaySize: '' };
+  const str = String(packageSize).toLowerCase().trim();
+  const match = str.match(/^([\d.]+)\s*(kg|g|gm|grams|liter|litres|l|ml)?$/i);
+  if (match) {
+    const val = parseFloat(match[1]);
+    const unit = (match[2] || '').toLowerCase();
+    if (unit === 'kg' || unit === 'l' || unit === 'liter' || unit === 'litres') {
+      return { weightKg: val, qtyMultiplier: val, displaySize: String(packageSize).trim() };
+    }
+    if (unit === 'g' || unit === 'gm' || unit === 'grams') {
+      const kg = val / 1000;
+      return { weightKg: kg, qtyMultiplier: val >= 1000 ? val / 1000 : 1, displaySize: String(packageSize).trim() };
+    }
+    if (unit === 'ml') {
+      const kg = val / 1000;
+      const mult = val === 50 ? 1 : (val === 250 ? 5 : (val === 500 ? 10 : Math.round(val / 50)));
+      return { weightKg: kg, qtyMultiplier: mult > 0 ? mult : 1, displaySize: String(packageSize).trim() };
+    }
+    return { weightKg: val, qtyMultiplier: val, displaySize: String(packageSize).trim() };
+  }
+  return { weightKg: 1, qtyMultiplier: 1, displaySize: String(packageSize).trim() };
+}
+
 class DelhiveryService {
   constructor() {
     this.apiToken = process.env.DELHIVERY_API_TOKEN || '';
     this.pickupLocation = process.env.DELHIVERY_PICKUP_LOCATION || 'Shri Veerabhadreshwara Krishi Kendra';
     this.baseUrl = process.env.DELHIVERY_BASE_URL || 'https://track.delhivery.com';
+    this.sellerGstin = process.env.DELHIVERY_SELLER_GSTIN || '29APSPA0505K1ZV';
+    this.sellerName = process.env.DELHIVERY_SELLER_NAME || 'SRI VEERABHADRESHWARA KRUSHI KENDRA';
   }
 
   /**
@@ -94,24 +123,53 @@ class DelhiveryService {
       const addressParts = [addr.address, addr.address2, addr.apartment, addr.village].filter(Boolean);
       const addressLine = addressParts.length > 0 ? addressParts.join(', ') : 'Main Road';
 
-      // Order Items summary
+      // Order Items summary with package size explicitly included in product description
       const items = order.items || [];
+      let calculatedWeightKg = 0;
+      let calculatedTotalQty = 0;
+
       const productsDesc = items.length > 0
-        ? items.map(i => `${i.product_name || 'Product'} (Qty: ${i.quantity})`).join(', ')
+        ? items.map(i => {
+            const rawQty = i.quantity || 1;
+            const sizeStr = i.package_size ? String(i.package_size).trim() : '';
+            const parsed = parsePackageSize(sizeStr);
+
+            calculatedWeightKg += (parsed.weightKg * rawQty);
+            const effQty = parsed.qtyMultiplier ? Math.round(rawQty * parsed.qtyMultiplier) : rawQty;
+            calculatedTotalQty += effQty;
+
+            const nameWithVariant = sizeStr ? `${i.product_name || 'Product'} ${sizeStr}` : (i.product_name || 'Product');
+            return `${nameWithVariant} (qty: ${rawQty})`;
+          }).join(', ')
         : 'Agricultural Products';
 
-      const totalQty = items.reduce((sum, item) => sum + (item.quantity || 1), 0);
+      const totalQty = calculatedTotalQty > 0 ? calculatedTotalQty : items.reduce((sum, item) => sum + (item.quantity || 1), 0);
       const isCod = String(order.payment_method || '').toLowerCase() === 'cod';
       const paymentMode = isCod ? 'COD' : 'Prepaid';
       const totalAmount = parseFloat(order.total_amount) || 0;
       const codAmount = isCod ? totalAmount : 0;
 
-      const weightInKg = addr.weight ? String(addr.weight) : '0.5';
+      // Convert weight to grams for Delhivery API (Delhivery API expects weight in grams, e.g. 2000 for 2kg)
+      let weightInGrams = 500;
+      if (addr.weightGrams) {
+        weightInGrams = Math.round(parseFloat(addr.weightGrams));
+      } else if (addr.weight) {
+        const w = parseFloat(addr.weight);
+        if (!isNaN(w) && w > 0) {
+          weightInGrams = w <= 50 ? Math.round(w * 1000) : Math.round(w);
+        }
+      } else if (calculatedWeightKg > 0) {
+        weightInGrams = Math.round(calculatedWeightKg * 1000);
+      }
+
       const lengthCm = addr.length || addr.shipment_length || '';
       const widthCm = addr.width || addr.shipment_width || '';
       const heightCm = addr.height || addr.shipment_height || '';
       const orderPickupLoc = addr.pickup_location || pickupLocation;
       const transportModeStr = String(addr.transport_mode || addr.shipping_mode || '').toLowerCase().includes('express') ? 'Express' : 'Surface';
+
+      const sellerGstin = process.env.DELHIVERY_SELLER_GSTIN || this.sellerGstin || '29APSPA0505K1ZV';
+      const sellerNameStr = process.env.DELHIVERY_SELLER_NAME || this.sellerName || 'SRI VEERABHADRESHWARA KRUSHI KENDRA';
 
       // Construct Delhivery Payload
       const shipmentPayload = {
@@ -131,11 +189,18 @@ class DelhiveryService {
         order_date: order.created_at ? new Date(order.created_at).toISOString() : new Date().toISOString(),
         total_amount: totalAmount,
         quantity: String(totalQty),
-        weight: String(weightInKg),
+        weight: String(weightInGrams),
         shipment_length: lengthCm ? String(lengthCm) : undefined,
         shipment_width: widthCm ? String(widthCm) : undefined,
         shipment_height: heightCm ? String(heightCm) : undefined,
-        pickup_location: orderPickupLoc
+        pickup_location: orderPickupLoc,
+        seller_gst_tin: sellerGstin,
+        seller_name: sellerNameStr,
+        seller_tin: sellerGstin,
+        seller_cst_no: sellerGstin,
+        gst_num: sellerGstin,
+        seller_inv: order.order_id,
+        seller_inv_date: order.created_at ? new Date(order.created_at).toISOString() : new Date().toISOString()
       };
 
       const payload = {
@@ -271,15 +336,27 @@ class DelhiveryService {
       const email = addr.email || '';
 
       const items = order.items || [];
+      let calculatedTotalQty = 0;
       const productsDesc = items.length > 0
-        ? items.map(i => `${i.product_name || 'Product'} (Qty: ${i.quantity})`).join(', ')
+        ? items.map(i => {
+            const rawQty = i.quantity || 1;
+            const sizeStr = i.package_size ? String(i.package_size).trim() : '';
+            const parsed = parsePackageSize(sizeStr);
+            const effQty = parsed.qtyMultiplier ? Math.round(rawQty * parsed.qtyMultiplier) : rawQty;
+            calculatedTotalQty += effQty;
+            const nameWithVariant = sizeStr ? `${i.product_name || 'Product'} ${sizeStr}` : (i.product_name || 'Product');
+            return `${nameWithVariant} (qty: ${rawQty})`;
+          }).join(', ')
         : 'Agricultural Products';
 
-      const totalQty = items.reduce((sum, item) => sum + (item.quantity || 1), 0);
+      const totalQty = calculatedTotalQty > 0 ? calculatedTotalQty : items.reduce((sum, item) => sum + (item.quantity || 1), 0);
       const isCod = String(order.payment_method || '').toLowerCase() === 'cod';
       const paymentMode = isCod ? 'COD' : 'Prepaid';
       const totalAmount = parseFloat(order.total_amount) || 0;
       const codAmount = isCod ? totalAmount : 0;
+
+      const sellerGstin = process.env.DELHIVERY_SELLER_GSTIN || this.sellerGstin || '29APSPA0505K1ZV';
+      const sellerNameStr = process.env.DELHIVERY_SELLER_NAME || this.sellerName || 'SRI VEERABHADRESHWARA KRUSHI KENDRA';
 
       // Payload sent without weight parameter so Delhivery ONE places order in Pending AWB list
       const shipmentPayload = {
@@ -298,7 +375,14 @@ class DelhiveryService {
         order_date: order.created_at ? new Date(order.created_at).toISOString() : new Date().toISOString(),
         total_amount: totalAmount,
         quantity: String(totalQty),
-        pickup_location: pickupLocation
+        pickup_location: pickupLocation,
+        seller_gst_tin: sellerGstin,
+        seller_name: sellerNameStr,
+        seller_tin: sellerGstin,
+        seller_cst_no: sellerGstin,
+        gst_num: sellerGstin,
+        seller_inv: order.order_id,
+        seller_inv_date: order.created_at ? new Date(order.created_at).toISOString() : new Date().toISOString()
       };
 
       const payload = {
