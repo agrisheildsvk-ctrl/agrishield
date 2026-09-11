@@ -17,6 +17,7 @@ const ProductCard = ({ product }) => {
 
   const handleAddToCart = (e) => {
     e.stopPropagation();
+    if (selectedVariant.inStock === false) return;
     addToCart({ 
       ...product, 
       packageSize: selectedVariant.size, 
@@ -29,6 +30,7 @@ const ProductCard = ({ product }) => {
 
   const handleBuyNow = (e) => {
     e.stopPropagation();
+    if (selectedVariant.inStock === false) return;
     addToCart({ 
       ...product, 
       packageSize: selectedVariant.size, 
@@ -159,7 +161,7 @@ const ProductCard = ({ product }) => {
                 >
                   {product.variants.map((v, i) => (
                     <option key={i} value={v.size}>
-                      {v.size} — {v.price}
+                      {v.size} — {v.price} {v.inStock === false ? ' (Not Available)' : ''}
                     </option>
                   ))}
                 </select>
@@ -183,7 +185,7 @@ const ProductCard = ({ product }) => {
             <div>
               <div className="text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-1">PRICE (Incl GST)</div>
               <div className="flex items-end gap-2">
-                <div className="text-2xl font-extrabold text-gray-900 leading-none">
+                <div className={`text-2xl font-extrabold leading-none ${selectedVariant.inStock === false ? 'text-red-600' : 'text-gray-900'}`}>
                   {selectedVariant.price}
                 </div>
                 {selectedVariant.originalPrice && (
@@ -193,29 +195,42 @@ const ProductCard = ({ product }) => {
                 )}
               </div>
             </div>
-            {selectedVariant.discount && (
+            {selectedVariant.inStock === false ? (
+              <span className="text-[11px] font-extrabold text-red-700 bg-red-50 px-2 py-1 rounded-md border border-red-200">
+                Not Available
+              </span>
+            ) : selectedVariant.discount ? (
               <span className="text-[11px] font-bold text-green-700 bg-green-50 px-2 py-1 rounded-md border border-green-200">
                 Save {selectedVariant.discount}%
               </span>
-            )}
+            ) : null}
           </div>
           
-          <div className="flex items-center gap-2">
+          {selectedVariant.inStock === false ? (
             <button 
-              onClick={handleAddToCart}
-              className="flex-1 bg-white border border-primary text-primary hover:bg-green-50 font-bold py-2.5 px-2 rounded-xl shadow-sm transition flex items-center justify-center gap-1 sm:gap-1.5 text-xs sm:text-sm" 
-              aria-label="Add to Cart"
+              onClick={(e) => { e.stopPropagation(); navigate(`/product/${product.slug || product.id}`); }}
+              className="w-full bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 font-bold py-2.5 px-2 rounded-xl text-xs sm:text-sm text-center transition cursor-pointer"
             >
-              <FiShoppingCart className="w-4 h-4" /> <span>Cart</span>
+              ❌ Not Available (View other sizes)
             </button>
-            <button 
-              onClick={handleBuyNow}
-              className="flex-1 bg-accent hover:bg-green-500 text-white font-bold py-2.5 px-2 rounded-xl shadow-md transition text-xs sm:text-sm animate-buy-now" 
-              aria-label="Buy Now"
-            >
-              Buy Now
-            </button>
-          </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={handleAddToCart}
+                className="flex-1 bg-white border border-primary text-primary hover:bg-green-50 font-bold py-2.5 px-2 rounded-xl shadow-sm transition flex items-center justify-center gap-1 sm:gap-1.5 text-xs sm:text-sm" 
+                aria-label="Add to Cart"
+              >
+                <FiShoppingCart className="w-4 h-4" /> <span>Cart</span>
+              </button>
+              <button 
+                onClick={handleBuyNow}
+                className="flex-1 bg-accent hover:bg-green-500 text-white font-bold py-2.5 px-2 rounded-xl shadow-md transition text-xs sm:text-sm animate-buy-now" 
+                aria-label="Buy Now"
+              >
+                Buy Now
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </motion.div>

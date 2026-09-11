@@ -83,6 +83,7 @@ const ProductDetails = () => {
   }
 
   const handleAddToCart = () => {
+    if (selectedVariant.inStock === false) return;
     addToCart({ 
       ...product, 
       packageSize: selectedVariant.size, 
@@ -94,6 +95,7 @@ const ProductDetails = () => {
   };
 
   const handleBuyNow = () => {
+    if (selectedVariant.inStock === false) return;
     addToCart({ 
       ...product, 
       packageSize: selectedVariant.size, 
@@ -219,8 +221,19 @@ const ProductDetails = () => {
                 {selectedVariant.originalPrice && <span className="text-lg text-gray-400 line-through mb-1">MRP {selectedVariant.originalPrice}</span>}
                 {selectedVariant.discount && <span className="text-xs font-bold text-green-700 bg-green-100 px-2 py-1 rounded mb-2">{selectedVariant.discount}% OFF</span>}
               </div>
-              <p className="text-sm text-gray-500 font-medium">
-                Inclusive of all taxes. <span className="text-green-600 font-bold ml-2 inline-flex items-center gap-1"><FiTruck/> Free Delivery</span> • <span className="text-emerald-700 font-bold ml-1">✅ In Stock</span>
+              <p className="text-sm text-gray-500 font-medium flex flex-wrap items-center gap-1.5">
+                <span>Inclusive of all taxes.</span>
+                <span className="text-green-600 font-bold ml-1 inline-flex items-center gap-1"><FiTruck/> Free Delivery</span>
+                <span>•</span>
+                {selectedVariant.inStock === false ? (
+                  <span className="text-red-600 font-extrabold bg-red-50 border border-red-200 px-2.5 py-0.5 rounded-full inline-flex items-center gap-1">
+                    ❌ Not Available
+                  </span>
+                ) : (
+                  <span className="text-emerald-700 font-bold inline-flex items-center gap-1">
+                    ✅ In Stock
+                  </span>
+                )}
               </p>
             </div>
 
@@ -266,7 +279,7 @@ const ProductDetails = () => {
                     >
                       {product.variants.map((v, idx) => (
                         <option key={idx} value={v.size}>
-                          {v.size} — {v.price}
+                          {v.size} — {v.price} {v.inStock === false ? ' (Not Available)' : ''}
                         </option>
                       ))}
                     </select>
@@ -275,20 +288,29 @@ const ProductDetails = () => {
               </div>
 
               {/* Interactive Variant Buttons Grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
+              <div className={`grid grid-cols-2 gap-2.5 ${(product.variants || []).length >= 5 ? 'sm:grid-cols-5' : (product.variants || []).length === 3 ? 'sm:grid-cols-3' : 'sm:grid-cols-4'}`}>
                 {(product.variants || []).map((v, idx) => {
                   const isSelected = selectedVariant.size === v.size;
+                  const isAvailable = v.inStock !== false;
                   return (
                     <div
                       key={idx}
                       onClick={() => setSelectedVariant(v)}
                       className={`border-2 rounded-2xl p-3 cursor-pointer text-center relative transition-all flex flex-col items-center justify-center ${
                         isSelected
-                          ? 'border-primary bg-green-50/80 shadow-md ring-2 ring-primary/20'
-                          : 'border-gray-200 hover:border-primary/50 bg-white hover:bg-gray-50/50'
+                          ? !isAvailable
+                            ? 'border-red-500 bg-red-50/80 shadow-md ring-2 ring-red-500/20'
+                            : 'border-primary bg-green-50/80 shadow-md ring-2 ring-primary/20'
+                          : !isAvailable
+                            ? 'border-red-200 hover:border-red-400 bg-red-50/30 text-gray-600'
+                            : 'border-gray-200 hover:border-primary/50 bg-white hover:bg-gray-50/50'
                       }`}
                     >
-                      {v.badge || v.isBestSeller ? (
+                      {!isAvailable ? (
+                        <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 whitespace-nowrap text-[9px] font-black uppercase px-2 py-0.5 rounded-full shadow-2xs bg-red-600 text-white">
+                          NOT AVAILABLE
+                        </div>
+                      ) : v.badge || v.isBestSeller ? (
                         <div className={`absolute -top-2.5 left-1/2 -translate-x-1/2 whitespace-nowrap text-[9px] font-black uppercase px-2 py-0.5 rounded-full shadow-2xs ${
                           isSelected ? 'bg-primary text-white' : 'bg-emerald-600 text-white'
                         }`}>
@@ -301,17 +323,25 @@ const ProductDetails = () => {
                           {v.discount}% OFF
                         </div>
                       ) : null}
-                      <div className={`text-sm font-extrabold mb-0.5 mt-1 ${isSelected ? 'text-primary' : 'text-gray-900'}`}>
+                      <div className={`text-sm font-extrabold mb-0.5 mt-1 ${
+                        !isAvailable
+                          ? 'text-red-700 font-black'
+                          : (isSelected ? 'text-primary' : 'text-gray-900')
+                      }`}>
                         {v.size}
                       </div>
-                      <div className="text-base font-extrabold text-gray-900">
+                      <div className={`text-base font-extrabold ${!isAvailable ? 'text-red-600 line-through opacity-80' : 'text-gray-900'}`}>
                         {v.price}
                       </div>
-                      {v.originalPrice && (
+                      {!isAvailable ? (
+                        <div className="text-[10px] font-extrabold text-red-600 uppercase mt-0.5">
+                          Not Available
+                        </div>
+                      ) : v.originalPrice ? (
                         <div className="text-[11px] text-gray-400 line-through">
                           ₹{String(v.originalPrice).replace(/[^0-9,.]/g, '')}
                         </div>
-                      )}
+                      ) : null}
                     </div>
                   );
                 })}
@@ -353,20 +383,38 @@ const ProductDetails = () => {
             </div>
 
             {/* Actions */}
-            <div className="flex gap-4 mt-auto">
-              <button 
-                onClick={handleAddToCart}
-                className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-4 rounded-xl shadow-md transition-all transform hover:scale-[1.02]"
-              >
-                Add to Cart
-              </button>
-              <button 
-                onClick={handleBuyNow}
-                className="flex-1 bg-primary hover:bg-primary-dark text-white font-bold py-4 rounded-xl shadow-md transition-all transform hover:scale-[1.02] animate-buy-now"
-              >
-                Buy Now
-              </button>
-            </div>
+            {selectedVariant.inStock === false ? (
+              <div className="flex flex-col sm:flex-row gap-3 mt-auto">
+                <div className="flex-1 bg-red-50 border-2 border-red-300 text-red-700 font-extrabold py-4 px-4 rounded-xl text-center shadow-sm flex items-center justify-center gap-2 text-sm sm:text-base">
+                  <span>❌</span> {selectedVariant.size} Pack Is Currently Not Available
+                </div>
+                <button 
+                  type="button"
+                  onClick={() => {
+                    const availableVariant = product.variants.find(v => v.inStock !== false);
+                    if (availableVariant) setSelectedVariant(availableVariant);
+                  }}
+                  className="bg-primary hover:bg-primary-dark text-white font-bold py-4 px-6 rounded-xl shadow-md transition-all text-sm whitespace-nowrap cursor-pointer hover:scale-[1.02]"
+                >
+                  Choose 3 kg (In Stock) →
+                </button>
+              </div>
+            ) : (
+              <div className="flex gap-4 mt-auto">
+                <button 
+                  onClick={handleAddToCart}
+                  className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-4 rounded-xl shadow-md transition-all transform hover:scale-[1.02]"
+                >
+                  Add to Cart
+                </button>
+                <button 
+                  onClick={handleBuyNow}
+                  className="flex-1 bg-primary hover:bg-primary-dark text-white font-bold py-4 rounded-xl shadow-md transition-all transform hover:scale-[1.02] animate-buy-now"
+                >
+                  Buy Now
+                </button>
+              </div>
+            )}
 
             {/* Trust Badges & Features */}
             <div className="grid grid-cols-3 gap-4 mt-8 pt-6 border-t border-gray-100 text-center">

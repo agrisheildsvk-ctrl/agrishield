@@ -4,8 +4,6 @@ export const products = [
     slug: 'organic-wild-boar-repellent',
     name: 'WILD BOAR',
     category: 'Repellents',
-    price: '₹529',
-    originalPrice: '₹680',
     rating: 4.8,
     reviews: 124,
     discount: 22,
@@ -22,7 +20,7 @@ export const products = [
     price: '₹1,587',
     originalPrice: '₹2,040',
     variants: [
-      { size: '1 kg', price: '₹529', originalPrice: '₹680', discount: 22, isDefault: false },
+      { size: '1 kg', price: '₹529', originalPrice: '₹680', discount: 22, isDefault: false, inStock: false },
       { size: '2 kg', price: '₹1,058', originalPrice: '₹1,360', discount: 22, isDefault: false },
       { size: '3 kg', price: '₹1,587', originalPrice: '₹2,040', discount: 22, isDefault: true, badge: 'BEST SELLER', isBestSeller: true },
       { size: '5 kg', price: '₹2,645', originalPrice: '₹3,400', discount: 22, isDefault: false },
@@ -53,7 +51,6 @@ export const products = [
     variants: [
       { size: '1 kg', price: '₹425', originalPrice: '₹700', discount: 39, isDefault: true },
       { size: '2 kg', price: '₹850', originalPrice: '₹1,400', discount: 39, isDefault: false },
-      { size: '3 kg', price: '₹1,275', originalPrice: '₹2,100', discount: 39, isDefault: false, badge: 'POPULAR' },
       { size: '5 kg', price: '₹2,125', originalPrice: '₹3,500', discount: 39, isDefault: false },
       { size: '10 kg', price: '₹4,250', originalPrice: '₹7,000', discount: 39, isDefault: false },
     ],
@@ -102,7 +99,6 @@ export const products = [
     variants: [
       { size: '1 kg', price: '₹425', originalPrice: '₹700', discount: 39, isDefault: true },
       { size: '2 kg', price: '₹850', originalPrice: '₹1,400', discount: 39, isDefault: false },
-      { size: '3 kg', price: '₹1,275', originalPrice: '₹2,100', discount: 39, isDefault: false, badge: 'POPULAR' },
       { size: '5 kg', price: '₹2,125', originalPrice: '₹3,500', discount: 39, isDefault: false },
       { size: '10 kg', price: '₹4,250', originalPrice: '₹7,000', discount: 39, isDefault: false },
     ],
@@ -129,7 +125,6 @@ export const products = [
     variants: [
       { size: '1 kg', price: '₹425', originalPrice: '₹700', discount: 39, isDefault: true },
       { size: '2 kg', price: '₹850', originalPrice: '₹1,400', discount: 39, isDefault: false },
-      { size: '3 kg', price: '₹1,275', originalPrice: '₹2,100', discount: 39, isDefault: false, badge: 'POPULAR' },
       { size: '5 kg', price: '₹2,125', originalPrice: '₹3,500', discount: 39, isDefault: false },
       { size: '10 kg', price: '₹4,250', originalPrice: '₹7,000', discount: 39, isDefault: false },
     ],
