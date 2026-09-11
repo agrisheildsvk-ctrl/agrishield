@@ -275,27 +275,33 @@ const ProductDetails = () => {
               </div>
 
               {/* Interactive Variant Buttons Grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
                 {(product.variants || []).map((v, idx) => {
                   const isSelected = selectedVariant.size === v.size;
                   return (
                     <div
                       key={idx}
                       onClick={() => setSelectedVariant(v)}
-                      className={`border-2 rounded-2xl p-3.5 cursor-pointer text-center relative transition-all flex flex-col items-center justify-center ${
+                      className={`border-2 rounded-2xl p-3 cursor-pointer text-center relative transition-all flex flex-col items-center justify-center ${
                         isSelected
                           ? 'border-primary bg-green-50/80 shadow-md ring-2 ring-primary/20'
                           : 'border-gray-200 hover:border-primary/50 bg-white hover:bg-gray-50/50'
                       }`}
                     >
-                      {v.discount && (
+                      {v.badge || v.isBestSeller ? (
+                        <div className={`absolute -top-2.5 left-1/2 -translate-x-1/2 whitespace-nowrap text-[9px] font-black uppercase px-2 py-0.5 rounded-full shadow-2xs ${
+                          isSelected ? 'bg-primary text-white' : 'bg-emerald-600 text-white'
+                        }`}>
+                          {v.badge || 'BEST SELLER'}
+                        </div>
+                      ) : v.discount ? (
                         <div className={`absolute -top-2.5 right-2 text-[10px] font-extrabold px-2 py-0.5 rounded-full shadow-2xs ${
                           isSelected ? 'bg-primary text-white' : 'bg-yellow-400 text-gray-900'
                         }`}>
                           {v.discount}% OFF
                         </div>
-                      )}
-                      <div className={`text-sm font-extrabold mb-0.5 ${isSelected ? 'text-primary' : 'text-gray-900'}`}>
+                      ) : null}
+                      <div className={`text-sm font-extrabold mb-0.5 mt-1 ${isSelected ? 'text-primary' : 'text-gray-900'}`}>
                         {v.size}
                       </div>
                       <div className="text-base font-extrabold text-gray-900">

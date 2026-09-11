@@ -197,40 +197,7 @@ const Checkout = () => {
     }
   };
 
-  // If user is NOT logged in, enforce compulsory login before checkout
-  if (!isAuthenticated || !user) {
-    return (
-      <div className="min-h-[75vh] flex flex-col items-center justify-center bg-bg-shop px-4 py-12">
-        <SEO title="Login Required | Agrishield Checkout" description="Please login to place your order on Agrishield India." />
-        <div className="bg-white p-8 sm:p-12 rounded-3xl shadow-xl max-w-md w-full text-center border border-emerald-100">
-          <div className="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6 text-3xl shadow-inner">
-            <FiLock className="w-10 h-10 text-emerald-700" />
-          </div>
-          <span className="inline-block px-3 py-1 bg-amber-100 text-amber-800 text-xs font-extrabold rounded-full mb-3 uppercase tracking-wider">
-            Login Required
-          </span>
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-3">Login to Place Order</h2>
-          <p className="text-gray-600 text-sm mb-8 leading-relaxed font-medium">
-            To ensure your agricultural product order is processed safely and linked to your farmer profile, please log in or register before checking out.
-          </p>
-          <div className="flex flex-col gap-3">
-            <button
-              onClick={() => navigate('/login', { state: { from: { pathname: '/checkout' } } })}
-              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 px-6 rounded-2xl shadow-lg transition-all transform hover:scale-[1.02] flex justify-center items-center gap-2 text-base cursor-pointer"
-            >
-              Log In / Register Now →
-            </button>
-            <Link
-              to="/cart"
-              className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3.5 px-6 rounded-2xl transition-all text-sm"
-            >
-              Return to Cart
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
-  }
+
 
   // If cart is empty and not ordered, redirect to shop
   if (cartItems.length === 0 && !orderPlaced) {
@@ -428,7 +395,35 @@ const Checkout = () => {
 
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Left Column - Forms */}
-          <div className="lg:w-2/3">
+          <div className="lg:w-2/3 flex flex-col gap-6">
+            
+            {/* Login / Guest Status Banner */}
+            {!isAuthenticated || !user ? (
+              <div className="bg-gradient-to-r from-emerald-50 via-green-50 to-emerald-50 border border-emerald-200 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-2xs">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">⚡</span>
+                  <div>
+                    <h4 className="text-sm font-extrabold text-emerald-950">Guest Checkout Enabled</h4>
+                    <p className="text-xs text-emerald-800 font-medium">No login or OTP required! Simply enter your delivery details below to place your order.</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => navigate('/login', { state: { from: { pathname: '/checkout' } } })}
+                  className="text-xs font-bold text-emerald-800 hover:text-emerald-950 underline whitespace-nowrap"
+                >
+                  Log in with OTP for saved details →
+                </button>
+              </div>
+            ) : (
+              <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 flex items-center justify-between gap-3 text-xs font-extrabold text-emerald-900 shadow-2xs">
+                <div className="flex items-center gap-2">
+                  <FiCheckCircle className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+                  <span>Logged in as <strong>{user.name || user.fullName || user.phone}</strong> • Your saved details have been pre-filled.</span>
+                </div>
+              </div>
+            )}
+
             <form id="checkout-form" onSubmit={handlePlaceOrder} className="flex flex-col gap-8">
               
               {/* Shipping Address & Contact Form */}
