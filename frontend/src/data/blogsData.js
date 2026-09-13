@@ -129,7 +129,7 @@ export const blogsData = [
           productHighlight: {
             id: 1,
             name: 'Agrishield Organic Wild Boar Repellent (1 kg)',
-            price: '₹529',
+            price: '₹559',
             originalPrice: '₹680',
             description: '100% Organic, non-lethal, plant-based formula to protect crops, farmlands, and orchards from wild boars and wild pigs.',
             image: '/agrishield-wild-boar-repellent.webp',
@@ -1614,7 +1614,7 @@ export const blogsData = [
           productHighlight: {
             id: 1,
             name: 'Agrishield Organic Wild Boar Repellent Granules (1 kg)',
-            price: '₹529',
+            price: '₹559',
             originalPrice: '₹680',
             description: '100% Organic, non-lethal, plant-based and biodegradable granule formulation to protect agricultural crops from wild boars.',
             image: '/agrishield-wild-boar-repellent.webp',

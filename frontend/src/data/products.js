@@ -20,7 +20,7 @@ export const products = [
     price: '₹1,587',
     originalPrice: '₹2,040',
     variants: [
-      { size: '1 kg', price: '₹529', originalPrice: '₹680', discount: 22, isDefault: false, inStock: false },
+      { size: '1 kg', price: '₹559', originalPrice: '₹680', discount: 18, isDefault: false, inStock: false },
       { size: '2 kg', price: '₹1,058', originalPrice: '₹1,360', discount: 22, isDefault: false },
       { size: '3 kg', price: '₹1,587', originalPrice: '₹2,040', discount: 22, isDefault: true, badge: 'BEST SELLER', isBestSeller: true },
       { size: '5 kg', price: '₹2,645', originalPrice: '₹3,400', discount: 22, isDefault: false },
