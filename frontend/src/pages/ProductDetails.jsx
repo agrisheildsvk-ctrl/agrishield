@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FiStar, FiChevronRight, FiShield, FiTruck, FiCheckCircle, FiGlobe } from 'react-icons/fi';
+import { FiStar, FiChevronRight, FiShield, FiTruck, FiCheckCircle, FiGlobe, FiShoppingCart } from 'react-icons/fi';
 import { FaWhatsapp } from 'react-icons/fa';
 import { useCart } from '../context/CartContext';
 import { useLanguage } from '../context/LanguageContext';
