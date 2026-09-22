@@ -33,6 +33,7 @@ const ProductDetails = () => {
   const [selectedImage, setSelectedImage] = useState(product?.image || '');
   const [selectedThumbIndex, setSelectedThumbIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [justAdded, setJustAdded] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -82,7 +83,7 @@ const ProductDetails = () => {
     );
   }
 
-  const handleAddToCart = () => {
+  const handleAddToCart = (e) => {
     if (selectedVariant.inStock === false) return;
     addToCart({ 
       ...product, 
@@ -90,8 +91,9 @@ const ProductDetails = () => {
       price: selectedVariant.price,
       originalPrice: selectedVariant.originalPrice,
       discount: selectedVariant.discount
-    }, quantity);
-    navigate('/cart');
+    }, quantity, e);
+    setJustAdded(true);
+    setTimeout(() => setJustAdded(false), 2200);
   };
 
   const handleBuyNow = () => {
@@ -279,7 +281,7 @@ const ProductDetails = () => {
                     >
                       {product.variants.map((v, idx) => (
                         <option key={idx} value={v.size}>
-                          {v.size} — {v.price} {v.inStock === false ? ' (Not Available)' : ''}
+                          {v.size} — {v.price} {v.inStock === false ? ' (Not Available - Notify)' : v.badge ? ` (${v.badge})` : ''}
                         </option>
                       ))}
                     </select>
@@ -307,14 +309,14 @@ const ProductDetails = () => {
                       }`}
                     >
                       {!isAvailable ? (
-                        <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 whitespace-nowrap text-[9px] font-black uppercase px-2 py-0.5 rounded-full shadow-2xs bg-red-600 text-white">
-                          NOT AVAILABLE
+                        <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 whitespace-nowrap text-[9px] font-black uppercase px-2 py-0.5 rounded-full shadow-2xs bg-red-600 text-white flex items-center gap-0.5">
+                          <span>🔔</span> NOT AVAILABLE
                         </div>
                       ) : v.badge || v.isBestSeller ? (
                         <div className={`absolute -top-2.5 left-1/2 -translate-x-1/2 whitespace-nowrap text-[9px] font-black uppercase px-2 py-0.5 rounded-full shadow-2xs ${
                           isSelected ? 'bg-primary text-white' : 'bg-emerald-600 text-white'
                         }`}>
-                          {v.badge || 'BEST SELLER'}
+                          {v.badge || 'BEST SALES'}
                         </div>
                       ) : v.discount ? (
                         <div className={`absolute -top-2.5 right-2 text-[10px] font-extrabold px-2 py-0.5 rounded-full shadow-2xs ${
@@ -335,7 +337,7 @@ const ProductDetails = () => {
                       </div>
                       {!isAvailable ? (
                         <div className="text-[10px] font-extrabold text-red-600 uppercase mt-0.5">
-                          Not Available
+                          Notify (Out of Stock)
                         </div>
                       ) : v.originalPrice ? (
                         <div className="text-[11px] text-gray-400 line-through">
@@ -384,28 +386,50 @@ const ProductDetails = () => {
 
             {/* Actions */}
             {selectedVariant.inStock === false ? (
-              <div className="flex flex-col sm:flex-row gap-3 mt-auto">
-                <div className="flex-1 bg-red-50 border-2 border-red-300 text-red-700 font-extrabold py-4 px-4 rounded-xl text-center shadow-sm flex items-center justify-center gap-2 text-sm sm:text-base">
-                  <span>❌</span> {selectedVariant.size} Pack Is Currently Not Available
+              <div className="flex flex-col gap-3 mt-auto">
+                <div className="bg-red-50 border-2 border-red-300 text-red-700 font-extrabold py-3 px-4 rounded-xl text-center shadow-sm flex items-center justify-center gap-2 text-sm sm:text-base">
+                  <span>❌</span> {selectedVariant.size} Pack Is Currently Not Available ({selectedVariant.price})
                 </div>
-                <button 
-                  type="button"
-                  onClick={() => {
-                    const availableVariant = product.variants.find(v => v.inStock !== false);
-                    if (availableVariant) setSelectedVariant(availableVariant);
-                  }}
-                  className="bg-primary hover:bg-primary-dark text-white font-bold py-4 px-6 rounded-xl shadow-md transition-all text-sm whitespace-nowrap cursor-pointer hover:scale-[1.02]"
-                >
-                  Choose 3 kg (In Stock) →
-                </button>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <a 
+                    href={`https://wa.me/919739230638?text=${encodeURIComponent(`Hello Agrishield, please notify me when ${product.name} ${selectedVariant.size} (${selectedVariant.price}) is back in stock.`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-bold py-3.5 px-4 rounded-xl shadow-md transition-all text-center flex items-center justify-center gap-2 text-sm sm:text-base cursor-pointer hover:scale-[1.02]"
+                  >
+                    <span>🔔</span> Notify Me When Available
+                  </a>
+                  <button 
+                    type="button"
+                    onClick={() => {
+                      const availableVariant = product.variants?.find(v => v.inStock !== false && (v.isDefault || v.badge || v.isBestSeller)) || product.variants?.find(v => v.inStock !== false);
+                      if (availableVariant) setSelectedVariant(availableVariant);
+                    }}
+                    className="flex-1 bg-primary hover:bg-primary-dark text-white font-bold py-3.5 px-6 rounded-xl shadow-md transition-all text-sm whitespace-nowrap cursor-pointer hover:scale-[1.02] flex items-center justify-center gap-2"
+                  >
+                    Choose {(product.variants?.find(v => v.inStock !== false && (v.isDefault || v.badge)) || product.variants?.find(v => v.inStock !== false))?.size || '2 kg'} (Best Sales) →
+                  </button>
+                </div>
               </div>
             ) : (
               <div className="flex gap-4 mt-auto">
                 <button 
                   onClick={handleAddToCart}
-                  className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-4 rounded-xl shadow-md transition-all transform hover:scale-[1.02]"
+                  className={`flex-1 font-bold py-4 rounded-xl shadow-md transition-all transform hover:scale-[1.02] flex items-center justify-center gap-2 cursor-pointer ${
+                    justAdded
+                      ? 'bg-emerald-600 text-white'
+                      : 'bg-yellow-500 hover:bg-yellow-600 text-white'
+                  }`}
                 >
-                  Add to Cart
+                  {justAdded ? (
+                    <>
+                      <span className="text-lg font-black">✓</span> Added to Cart!
+                    </>
+                  ) : (
+                    <>
+                      <FiShoppingCart className="w-5 h-5" /> Add to Cart
+                    </>
+                  )}
                 </button>
                 <button 
                   onClick={handleBuyNow}

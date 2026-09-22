@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { FiShoppingCart, FiUser, FiSearch, FiGlobe, FiMenu, FiX, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import { useLanguage } from '../context/LanguageContext';
 import { useCart } from '../context/CartContext';
@@ -7,7 +8,7 @@ import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
   const { language, setLanguage, t } = useLanguage();
-  const { cartItems } = useCart();
+  const { cartItems, isCartBumping } = useCart();
   const { isAuthenticated, user } = useAuth();
   const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -106,12 +107,35 @@ const Navbar = () => {
               </select>
             </div>
 
-            <Link to="/cart" aria-label="Shopping Cart" className="hover:text-primary transition-colors relative flex items-center justify-center gap-1 min-w-[44px] min-h-[44px] p-2">
-              <FiShoppingCart size={22} />
+            <Link 
+              id="navbar-cart-btn" 
+              to="/cart" 
+              aria-label="Shopping Cart" 
+              className="hover:text-primary transition-colors relative flex items-center justify-center gap-1 min-w-[44px] min-h-[44px] p-2"
+            >
+              <motion.div
+                animate={isCartBumping ? { 
+                  scale: [1, 1.45, 0.85, 1.2, 1],
+                  rotate: [0, -12, 12, -6, 0]
+                } : { scale: 1, rotate: 0 }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
+                className={isCartBumping ? "text-primary" : ""}
+              >
+                <FiShoppingCart size={22} />
+              </motion.div>
               {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-secondary text-white text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center">
+                <motion.span 
+                  key={cartCount}
+                  initial={{ scale: 0.6 }}
+                  animate={isCartBumping ? { 
+                    scale: [1, 1.5, 1],
+                    backgroundColor: ['#16a34a', '#10b981', '#16a34a']
+                  } : { scale: 1 }}
+                  transition={{ duration: 0.4 }}
+                  className="absolute -top-1 -right-1 bg-secondary text-white text-[10px] font-black rounded-full h-4 w-4 flex items-center justify-center shadow-sm"
+                >
                   {cartCount}
-                </span>
+                </motion.span>
               )}
             </Link>
 

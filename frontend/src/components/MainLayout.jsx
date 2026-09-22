@@ -4,6 +4,7 @@ import Footer from './Footer';
 import CouponPopup from './CouponPopup';
 import FloatingContact from './FloatingContact';
 import MobileBottomNav from './MobileBottomNav';
+import FlyingCartOverlay from './FlyingCartOverlay';
 
 const MainLayout = () => {
   return (
@@ -16,6 +17,7 @@ const MainLayout = () => {
       <FloatingContact />
       <Footer />
       <MobileBottomNav />
+      <FlyingCartOverlay />
     </div>
   );
 };

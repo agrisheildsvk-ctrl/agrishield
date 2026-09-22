@@ -129,7 +129,7 @@ export const blogsData = [
           productHighlight: {
             id: 1,
             name: 'Agrishield Organic Wild Boar Repellent (1 kg)',
-            price: '₹559',
+            price: '₹565',
             originalPrice: '₹680',
             description: '100% Organic, non-lethal, plant-based formula to protect crops, farmlands, and orchards from wild boars and wild pigs.',
             image: '/agrishield-wild-boar-repellent.webp',
@@ -392,7 +392,7 @@ export const blogsData = [
           productHighlight: {
             id: 3,
             name: 'Agrishield Organic Rat/Squirrel/Rabbit Repellent (1 kg)',
-            price: '₹425',
+            price: '₹545',
             originalPrice: '₹700',
             description: '100% Organic, non-lethal, plant-based and biodegradable formula to protect crops, orchards, and farms from rats, squirrels, and rabbits.',
             image: '/agrishield-rat-squirrel-rabbit-repellent.webp',
@@ -820,7 +820,7 @@ export const blogsData = [
           productHighlight: {
             id: 2,
             name: 'Agrishield Organic Snake Repellent Powder (1 kg)',
-            price: '₹425',
+            price: '₹545',
             originalPrice: '₹700',
             description: '100% Organic, non-lethal, plant-based and biodegradable formula for farm boundary and agriculture protection.',
             image: '/agrishield-organic-snake-repellent.webp',
@@ -1062,7 +1062,7 @@ export const blogsData = [
           productHighlight: {
             id: 3,
             name: 'Agrishield Organic Rat/Squirrel/Rabbit Repellent',
-            price: '₹425',
+            price: '₹545',
             originalPrice: '₹700',
             description: '100% Organic, non-lethal, plant-based and biodegradable formula to protect car engine bays, wiring, and garages from rodents.',
             image: '/agrishield-rat-repellent-spray.webp',
@@ -1333,7 +1333,7 @@ export const blogsData = [
           productHighlight: {
             id: 2,
             name: 'Agrishield Organic Snake Repellent Powder (1 kg)',
-            price: '₹425',
+            price: '₹545',
             originalPrice: '₹700',
             description: '100% Organic, non-lethal, plant-based and biodegradable formula for farm boundary and agriculture protection.',
             image: '/agrishield-organic-snake-repellent.webp',
@@ -1614,7 +1614,7 @@ export const blogsData = [
           productHighlight: {
             id: 1,
             name: 'Agrishield Organic Wild Boar Repellent Granules (1 kg)',
-            price: '₹559',
+            price: '₹565',
             originalPrice: '₹680',
             description: '100% Organic, non-lethal, plant-based and biodegradable granule formulation to protect agricultural crops from wild boars.',
             image: '/agrishield-wild-boar-repellent.webp',
@@ -2692,7 +2692,7 @@ export const blogsData = [
           productHighlight: {
             id: 2,
             name: 'Agrishield Organic Snake Repellent Powder (1 kg)',
-            price: '₹425',
+            price: '₹545',
             originalPrice: '₹700',
             description: '100% Organic, non-lethal, plant-based and biodegradable formula for farm boundary and agriculture protection.',
             image: '/agrishield-organic-snake-repellent.webp',

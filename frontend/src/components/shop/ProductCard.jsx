@@ -12,6 +12,7 @@ const ProductCard = ({ product }) => {
     discount: product.discount || 41
   };
   const [selectedVariant, setSelectedVariant] = useState(defaultVariant);
+  const [justAdded, setJustAdded] = useState(false);
   const { addToCart } = useCart();
   const navigate = useNavigate();
 
@@ -24,8 +25,10 @@ const ProductCard = ({ product }) => {
       price: selectedVariant.price, 
       originalPrice: selectedVariant.originalPrice, 
       discount: selectedVariant.discount 
-    });
-    navigate('/cart');
+    }, 1, e);
+
+    setJustAdded(true);
+    setTimeout(() => setJustAdded(false), 2200);
   };
 
   const handleBuyNow = (e) => {
@@ -37,7 +40,7 @@ const ProductCard = ({ product }) => {
       price: selectedVariant.price, 
       originalPrice: selectedVariant.originalPrice, 
       discount: selectedVariant.discount 
-    });
+    }, 1, e);
     navigate('/checkout');
   };
 
@@ -161,7 +164,7 @@ const ProductCard = ({ product }) => {
                 >
                   {product.variants.map((v, i) => (
                     <option key={i} value={v.size}>
-                      {v.size} — {v.price} {v.inStock === false ? ' (Not Available)' : ''}
+                      {v.size} — {v.price} {v.inStock === false ? ' (Not Available - Notify)' : v.badge ? ` (${v.badge})` : ''}
                     </option>
                   ))}
                 </select>
@@ -197,7 +200,7 @@ const ProductCard = ({ product }) => {
             </div>
             {selectedVariant.inStock === false ? (
               <span className="text-[11px] font-extrabold text-red-700 bg-red-50 px-2 py-1 rounded-md border border-red-200">
-                Not Available
+                Not Available • Notify
               </span>
             ) : selectedVariant.discount ? (
               <span className="text-[11px] font-bold text-green-700 bg-green-50 px-2 py-1 rounded-md border border-green-200">
@@ -209,18 +212,30 @@ const ProductCard = ({ product }) => {
           {selectedVariant.inStock === false ? (
             <button 
               onClick={(e) => { e.stopPropagation(); navigate(`/product/${product.slug || product.id}`); }}
-              className="w-full bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 font-bold py-2.5 px-2 rounded-xl text-xs sm:text-sm text-center transition cursor-pointer"
+              className="w-full bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 font-bold py-2.5 px-2 rounded-xl text-xs sm:text-sm text-center transition cursor-pointer flex items-center justify-center gap-1.5"
             >
-              ❌ Not Available (View other sizes)
+              <span>🔔</span> Not Available (Notify Me)
             </button>
           ) : (
             <div className="flex items-center gap-2">
               <button 
                 onClick={handleAddToCart}
-                className="flex-1 bg-white border border-primary text-primary hover:bg-green-50 font-bold py-2.5 px-2 rounded-xl shadow-sm transition flex items-center justify-center gap-1 sm:gap-1.5 text-xs sm:text-sm" 
+                className={`flex-1 font-bold py-2.5 px-2 rounded-xl shadow-sm transition-all flex items-center justify-center gap-1 sm:gap-1.5 text-xs sm:text-sm cursor-pointer ${
+                  justAdded
+                    ? 'bg-emerald-600 border border-emerald-600 text-white scale-[1.02] shadow-md'
+                    : 'bg-white border border-primary text-primary hover:bg-green-50'
+                }`}
                 aria-label="Add to Cart"
               >
-                <FiShoppingCart className="w-4 h-4" /> <span>Cart</span>
+                {justAdded ? (
+                  <>
+                    <span className="text-sm font-black">✓</span> <span>Added!</span>
+                  </>
+                ) : (
+                  <>
+                    <FiShoppingCart className="w-4 h-4" /> <span>Cart</span>
+                  </>
+                )}
               </button>
               <button 
                 onClick={handleBuyNow}

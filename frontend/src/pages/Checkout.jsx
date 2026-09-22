@@ -211,7 +211,8 @@ const Checkout = () => {
     );
   }
 
-  const finalTotal = Math.max(0, paymentMethod === 'cod' ? baseTotal + 40 - discount : baseTotal - discount);
+  const COD_FEE = 50;
+  const finalTotal = Math.max(0, paymentMethod === 'cod' ? baseTotal + COD_FEE - discount : baseTotal - discount);
 
   const handlePlaceOrder = async (e) => {
     e.preventDefault();
@@ -247,7 +248,7 @@ const Checkout = () => {
         totals: {
           subtotal: baseTotal,
           discount,
-          codFee: paymentMethod === 'cod' ? 40 : 0,
+          codFee: paymentMethod === 'cod' ? COD_FEE : 0,
           total: finalTotal
         },
         shippingAddress: shippingAddressPayload,
@@ -754,7 +755,7 @@ const Checkout = () => {
                 {paymentMethod === 'cod' && (
                   <div className="flex justify-between text-orange-600">
                     <span>Cash on Delivery Fee</span>
-                    <span className="font-bold">₹40.00</span>
+                    <span className="font-bold">₹{COD_FEE.toFixed(2)}</span>
                   </div>
                 )}
               </div>
