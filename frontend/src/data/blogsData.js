@@ -657,7 +657,7 @@ export const blogsData = [
           productHighlight: {
             id: 8,
             name: 'Agrishield Organic Monkey Repellent Nuts (250 gm)',
-            price: '₹350',
+            price: '₹430',
             originalPrice: '₹600',
             description: '100% Organic, non-lethal, plant-based repellent nuts formulation to protect fruit orchards and crops from monkeys.',
             image: '/agrishield-monkey-repellent-nuts.webp',
@@ -1818,7 +1818,7 @@ export const blogsData = [
           productHighlight: {
             id: 4,
             name: 'Agrishield Organic Snail Repellent Powder (1 kg)',
-            price: '₹425',
+            price: '₹525',
             originalPrice: '₹700',
             description: '100% Organic, non-lethal, plant-based and biodegradable formula to protect vegetable crops and gardens from snails and slugs.',
             image: '/agrishield-organic-snail-repellent.webp',
